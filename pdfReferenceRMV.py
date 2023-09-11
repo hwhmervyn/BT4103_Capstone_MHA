@@ -2,7 +2,7 @@ import argparse
 import fitz
 from pdfUtils import find_Reference, remove_reference
 from customExceptions import CannotFindReference
-from removeHeadersFooters import getSpansByPage, remove_header_footer, keepFromTitle
+from removeHeadersFooters import getSpansByPage, remove_header_footer, keepFromTitle, find_header_spans, find_footer_spans, remove_header_footer_size
 
 
 def main(pdf_file_name):
@@ -26,15 +26,21 @@ def main(pdf_file_name):
     doc = output_doc[0]
     txtpgs = [pg.get_textpage() for pg in doc]
     txtpgs = txtpgs[0:pgNo]
-    
+
+    blocksDictByPage = [tp.extractDICT()['blocks'] for tp in txtpgs]
+    spansByPage = getSpansByPage(blocksDictByPage)
+
     pageOne = spansByPage[0]
     pageOne = keepFromTitle(pageOne)
     spansByPage[0] = pageOne
 
-    # Removing Headers & Footers
-    blocksDictByPage = [tp.extractDICT()['blocks'] for tp in txtpgs]
-    spansByPage = getSpansByPage(blocksDictByPage)
-    spansByPage = remove_header_footer(spansByPage)
+    if len(spansByPage) >= 6:
+        referenceRemoved = (output_doc[1] != None)
+        headers = find_header_spans(spansByPage)
+        footers = find_footer_spans(spansByPage)
+        spansByPage = remove_header_footer(spansByPage,headers,footers,referenceRemoved)
+    else:
+        spansByPage = remove_header_footer_size(spansByPage)
     
 
 
