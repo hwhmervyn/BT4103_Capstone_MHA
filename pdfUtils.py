@@ -2,6 +2,18 @@ import re
 import fitz
 from customExceptions import CannotFindReference
 
+def getSpansByPage(listOfBlockByPage, excludeNonText=True):
+  spansByPage = []
+  for page in listOfBlockByPage:
+    spans = []
+    for blk in page:
+      if excludeNonText:
+        if blk['type'] != 0 or len(blk['lines']) == 0: continue
+      spans.extend([span for line in blk['lines'] for span in line['spans']])
+
+    spansByPage.append(spans)
+  return spansByPage
+
 
 def get_block_with_reference_heading(page_blocks):
     pattern = re.compile(r'\breferences?\b', re.IGNORECASE)
@@ -46,3 +58,4 @@ def remove_reference(og_doc, reference_blks, pgNo):
 
 
     return (og_doc,pgNo)
+
