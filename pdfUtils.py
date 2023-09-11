@@ -35,21 +35,14 @@ def find_Reference(doc):
     raise CannotFindReference('Warning: No Reference Found')
 
 
-def remove_reference(og_doc, output_doc, reference_blks, pgNo):
+def remove_reference(og_doc, reference_blks, pgNo):
     source_page = og_doc[pgNo]
-    output_doc.delete_pages(from_page=pgNo, to_page=output_doc.page_count-1)
 
-    _, _, pg_width, pg_height = source_page.rect
-
-    copy_page = output_doc.new_page(
-        pno=-1,
-        width=pg_width,
-        height=pg_height
-    )
     for blk in reference_blks:
         rect = fitz.Rect(*blk[:4])
         source_page.add_redact_annot(rect)
 
     source_page.apply_redactions()
-    copy_page.show_pdf_page(copy_page.rect, og_doc, pno=pgNo)
-    return output_doc
+
+
+    return (og_doc,pgNo)
