@@ -16,9 +16,7 @@ def pdfMain(fileName):
     blocksDictByPage = [tp.extractDICT()['blocks'] for tp in txtpgs]
     spansByPage = getSpansByPage(blocksDictByPage)
 
-    pageOne = spansByPage[0]
-    pageOne = keepFromTitle(pageOne)
-    spansByPage[0] = pageOne
+    spansByPage = keepFromTitle(spansByPage)
 
     if len(spansByPage) >= 6:
         referenceRemoved = (pgNo != None)

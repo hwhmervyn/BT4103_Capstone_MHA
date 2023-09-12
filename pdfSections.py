@@ -2,18 +2,21 @@ import fitz
 fitz.TOOLS.set_small_glyph_heights(True)
 
 
-def keepFromTitle(spans):
-    largestFont = max(spans, key = lambda span: span['size'])['size']
+def keepFromTitle(spansByPage):
+    pageOne = spansByPage[0]
 
-    for i in range(len(spans)):
-        span = spans[i]
+    largestFont = max(pageOne, key = lambda span: span['size'])['size']
+
+    for i in range(len(pageOne)):
+        span = pageOne[i]
         font = span['size']
         if font == largestFont:
-            spans = spans[i:]
+            pageOne = pageOne[i:]
             break
-
+        
+    spansByPage[0] = pageOne
     #print(f"removed {b4-len(block_font)} lines")
-    return spans
+    return spansByPage
 
 def stringEndsOnFullStop(text):
    trailingSpacesRmved = text.strip()
@@ -41,7 +44,7 @@ def aggregateSpansToSections(spans):
       spanText = span['text']
       fontSize = round(span['size'])
       font = span['font']
-      
+
       if isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font):
         section_text = ' '.join(prevSectionText)#.replace('\n','')
         sections.append(section_text)
