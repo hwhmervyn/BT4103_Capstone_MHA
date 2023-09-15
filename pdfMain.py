@@ -4,9 +4,9 @@ from removeHeadersFooters import (
     find_footer_spans, 
     remove_header_footer_size
 )
-from pdfUtils import getSpansByPage
+from pdfUtils import getSpansByPage, keepFromTitle, removeSpecial
 from pdfReferenceRMV import removeReference
-from pdfSections import aggregateSpansToSections, keepFromTitle
+from pdfSections import aggregateSpansToSections
 
 def pdfMain(fileName):
     doc, pgNo = removeReference(fileName)
@@ -26,8 +26,10 @@ def pdfMain(fileName):
     else:
         spansByPage = remove_header_footer_size(spansByPage)
     
-    spans =[ span for pg in spansByPage for span in pg]
+    spans = [ span for pg in spansByPage for span in pg]
+    spans = removeSpecial(spans)
     sections = aggregateSpansToSections(spans)
     return sections
 
+# sections is still very buggy(in progress)
 sections = pdfMain(fileName=" Global Perspective on Psychologists_ and Their Organizations_ Response to a World Crisis.pdf")

@@ -59,3 +59,22 @@ def remove_reference(og_doc, reference_blks, pgNo):
 
     return (og_doc,pgNo)
 
+def keepFromTitle(spansByPage):
+    pageOne = spansByPage[0]
+
+    largestFont = max(pageOne, key = lambda span: span['size'])['size']
+
+    for i in range(len(pageOne)):
+        span = pageOne[i]
+        font = span['size']
+        if font == largestFont:
+            pageOne = pageOne[i:]
+            break
+        
+    spansByPage[0] = pageOne
+    #print(f"removed {b4-len(block_font)} lines")
+    return spansByPage
+
+def removeSpecial(spans):
+  notSuperScript = lambda s: not (s['flags'] & 2 ** 0)
+  return list(filter(notSuperScript, spans))

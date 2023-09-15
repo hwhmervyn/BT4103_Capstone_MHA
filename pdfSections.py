@@ -1,36 +1,20 @@
+import re
 import fitz
 fitz.TOOLS.set_small_glyph_heights(True)
 
+def removeHypenAndJoin(listOfText):
+  text = ' '.join(listOfText)
+  pattern = '\s+-\s*|\s*-\s+'
+  return re.sub(pattern, '', text.strip())
 
-def keepFromTitle(spansByPage):
-    pageOne = spansByPage[0]
-
-    largestFont = max(pageOne, key = lambda span: span['size'])['size']
-
-    for i in range(len(pageOne)):
-        span = pageOne[i]
-        font = span['size']
-        if font == largestFont:
-            pageOne = pageOne[i:]
-            break
-        
-    spansByPage[0] = pageOne
-    #print(f"removed {b4-len(block_font)} lines")
-    return spansByPage
-
-def stringEndsOnFullStop(text):
-   trailingSpacesRmved = text.strip()
-   if len(trailingSpacesRmved) == 0: return False
-   else: return trailingSpacesRmved.strip()[-1] != '.'
-
-def isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font):
+def isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font, prevSpanText, currentSpanText):
   conditions = [
       prevSpanFontSize != fontSize,
       prevSpanFontSize == fontSize and prevSpanFont != font
   ]
   return sum(conditions) > 0
 
-def aggregateSpansToSections(spans):
+def BaseAggregateSpansToSections(spans):
     sections = []
 
     prevSpan = spans[0]
@@ -45,9 +29,8 @@ def aggregateSpansToSections(spans):
       fontSize = round(span['size'])
       font = span['font']
 
-      if isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font):
-        section_text = ' '.join(prevSectionText)#.replace('\n','')
-        sections.append(section_text)
+      if isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font, prevSectionText[-1], spanText):
+        sections.append(prevSectionText)
         section_num += 1
 
         prevSpan = span
@@ -58,6 +41,24 @@ def aggregateSpansToSections(spans):
       else:
         prevSectionText.append(spanText)
 
-    section_text = ' '.join(prevSectionText)#.replace('\n','')
-    sections.append(section_text)
+    sections.append(prevSectionText)
     return sections
+
+def joinIncompleteSections(sections):
+    joinedSections = []
+    numSections = len(sections)
+    prevSection = sections[0]
+    for i in range(1,numSections):
+      nxtSec = sections[i]
+      if prevSection[-1][-1] in (' ', ',', '-',"'", "‘","’",":","(", ")") or nxtSec[0][0] in (' ', ',', '-',"'","‘",".", "’", ":", "(", ")"):
+        prevSection.extend(nxtSec)
+      else:
+        joinedSections.append(removeHypenAndJoin(prevSection))
+        prevSection = nxtSec
+
+    joinedSections.append(removeHypenAndJoin(prevSection))
+    return joinedSections
+
+
+def aggregateSpansToSections(spans):
+  return joinIncompleteSections(BaseAggregateSpansToSections(spans))
