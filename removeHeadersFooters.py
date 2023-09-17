@@ -62,10 +62,11 @@ def remove_header_footer_firstPage(firstPage,secondPage):
     left_border = min([span['bbox'][0] for span in secondPage])
     right_border = max([span['bbox'][2] for span in secondPage])
     bottom_border = max([span['bbox'][3] for span in secondPage])
+    top_border = firstPage[0]['bbox'][1]
 
     for span in range(-1,-len(firstPage),-1):
         bbox = firstPage[span]['bbox']
-        if bbox[2] < left_border or bbox[0] > right_border or bbox[1] > bottom_border:
+        if bbox[2] < left_border or bbox[0] > right_border or bbox[1] > bottom_border or bbox[3] < top_border:
             continue
         else:
             if span == -1:
@@ -96,31 +97,5 @@ def remove_header_footer(span_lst,headers,footers,referenceRemoved):
 
 
 
-# Remove Headers and Footers
-def remove_header_footer_size(span_lst):
-    for page in range(0,len(span_lst)):
-        sizes = [span['size'] for span in span_lst[page]]
-        text_size = statistics.mode(sizes)
-        
-        header_span = 0
-        for span in range(0,len(sizes)):
-            if span < text_size:
-                header_span += 1
-            else:
-                break
-                
-        footer_span = None
-        
-        for span in range(-1,-len(sizes),-1):
-            if sizes[span] != text_size:
-                footer_span = span
-            else:
-                break
 
-        if footer_span == None:
-            span_lst[page] = span_lst[page][header_span:]
-        else:
-            span_lst[page] = span_lst[page][header_span:footer_span:1]
-    
-    return span_lst
 

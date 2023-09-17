@@ -2,8 +2,9 @@ from removeHeadersFooters import (
     remove_header_footer,
     find_header_spans, 
     find_footer_spans, 
-    remove_header_footer_size
+    remove_header_footer_firstPage
 )
+from removeTables import remove_tables
 from pdfUtils import getSpansByPage, keepFromTitle, removeSpecial
 from pdfReferenceRMV import removeReference
 from pdfSections import aggregateSpansToSections
@@ -23,8 +24,10 @@ def pdfMain(fileName):
         headers = find_header_spans(spansByPage)
         footers = find_footer_spans(spansByPage)
         spansByPage = remove_header_footer(spansByPage,headers,footers,referenceRemoved)
+        spansByPage = remove_tables(spansByPage)
     else:
-        spansByPage = remove_header_footer_size(spansByPage)
+        spansByPage = remove_tables(spansByPage)
+        spansByPage[0] = remove_header_footer_firstPage(spansByPage[0],spansByPage[1])
     
     spans = [ span for pg in spansByPage for span in pg]
     spans = removeSpecial(spans)
