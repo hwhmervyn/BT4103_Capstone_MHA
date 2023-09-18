@@ -1,3 +1,6 @@
+import statistics
+import re 
+
 def remove_tables(span_lst):
     page_sizes = []
     span_sizes = []
