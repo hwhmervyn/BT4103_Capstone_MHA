@@ -10,6 +10,8 @@ import base64
 
 st.set_page_config(layout="wide")
 
+
+########################## BACKGROUND IMAGE ##########################
 def get_base64(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
@@ -28,6 +30,8 @@ def set_background(png_file):
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 set_background('images/bg.jpg')
+########################## END BACKGROUND IMAGE ##########################
+
 
 ########################## CSS ##########################
 st.markdown("""
@@ -51,6 +55,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 ########################## END CSS ##########################
 
+
+########################## PAGE CONTENT ##########################
 st.markdown("<h1 style='text-align: center; color: Black;'>Welcome to <br> <p class='research'>research<p class='xpress'>Xpress </p></h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; color: Black;'>Your one-stop protal to synthesis research evidence in a few clicks</h3>", unsafe_allow_html=True)
 st.markdown('#')
@@ -67,6 +73,7 @@ with col4:
 
 st.sidebar.markdown("researchXpress")
 add_logo("images/htpd_logo.jpeg", height=200)
+########################## END PAGE CONTENT ##########################
 
 # TESTING ST.DATAFRAME() & ST.TABLE()
 # df = pd.read_excel('data/combined.xlsx', sheet_name='no duplicates')
