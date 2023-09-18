@@ -45,20 +45,22 @@ def BaseAggregateSpansToSections(spans):
     return sections
 
 def joinIncompleteSections(sections):
-    joinedSections = []
-    numSections = len(sections)
-    prevSection = sections[0]
-    for i in range(1,numSections):
-      nxtSec = sections[i]
-      if prevSection[-1][-1] in (' ', ',', '-',"'", "‘","’",":","(", ")") or nxtSec[0][0] in (' ', ',', '-',"'","‘",".", "’", ":", "(", ")"):
-        prevSection.extend(nxtSec)
-      else:
-        joinedSections.append(removeHypenAndJoin(prevSection))
-        prevSection = nxtSec
+  joinedSections = []
+  numSections = len(sections)
+  prevSection = sections[0]
+  spec_char = "[@_#$%^&*<>}{~:]�•·"
+  for i in range(1,numSections):
+    nxtSec = sections[i]
+    if prevSection[-1][-1] in (' ', ',', '-',"'", "‘","’",":","(", ")","—","–","–","−",'“','”',"…") or nxtSec[0][0] in (' ', ',', '-',"'","‘",".", "’", ":", "(", ")","—","–","–","−",'“','”',"…"):
+      prevSection.extend(nxtSec)
+    elif prevSection[-1][-1] in spec_char or nxtSec[0][0] in spec_char:
+      prevSection.extend(nxtSec)
+    else:
+      joinedSections.append(removeHypenAndJoin(prevSection))
+      prevSection = nxtSec
 
-    joinedSections.append(removeHypenAndJoin(prevSection))
-    return joinedSections
-
+  joinedSections.append(removeHypenAndJoin(prevSection))
+  return joinedSections
 
 def aggregateSpansToSections(spans):
   return joinIncompleteSections(BaseAggregateSpansToSections(spans))
