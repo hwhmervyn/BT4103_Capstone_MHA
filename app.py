@@ -1,4 +1,6 @@
 import streamlit as st
+from streamlit_extras.switch_page_button import switch_page
+
 import pandas as pd
 import numpy as np
 
@@ -12,10 +14,37 @@ st.markdown('#')
 st.markdown("<h4 style='text-align: center; color: Black;'>To get started, click on one of the options below</h3>", unsafe_allow_html=True)
 col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
 with col4:
-    st.button("Upload an excel summary & enter a prompt!")
-    st.button("Upload a zip folder of articles & enter a prompt!")
+    excel_page = st.button("Upload an excel summary & enter a prompt! :excel:")
+    if excel_page:
+        switch_page("excel analysis")
+    pdf_page = st.button("Upload a zip folder of articles & enter a prompt!")
+    if pdf_page:
+        switch_page("pdf analysis")
 
+def add_logo():
+    st.markdown(
+        """
+        <style>
+            [data-testid="stSidebarNav"] {
+                background-image: htpd_logo.jpeg;
+                background-repeat: no-repeat;
+                padding-top: 120px;
+                background-position: 20px 20px;
+            }
+            [data-testid="stSidebarNav"]::before {
+                content: "researchXpress";
+                margin-left: 20px;
+                margin-top: 20px;
+                font-size: 30px;
+                position: relative;
+                top: 100px;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
+add_logo()
 # TESTING ST.DATAFRAME() & ST.TABLE()
 # df = pd.read_excel('data/combined.xlsx', sheet_name='no duplicates')
 # df_no_abstract = df.drop('ABSTRACT', axis=1)
