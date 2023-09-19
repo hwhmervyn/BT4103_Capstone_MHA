@@ -8,9 +8,11 @@ from removeTables import remove_tables
 from pdfUtils import getSpansByPage, keepFromTitle, removeSpecial
 from pdfReferenceRMV import removeReference
 from pdfSections import aggregateSpansToSections
+import fitz
 
-def pdfMain(fileName):
-    doc, pgNo = removeReference(fileName)
+def pdfMain(uploaded_pdf, fileName):
+    doc = fitz.open(stream=uploaded_pdf.read(), filetype="pdf")
+    doc, pgNo = removeReference(doc, fileName)
     txtpgs = [pg.get_textpage() for pg in doc]
     txtpgs = txtpgs[0:pgNo]
 
@@ -35,4 +37,4 @@ def pdfMain(fileName):
     return sections
 
 # sections is still very buggy(in progress)
-sections = pdfMain(fileName="‘You’re Not Alone for China’_ The First Song in Times of COVID-19 to Keep the Faith in a World Crying in Silence.pdf")
+# sections = pdfMain(fileName="‘You’re Not Alone for China’_ The First Song in Times of COVID-19 to Keep the Faith in a World Crying in Silence.pdf")

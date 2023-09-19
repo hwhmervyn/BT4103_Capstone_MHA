@@ -1,11 +1,9 @@
 from langchain.document_loaders import DataFrameLoader
-from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.vectorstores import Chroma
 import pandas as pd
 
 from client import persistent_client, embeddings
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor
 
 def clearCollection():
     try:
@@ -55,10 +53,12 @@ def excelUpload(excelFile):
     futures = abstractFutures + titleFutures
     return (executor, futures)
 
-executor, futures = excelUpload('data/combined.xlsx')
+# executor, futures = excelUpload('data/combined.xlsx')
 
+# from concurrent.futures import as_completed
+# from tqdm import tqdm
 # Below is for testing in debug mode
-with tqdm(total=len(futures)) as pbar:
-    for future in as_completed(futures):
-        result = future.result()
-        pbar.update(1)
+# with tqdm(total=len(futures)) as pbar:
+#     for future in as_completed(futures):
+#         result = future.result()
+#         pbar.update(1)
