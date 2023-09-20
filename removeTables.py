@@ -1,6 +1,20 @@
 import statistics
 import re 
 
+def remove_empty_pages(span_lst):
+    removed_pages = []
+    new_span_lst = []
+    if [] in span_lst:
+        for page in range(0,len(span_lst)):
+            if [] == span_lst[page]:
+                removed_pages.append(page)
+            else:
+                new_span_lst.append(span_lst[page])
+
+        return removed_pages, new_span_lst
+    else:
+        return removed_pages, span_lst
+
 def remove_tables(span_lst):
     page_sizes = []
     span_sizes = []
