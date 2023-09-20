@@ -10,8 +10,11 @@ from pdfReferenceRMV import removeReference
 from pdfSections import aggregateSpansToSections
 import fitz
 
-def pdfMain(uploaded_pdf, fileName):
+def pdfMainST(uploaded_pdf):
     doc = fitz.open(stream=uploaded_pdf.read(), filetype="pdf")
+    return pdfMain(doc, uploaded_pdf.name)
+
+def pdfMain(doc, fileName):
     doc, pgNo = removeReference(doc, fileName)
     txtpgs = [pg.get_textpage() for pg in doc]
     txtpgs = txtpgs[0:pgNo]

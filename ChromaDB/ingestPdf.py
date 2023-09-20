@@ -1,8 +1,16 @@
 from langchain.vectorstores import Chroma
 from client import persistent_client, embeddings
-from pdfMain import pdfMain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from concurrent.futures import ThreadPoolExecutor
+
+import sys, os
+print("path of pdfPage", sys.path[0])
+workingDirectory = os.getcwd()
+
+if workingDirectory not in sys.path: sys.path.append(workingDirectory) 
+
+from pdfMain import pdfMainST
+
 
 def clearCollection():
     try:
@@ -20,7 +28,7 @@ def pdfUpload(listOfPdfs):
     issues = []
     for file in listOfPdfs:
         try:
-            sectionsByFile.append((pdfMain(file, file.name),file.name))
+            sectionsByFile.append((pdfMainST(file),file.name))
         except Exception as e:
             issues.append((e, file.name))
     text_splitter = RecursiveCharacterTextSplitter(

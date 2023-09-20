@@ -1,15 +1,19 @@
 import pandas as pd
 import streamlit as st
-import sys
-import os
-
-sys.path.append('ChromaDB/')
 from concurrent.futures import as_completed
 from time import sleep
 from stqdm import stqdm
 import asyncio
-from ingestPdf import pdfUpload
 
+import sys, os
+# For streamlit the parent directory will the folder in which your root page is at. And this directory will also 
+# be your default working directory
+workingDirectory = os.getcwd()
+print(workingDirectory)
+chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
+sys.path.append(chromaDirectory)
+
+from ingestPdf import pdfUpload
 
 st.header('PDF Analysis')
 
