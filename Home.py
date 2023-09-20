@@ -75,9 +75,6 @@ with col4:
 st.sidebar.markdown("researchXpress")
 add_logo("images/htpd_logo.jpeg", height=200)
 
-bar = st.progress(0)
-time.sleep(5)
-bar.progress(50)
 ########################## END PAGE CONTENT ##########################
 
 # TESTING ST.DATAFRAME() & ST.TABLE()
