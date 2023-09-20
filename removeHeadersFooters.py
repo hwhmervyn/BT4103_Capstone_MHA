@@ -1,7 +1,6 @@
 import statistics
 import re
 
-# Find the index of blocks that are Headers
 def find_header_spans(span_lst):
     dict_header_spans = {}
     # Split between even & odd pages
@@ -91,10 +90,24 @@ def remove_header_footer(span_lst,headers,footers,referenceRemoved):
                 span_lst[page] = remove_header_helper(span_lst,headers,page,'Even')
                 span_lst[page] = remove_footer_helper(span_lst,footers,page,'Even')
 
-    span_lst[0] = remove_header_footer_firstPage(span_lst[0],span_lst[1])
+    second_page_ref = remove_header_footer_firstPage(span_lst[0],span_lst[1])
+    third_page_ref = None
+        
+
+    if second_page_ref != None:
+        span_lst[0] = second_page_ref
+    elif len(span_lst) >= 3:
+        third_page_ref = remove_header_footer_firstPage(span_lst[0],span_lst[2])
+        if third_page_ref != None:
+            span_lst[0] = third_page_ref
+        
 
     return span_lst
 
+
+
+
+              
 
 
 
