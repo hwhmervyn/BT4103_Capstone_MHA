@@ -4,9 +4,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from concurrent.futures import ThreadPoolExecutor
 
 import sys, os
-print("path of pdfPage", sys.path[0])
 workingDirectory = os.getcwd()
-
 if workingDirectory not in sys.path: sys.path.append(workingDirectory) 
 
 from pdfMain import pdfMainST
