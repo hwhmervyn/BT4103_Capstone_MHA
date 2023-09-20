@@ -5,6 +5,7 @@ from PIL import Image
 
 import pandas as pd
 import numpy as np
+import time
 
 import base64
 
@@ -73,6 +74,10 @@ with col4:
 
 st.sidebar.markdown("researchXpress")
 add_logo("images/htpd_logo.jpeg", height=200)
+
+bar = st.progress(0)
+time.sleep(5)
+bar.progress(50)
 ########################## END PAGE CONTENT ##########################
 
 # TESTING ST.DATAFRAME() & ST.TABLE()
