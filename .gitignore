@@ -1,4 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
+
+ChromaDB/db/
+
 .DS_Store
