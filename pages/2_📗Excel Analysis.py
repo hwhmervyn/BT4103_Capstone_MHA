@@ -8,8 +8,11 @@ sys.path.append('ChromaDB/')
 import ingestExcel
 from concurrent.futures import as_completed
 from stqdm import stqdm
+import pandas as pd
+from pathlib import Path
+from io import BytesIO
 
-st.sidebar.markdown("researchXpress")
+st.set_page_config(layout="wide")
 add_logo("images/htpd_logo.jpeg", height=200)
 
 st.markdown("<h1 style='text-align: left; color: Black;'>Excel Analysis</h1>", unsafe_allow_html=True)
@@ -34,7 +37,7 @@ if not st.session_state.filtered:
         button = st.button('Submit')
     
     if button:
-        if input and not uploaded_file:
+        if input and not uploaded_file: 
             st.error("Please upload an excel file")
         elif not input and uploaded_file:
             st.error("Please enter a research prompt")
@@ -43,7 +46,9 @@ if not st.session_state.filtered:
         else:
             progress_text = "Article filtering in progress..."
             loading_bar = st.progress(0, text=progress_text)
+            df = pd.read_excel(uploaded_file, sheet_name='no duplicates') # Remove sheet name during integration
 
+            # Consider using Ming Shi's implementation during integration
             for percent_complete in range(100):
                 time.sleep(0.1)
                 loading_bar.progress(percent_complete, text=progress_text)
@@ -63,5 +68,9 @@ if not st.session_state.filtered:
 
 if st.session_state.filtered:
 
-    st.markdown("<h1 style='text-align: left; color: Black;'>Excel Analysis Result page</h1>", unsafe_allow_html=True)
-            
+    st.subheader("Here are the articles relevant to your prompt:")
+
+    # Display output (To be changed during integration)
+    df = pd.read_excel('data/combined.xlsx', sheet_name='no duplicates')
+    st.download_button(label="Download Excel File", data='data/combined.xlsx', file_name='results.xlsx') 
+    st.dataframe(df, width=3000, height=1000)

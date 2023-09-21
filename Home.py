@@ -10,7 +10,7 @@ import time
 import base64
 
 st.set_page_config(layout="wide")
-
+add_logo("images/htpd_logo.jpeg", height=200)
 
 ########################## BACKGROUND IMAGE ##########################
 def get_base64(bin_file):
@@ -52,6 +52,10 @@ st.markdown("""
     color: green;   
     display:inline;
 }
+
+.icon {
+    
+}
 </style>
 """, unsafe_allow_html=True)
 ########################## END CSS ##########################
@@ -59,21 +63,45 @@ st.markdown("""
 
 ########################## PAGE CONTENT ##########################
 st.markdown("<h1 style='text-align: center; color: Black;'>Welcome to <br> <p class='research'>research<p class='xpress'>Xpress </p></h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: Black;'>Your one-stop protal to synthesis research evidence in a few clicks</h3>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: Black;'>Your one-stop protal to synthesis research evidence in a few clicks</h4>", unsafe_allow_html=True)
 st.markdown('#')
 
-st.markdown("<h4 style='text-align: center; color: Black;'>To get started, click on one of the options below</h3>", unsafe_allow_html=True)
-col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
-with col4:
-    excel_page = st.button(":green_book: Upload an excel summary & enter a prompt!")
-    if excel_page:
-        switch_page("excel analysis")
-    pdf_page = st.button(":open_file_folder: Upload a zip folder of articles & enter a prompt!")
-    if pdf_page:
-        switch_page("pdf analysis")
+########################## OLD CONTENT ##########################
+# st.markdown("<h4 style='text-align: center; color: Black;'>To get started, click on one of the options below</h3>", unsafe_allow_html=True)
+# col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+# with col4:
+#     excel_page = st.button(":green_book: Upload an excel summary & enter a prompt!")
+#     if excel_page:
+#         switch_page("excel analysis")
+#     pdf_page = st.button(":open_file_folder: Upload a zip folder of articles & enter a prompt!")
+#     if pdf_page:
+#         switch_page("pdf analysis")
 
-st.sidebar.markdown("researchXpress")
-add_logo("images/htpd_logo.jpeg", height=200)
+########################## NEW CONTENT ##########################
+sections = [
+    {"icon": "📗", "title": "Excel Analysis", "description": "Filter an excel file of articles with a research prompt and View Results", "steps":["Navigate to 'Excel Analysis' using the sidebar", 
+                                                                                                                                                  "Insert a research prompt and upload an Excel file with a single sheet of articles",
+                                                                                                                                                  "Click Submit and wait for the file to be processed",
+                                                                                                                                                  "View results and download the output"]},
+    {"icon": "📂", "title": "PDF Analysis", "description": "Filder a folder of PDF articles with a research prompt and View Results", "steps":["Navigate to 'PDF Analysis' using the sidebar", 
+                                                                                                                                                  "Insert a research prompt and upload a zip file of PDF articles",
+                                                                                                                                                  "Click Submit and wait for the file to be processed",
+                                                                                                                                                  "View results and download the output"]},
+]
+
+# Display sections in a grid layout
+for section in sections:
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col3:
+        st.header(f"**{section['icon']} {section['title']}**\n{section['description']}")
+        num = 1
+        for step in section['steps']:
+            st.write(f"**{num}.** {step}")
+            num += 1
+    # st.markdown(
+    #     """
+    #     ## <h2 style='text-align: center;'>{} {} <br> <p>{}</p> </h2>
+    #     """.format(section['icon'], section['title'], section['description']), unsafe_allow_html=True)
 
 ########################## END PAGE CONTENT ##########################
 
