@@ -13,7 +13,7 @@ from pathlib import Path
 from io import BytesIO
 
 st.set_page_config(layout="wide")
-add_logo("images/htpd_logo.jpeg", height=200)
+add_logo("images/htpd_text.png", height=100)
 
 st.markdown("<h1 style='text-align: left; color: Black;'>Excel Analysis</h1>", unsafe_allow_html=True)
 
@@ -63,8 +63,6 @@ if not st.session_state.filtered:
             print("done resetting and uploading abstract and title to db")
             st.session_state.filtered = True
             st.write(st.session_state.filtered)
-
-
 
 if st.session_state.filtered:
 

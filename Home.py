@@ -10,7 +10,7 @@ import time
 import base64
 
 st.set_page_config(layout="wide")
-add_logo("images/htpd_logo.jpeg", height=200)
+add_logo("images/htpd_text.png", height=100)
 
 ########################## BACKGROUND IMAGE ##########################
 def get_base64(bin_file):
@@ -33,7 +33,6 @@ def set_background(png_file):
 set_background('images/bg.jpg')
 ########################## END BACKGROUND IMAGE ##########################
 
-
 ########################## CSS ##########################
 st.markdown("""
 <style>
@@ -41,7 +40,7 @@ st.markdown("""
     font-size: 100px;
     font-weight: bold;
     text-align: center;
-    color: blue;
+    color: purple;
     display:inline;
 }
             
@@ -54,17 +53,17 @@ st.markdown("""
 }
 
 .icon {
-    
 }
 </style>
 """, unsafe_allow_html=True)
 ########################## END CSS ##########################
 
-
 ########################## PAGE CONTENT ##########################
-st.markdown("<h1 style='text-align: center; color: Black;'>Welcome to <br> <p class='research'>research<p class='xpress'>Xpress </p></h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: Black;'>Your one-stop protal to synthesis research evidence in a few clicks</h4>", unsafe_allow_html=True)
-st.markdown('#')
+st.markdown("<h1 style='text-align: center; padding-top: 0rem;'><p class='research'>research<p class='xpress'>Xpress </p></h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: Black;'>Your one-stop protal to synthesis research evidence!</h4>", unsafe_allow_html=True)
+st.text("")
+st.text("")
+st.text("")
 
 ########################## OLD CONTENT ##########################
 # st.markdown("<h4 style='text-align: center; color: Black;'>To get started, click on one of the options below</h3>", unsafe_allow_html=True)
@@ -80,9 +79,9 @@ st.markdown('#')
 ########################## NEW CONTENT ##########################
 sections = [
     {"icon": "📗", "title": "Excel Analysis", "description": "Filter an excel file of articles with a research prompt and View Results", "steps":["Navigate to 'Excel Analysis' using the sidebar", 
-                                                                                                                                                  "Insert a research prompt and upload an Excel file with a single sheet of articles",
+                                                                                                                                                  "Insert a research prompt and upload an Excel file containing a sheet of article title and extracts",
                                                                                                                                                   "Click Submit and wait for the file to be processed",
-                                                                                                                                                  "View results and download the output"]},
+                                                                                                                                                  "View results and download the outpust"]},
     {"icon": "📂", "title": "PDF Analysis", "description": "Filder a folder of PDF articles with a research prompt and View Results", "steps":["Navigate to 'PDF Analysis' using the sidebar", 
                                                                                                                                                   "Insert a research prompt and upload a zip file of PDF articles",
                                                                                                                                                   "Click Submit and wait for the file to be processed",
@@ -91,8 +90,8 @@ sections = [
 
 # Display sections in a grid layout
 for section in sections:
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col3:
+    col1, col2, col3 = st.columns([1, 4, 1])
+    with col2:
         st.header(f"**{section['icon']} {section['title']}**\n{section['description']}")
         num = 1
         for step in section['steps']:
