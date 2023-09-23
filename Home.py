@@ -83,21 +83,22 @@ sections = [
     {"icon": "📗", "title": "Excel Analysis", "description": "Filter an excel file of articles with a research prompt and View Results", "steps":["Navigate to 'Excel Analysis' using the sidebar", 
                                                                                                                                                   "Insert a research prompt and upload an Excel file containing a sheet of article title and extracts",
                                                                                                                                                   "Click Submit and wait for the file to be processed",
-                                                                                                                                                  "View results and download the outpust"]},
+                                                                                                                                                  "View filtered results and download the output"]},
     {"icon": "📂", "title": "PDF Analysis", "description": "Filter a folder of PDF articles with a research prompt and View Results", "steps":["Navigate to 'PDF Analysis' using the sidebar", 
                                                                                                                                                   "Insert a research prompt and upload a zip file of PDF articles",
                                                                                                                                                   "Click Submit and wait for the file to be processed",
-                                                                                                                                                  "View results and download the output"]},
+                                                                                                                                                  "View filtered results, extracted findings, and download the output"]},
 ]
 
 # Display sections in a grid layout
-col1, col2, col3 = st.columns([1, 1, 1])
+# col1, col2, col3 = st.columns([1, 1, 1])
+col1, col2, col3 = st.columns([1, 4, 1])
 with col2:
     st.markdown("<h4 style='text-align: center; color: Black; border: 2px solid black; padding: 7px;'>Features & Functionalities</h4>", unsafe_allow_html=True)
     st.text("")
     st.text("")
 
-col1, col2, col3 = st.columns([1, 4, 1])
+# col1, col2, col3 = st.columns([1, 4, 1])
 with col2:
     for section in sections:
         st.subheader(f"**{section['icon']} {section['title']}**\n{section['description']}")
@@ -105,6 +106,8 @@ with col2:
         for step in section['steps']:
             st.write(f"**{num}.** {step}")
             num += 1
+        st.text("")
+
 
     # st.markdown(
     #     """
