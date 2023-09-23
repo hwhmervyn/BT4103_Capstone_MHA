@@ -60,7 +60,9 @@ st.markdown("""
 
 ########################## PAGE CONTENT ##########################
 st.markdown("<h1 style='text-align: center; padding-top: 0rem;'><p class='research'>research<p class='xpress'>Xpress </p></h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: Black;'>Your one-stop protal to synthesis research evidence!</h4>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: Black;'>Synthesize Research Evidence through AI Capabilities</h4>", unsafe_allow_html=True)
+st.text("")
+st.text("")
 st.text("")
 st.text("")
 st.text("")
@@ -82,21 +84,28 @@ sections = [
                                                                                                                                                   "Insert a research prompt and upload an Excel file containing a sheet of article title and extracts",
                                                                                                                                                   "Click Submit and wait for the file to be processed",
                                                                                                                                                   "View results and download the outpust"]},
-    {"icon": "📂", "title": "PDF Analysis", "description": "Filder a folder of PDF articles with a research prompt and View Results", "steps":["Navigate to 'PDF Analysis' using the sidebar", 
+    {"icon": "📂", "title": "PDF Analysis", "description": "Filter a folder of PDF articles with a research prompt and View Results", "steps":["Navigate to 'PDF Analysis' using the sidebar", 
                                                                                                                                                   "Insert a research prompt and upload a zip file of PDF articles",
                                                                                                                                                   "Click Submit and wait for the file to be processed",
                                                                                                                                                   "View results and download the output"]},
 ]
 
 # Display sections in a grid layout
-for section in sections:
-    col1, col2, col3 = st.columns([1, 4, 1])
-    with col2:
-        st.header(f"**{section['icon']} {section['title']}**\n{section['description']}")
+col1, col2, col3 = st.columns([1, 1, 1])
+with col2:
+    st.markdown("<h4 style='text-align: center; color: Black; border: 2px solid black; padding: 7px;'>Features & Functionalities</h4>", unsafe_allow_html=True)
+    st.text("")
+    st.text("")
+
+col1, col2, col3 = st.columns([1, 4, 1])
+with col2:
+    for section in sections:
+        st.subheader(f"**{section['icon']} {section['title']}**\n{section['description']}")
         num = 1
         for step in section['steps']:
             st.write(f"**{num}.** {step}")
             num += 1
+
     # st.markdown(
     #     """
     #     ## <h2 style='text-align: center;'>{} {} <br> <p>{}</p> </h2>

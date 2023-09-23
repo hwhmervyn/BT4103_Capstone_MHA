@@ -16,15 +16,12 @@ st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
 
 st.markdown("<h1 style='text-align: left; color: Black;'>Excel Analysis</h1>", unsafe_allow_html=True)
-
 st.markdown('#')
 
 if 'filtered' not in st.session_state:
     st.session_state.filtered = False
 
-
 if not st.session_state.filtered:
-
     input = st.text_input("Research Prompt", placeholder='Enter your research prompt')
 
     st.markdown('##')
