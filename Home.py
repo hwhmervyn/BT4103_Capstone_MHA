@@ -59,7 +59,7 @@ st.markdown("""
 ########################## END CSS ##########################
 
 ########################## PAGE CONTENT ##########################
-st.markdown("<h1 style='text-align: center; padding-top: 0rem;'><p class='research'>research<p class='xpress'>Xpress </p></h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; padding-top: 0rem;'><p class='research'>research<p class='xpress'>Xpress</p></h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; color: Black;'>Synthesize Research Evidence through AI Capabilities</h4>", unsafe_allow_html=True)
 st.text("")
 st.text("")
@@ -91,14 +91,12 @@ sections = [
 ]
 
 # Display sections in a grid layout
-# col1, col2, col3 = st.columns([1, 1, 1])
 col1, col2, col3 = st.columns([1, 4, 1])
 with col2:
     st.markdown("<h4 style='text-align: center; color: Black; border: 2px solid black; padding: 7px;'>Features & Functionalities</h4>", unsafe_allow_html=True)
     st.text("")
     st.text("")
 
-# col1, col2, col3 = st.columns([1, 4, 1])
 with col2:
     for section in sections:
         st.subheader(f"**{section['icon']} {section['title']}**\n{section['description']}")
