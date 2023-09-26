@@ -5,17 +5,14 @@ from removeHeadersFooters import (
     remove_header_footer_firstPage,
 )
 
-from removeTables import remove_tables, remove_empty_pages
+from removeTables import remove_tables, remove_empty_pages, remove_citations
 from pdfUtils import getSpansByPage, keepFromTitle, removeSpecial
 from pdfReferenceRMV import removeReference
 from pdfSections import aggregateSpansToSections
 import fitz
 
-def pdfMainST(uploaded_pdf):
+def pdfMain(uploaded_pdf, fileName):
     doc = fitz.open(stream=uploaded_pdf.read(), filetype="pdf")
-    return pdfMain(doc, uploaded_pdf.name)
-
-def pdfMain(doc, fileName):
     doc, pgNo = removeReference(doc, fileName)
     txtpgs = [pg.get_textpage() for pg in doc]
     txtpgs = txtpgs[0:pgNo]
@@ -47,6 +44,8 @@ def pdfMain(doc, fileName):
     spans = [ span for pg in spansByPage for span in pg]
     spans = removeSpecial(spans)
     sections = aggregateSpansToSections(spans)
+    sections = remove_citations(sections)
+    
     return sections
 
 # sections is still very buggy(in progress)

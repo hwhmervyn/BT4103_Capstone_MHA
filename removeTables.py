@@ -83,3 +83,12 @@ def remove_tables(span_lst):
             span_lst[page] = span_lst[page][header_span:footer_span:1]
     
     return span_lst
+
+
+def remove_citations(sections):
+    for section_index in range (0,len(sections)):
+        section = re.sub("\(.*?\)","",sections[section_index])
+        section = re.sub("\[.*?\]","",section)
+        section = re.sub(r'\s+', ' ', section)
+        sections[section_index] = section
+    return sections
