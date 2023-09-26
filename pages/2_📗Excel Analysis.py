@@ -59,9 +59,9 @@ if not st.session_state.filtered:
                 
             print("done resetting and uploading abstract and title to db")
             st.session_state.filtered = True
-            st.write(st.session_state.filtered)
+            st.experimental_rerun()
 
-if st.session_state.filtered:
+else:
 
     st.subheader("Here are the articles relevant to your prompt:")
 
@@ -69,3 +69,8 @@ if st.session_state.filtered:
     df = pd.read_excel('data/combined.xlsx', sheet_name='no duplicates')
     st.download_button(label="Download Excel File", data='data/combined.xlsx', file_name='results.xlsx') 
     st.dataframe(df, width=3000, height=1000)
+
+    reupload_button = st.button('Reupload another prompt and excel file')
+    if reupload_button:
+        st.session_state.filtered = False
+        st.experimental_rerun()
