@@ -11,9 +11,9 @@ from pdfReferenceRMV import removeReference
 from pdfSections import aggregateSpansToSections
 import fitz
 
-def pdfMain(uploaded_pdf, fileName):
-    doc = fitz.open(stream=uploaded_pdf.read(), filetype="pdf")
-    doc, pgNo = removeReference(doc, fileName)
+def pdfMain(filePath):
+    doc = fitz.open(filePath)
+    doc, pgNo = removeReference(doc, doc.name)
     txtpgs = [pg.get_textpage() for pg in doc]
     txtpgs = txtpgs[0:pgNo]
 
@@ -47,6 +47,3 @@ def pdfMain(uploaded_pdf, fileName):
     sections = remove_citations(sections)
     
     return sections
-
-# sections is still very buggy(in progress)
-# sections = pdfMain(fileName="‘You’re Not Alone for China’_ The First Song in Times of COVID-19 to Keep the Faith in a World Crying in Silence.pdf")
