@@ -4,25 +4,33 @@ from pdfMain import pdfMain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from concurrent.futures import ThreadPoolExecutor
 
+import sys, os
+workingDirectory = os.getcwd()
+sys.path.append(workingDirectory)
+
 def clearCollection():
     try:
         persistent_client.delete_collection(name="pdf")
     except:
         print('no pdf collection')
 
+def uploadSmallChunk(collection, doc):
+    return collection.add_documents(documents=[doc])
+    
 def uploadSingleDoc(collection, id, doc):
     return collection.add_documents(ids=[id], documents=[doc])
 
-def pdfUpload(listOfPdfs):
+def pdfUpload(listOfPDFfilepaths):
     clearCollection()
 
-    sectionsByFile = [] #[(pdfMain(file),file.name) for file in listOfPdfs]
+    sectionsByFile = []
     issues = []
-    for file in listOfPdfs:
+    for path in listOfPDFfilepaths:
         try:
-            sectionsByFile.append((pdfMain(file, file.name),file.name))
+            sectionsByFile.append((pdfMain(path),path))
         except Exception as e:
-            issues.append((e, file.name))
+            issues.append((e, path))
+
     text_splitter = RecursiveCharacterTextSplitter(
     # Set a really small chunk size, just to show.
     chunk_size = 1250,
@@ -50,7 +58,46 @@ def pdfUpload(listOfPdfs):
     
     return (issues, executor, pdfFutures)
 
+def uploadSmallChunk(collection, doc):
+    return collection.add_documents(documents=[doc])
+    
 
+def smallChunkCollection():
+    langchain_chroma_pdf = Chroma(
+        client=persistent_client,
+        collection_name="pdf",
+        embedding_function=embeddings,
+    )
+
+    try:
+        persistent_client.delete_collection(name="pdf_child")
+    except:
+        print('no pdf collection')
+    
+    persistent_client.get_or_create_collection(name="pdf_child", embedding_function=embeddings)
+
+
+    smaller_chunk_pdf = Chroma(
+        client=persistent_client,
+        collection_name="pdf_child",
+        embedding_function=embeddings,
+    )
+
+    child_splitter = RecursiveCharacterTextSplitter(chunk_size=250,chunk_overlap=10)
+
+    large_docs = langchain_chroma_pdf.get()
+
+    small_chunks = []
+    for large_doc_index in range(0,len(large_docs['ids'])):
+        chunks = child_splitter.create_documents([large_docs['documents'][large_doc_index]], metadatas=[{'fileName':large_docs['metadatas'][large_doc_index]['fileName'],'parentID':large_docs['ids'][large_doc_index]}] * 1)
+        small_chunks.extend(chunks)
+
+    executor = ThreadPoolExecutor(max_workers=5)
+    pdfFutures = [executor.submit(uploadSmallChunk, smaller_chunk_pdf, doc) for doc in small_chunks]
+    
+    return (executor, pdfFutures)
+
+# _, futures = pdfUpload(pdf_files)
 # # Below is for testing in debug mode
 # from tqdm import tqdm
 # from concurrent.futures import ThreadPoolExecutor, as_completed
