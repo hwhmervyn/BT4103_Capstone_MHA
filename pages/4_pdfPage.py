@@ -48,27 +48,31 @@ if not st.session_state.pdf_filtered:
                 extraction_path = "data/"
                 zip.extractall(extraction_path)
 
-            pdfList = glob.glob(os.path.join('data', uploaded_file.name[:-4], '*.pdf'))
+            pdfList = glob.glob(os.path.join('data', uploaded_file.name[:-4], '*.pdf'))#buggy
+            st.write(uploaded_file.name[:-4])
             (issues, executor, futures) = pdfUpload(pdfList)
-            progessBar1 = st.progress(0, text="Uploading main pdf sections:")
             
+            progessBar1 = st.progress(0, text="Uploading main pdf sections:")
             numDone, numFutures = 0, len(futures)
+            PARTS_ALLOCATED_UPLOAD_MAIN = 0.25
             for future in stqdm(as_completed(futures)):
                 result = future.result()
                 numDone += 1
-                progessBar1.progress((numDone/numFutures),text="Uploading main pdf sections:")
+                progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
+                progessBar1.progress(progress,text="Uploading main pdf sections:")
 
-            progessBar1.progress((numDone/numFutures), text="Done uploading main pdf sections")    
+            progessBar1.progress(PARTS_ALLOCATED_UPLOAD_MAIN, text="Done uploading main pdf sections")    
             
-            progessBar2 = st.progress(0, text="Uploading pdf child sections:")
+            PARTS_ALLOCATED_UPLOAD_CHILD = 0.3
             executor, child_futures = smallChunkCollection()
             numDone, numFutures = 0, len(child_futures) 
             for future in stqdm(as_completed(child_futures)):
                 result = future.result()
                 numDone += 1
-                progessBar2.progress((numDone/numFutures), text="Uploading pdf child sections:")
+                progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN + PARTS_ALLOCATED_UPLOAD_MAIN
+                progessBar1.progress(progress, text="Uploading pdf child sections:")
 
-            progessBar2.progress((numDone/numFutures), text="Done uploading pdf child sections") 
+            progessBar1.progress(PARTS_ALLOCATED_UPLOAD_CHILD+PARTS_ALLOCATED_UPLOAD_MAIN, text="Done uploading pdf child sections") 
 
             st.session_state.pdf_filtered = True
 
