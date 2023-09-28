@@ -6,6 +6,7 @@ import glob
 import streamlit as st
 from streamlit_extras.app_logo import add_logo
 from zipfile import ZipFile
+import re
 
 import sys, os
 workingDirectory = os.getcwd()
@@ -47,8 +48,9 @@ if not st.session_state.pdf_filtered:
             with ZipFile(uploaded_file, 'r') as zip:
                 extraction_path = "data/"
                 zip.extractall(extraction_path)
-
-            pdfList = glob.glob(os.path.join('data', uploaded_file.name[:-4], '*.pdf'))#buggy
+                foldername_match = re.search(r'^([^/]+)/', zip.infolist()[0].filename) # Search for folder name in zip file
+                foldername = foldername_match.group(1)
+            pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
             st.write(uploaded_file.name[:-4])
             (issues, executor, futures) = pdfUpload(pdfList)
             
@@ -56,12 +58,14 @@ if not st.session_state.pdf_filtered:
             numDone, numFutures = 0, len(futures)
             PARTS_ALLOCATED_UPLOAD_MAIN = 0.25
             for future in stqdm(as_completed(futures)):
+                print('Start of for loop')
                 result = future.result()
                 numDone += 1
                 progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
+                print('Testing: ', progress)
                 progessBar1.progress(progress,text="Uploading main pdf sections:")
 
-            progessBar1.progress(PARTS_ALLOCATED_UPLOAD_MAIN, text="Done uploading main pdf sections")    
+            # progessBar1.progress(PARTS_ALLOCATED_UPLOAD_MAIN, text="Done uploading main pdf sections")    
             
             PARTS_ALLOCATED_UPLOAD_CHILD = 0.3
             executor, child_futures = smallChunkCollection()
@@ -72,9 +76,15 @@ if not st.session_state.pdf_filtered:
                 progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN + PARTS_ALLOCATED_UPLOAD_MAIN
                 progessBar1.progress(progress, text="Uploading pdf child sections:")
 
-            progessBar1.progress(PARTS_ALLOCATED_UPLOAD_CHILD+PARTS_ALLOCATED_UPLOAD_MAIN, text="Done uploading pdf child sections") 
+            # progessBar1.progress(PARTS_ALLOCATED_UPLOAD_CHILD+PARTS_ALLOCATED_UPLOAD_MAIN, text="Done uploading pdf child sections") 
 
             st.session_state.pdf_filtered = True
+            st.experimental_rerun()
 
 if st.session_state.pdf_filtered:
     st.subheader("Here are the articles relevant to your prompt:")
+
+    reupload_button = st.button('Reupload another prompt and zip file')
+    if reupload_button:
+        st.session_state.pdf_filtered = False
+        st.experimental_rerun()
