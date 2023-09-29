@@ -1,7 +1,9 @@
 import streamlit as st
 from streamlit_extras.app_logo import add_logo
 import time
+import pandas as pd
 
+import os
 from zipfile import ZipFile
 
 st.set_page_config(layout="wide")
@@ -44,7 +46,38 @@ if not st.session_state.pdf_filtered:
                 time.sleep(0.1)
                 loading_bar.progress(percent_complete, text=progress_text)
 
+            print("done resetting and uploading pdfs to db")
             st.session_state.pdf_filtered = True
+            st.experimental_rerun()
 
 if st.session_state.pdf_filtered:
     st.subheader("Here are the articles relevant to your prompt:")
+
+    # Display output (To be changed during integration)
+    data = [['Article 1', 'Finding 1'],['Article 2', 'Finding 2']]
+    df = pd.DataFrame(data, columns=['Title', 'Key Findings'])
+
+    with ZipFile('output/filtered_pdfs.zip', 'w') as zip_object:
+        for folder_name, sub_folders, file_names in os.walk('data/'):
+            for filename in file_names:
+                file_path = os.path.join(folder_name, filename)
+                zip_object.write(file_path, os.path.basename(file_path))
+
+    if os.path.exists('output/filtered_pdfs.zip'):
+        print("Zip file created")
+    else:
+        print("Zip file not created")
+
+    st.download_button(label="Download PDF files", data='output/filtered_pdfs.zip', file_name='filtered_pdfs.zip') 
+    st.dataframe(df, width=3000, height=1000)
+
+    st.markdown('##')
+    st.subheader('Visualised Findings:')
+
+    count_df = df['Title'].groupby(df['Key Findings']).count().reset_index()
+    st.bar_chart(data=count_df, x='Key Findings', y='Title', color=None, width=0, height=0, use_container_width=True)
+    
+    pdf_reupload_button = st.button('Reupload another prompt and zip folder')
+    if pdf_reupload_button:
+        st.session_state.pdf_filtered = False
+        st.experimental_rerun()

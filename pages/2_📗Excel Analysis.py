@@ -67,7 +67,7 @@ else:
 
     # Display output (To be changed during integration)
     df = pd.read_excel('data/combined.xlsx', sheet_name='no duplicates')
-    st.download_button(label="Download Excel File", data='data/combined.xlsx', file_name='results.xlsx') 
+    st.download_button(label="Download Excel file", data='data/combined.xlsx', file_name='results.xlsx') 
     st.dataframe(df, width=3000, height=1000)
 
     reupload_button = st.button('Reupload another prompt and excel file')
