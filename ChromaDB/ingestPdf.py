@@ -46,9 +46,11 @@ def pdfUpload(listOfPDFfilepaths):
 
     sectionChunks = []
     for sections,fileName in sectionsByFile:
-        sections = list(filter(lambda x: len(x.split(" ")) > 100, sections))
-        chunks = text_splitter.create_documents(sections, metadatas=[{'fileName':fileName}]*len(sections))
-        sectionChunks.extend(chunks)
+        sections= list(filter(lambda x: len(x[0].split(" ")) > 100, sections))
+        for section in sections:
+            chunks = text_splitter.create_documents([section[0]], metadatas=[{'fileName':fileName,'pageNum':f"{section[1][0]} to {section[1][1]}"}]*1)
+            sectionChunks.extend(chunks)
+        
 
     persistent_client.get_or_create_collection(name="pdf", embedding_function=embeddings)
 

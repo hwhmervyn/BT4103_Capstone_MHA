@@ -57,9 +57,11 @@ def filter_relevant_pdfs(query):
 # query ="cultural adaptations of pyschological first aid in various countries"
 # relevant_papers = filter_relevant_pdfs(query)
 
-# relevant_chunks_collection = persistent_client.get_collection(name="pdf_relevant")
-# print(relevant_chunks_collection.get(
-#     where={"fileName": "Psychological First Aid_ Objectives, Practicing, Vulnerable Groups and Ethical Rules to Follow.pdf"}
-# ))
- 
+relevant_chunks_collection = persistent_client.get_collection(name="pdf_relevant")
+
+# print(relevant_chunks_collection.peek())
+print(relevant_chunks_collection.get(
+    where={"fileName": "data\\92\\Effectiveness of psychological first aid training for social work students, practitioners and human service professionals in Alberta, Canada.pdf"}
+))
+
 # print("Done")

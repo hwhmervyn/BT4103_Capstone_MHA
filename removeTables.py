@@ -45,7 +45,7 @@ def remove_tables(span_lst):
     size_mode_pct = page_sizes.count(text_mode_size)/len(page_sizes)
     font_mode_pct = fonts_mode_lst.count(font_mode_type)/len(fonts_mode_lst)
 
-    print(f"{size_mode_pct},{font_mode_pct}")
+    # print(f"{size_mode_pct},{font_mode_pct}")
     
     for page in range(0,len(span_lst)):
         header_span = 0
@@ -87,8 +87,19 @@ def remove_tables(span_lst):
 
 def remove_citations(sections):
     for section_index in range (0,len(sections)):
-        section = re.sub("\(.*?\)","",sections[section_index])
+        section = re.sub("\(.*?\)","",sections[section_index][0])
         section = re.sub("\[.*?\]","",section)
         section = re.sub(r'\s+', ' ', section)
-        sections[section_index] = section
+        sections[section_index][0] = section
     return sections
+
+def get_page_num(spansByPage, removed_pages):
+    newSpansByPage = []
+    page_num = 1
+    for page in spansByPage:
+        if (page_num - 1) in removed_pages:
+            page_num += 1
+        newSpansByPage.append((page, page_num))
+        page_num += 1
+
+    return newSpansByPage

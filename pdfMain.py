@@ -5,7 +5,7 @@ from removeHeadersFooters import (
     remove_header_footer_firstPage,
 )
 
-from removeTables import remove_tables, remove_empty_pages, remove_citations
+from removeTables import remove_tables, remove_empty_pages, remove_citations, get_page_num
 from pdfUtils import getSpansByPage, keepFromTitle, removeSpecial
 from pdfReferenceRMV import removeReference
 from pdfSections import aggregateSpansToSections
@@ -40,10 +40,14 @@ def pdfMain(filePath):
                 third_page_ref = remove_header_footer_firstPage(spansByPage[0],spansByPage[2])
                 if third_page_ref != None:
                     spansByPage[0] = third_page_ref
+                    
     
-    spans = [ span for pg in spansByPage for span in pg]
+    
+    spansByPage = get_page_num(spansByPage, removed_pages)
+    spans = [(span,pg[1]) for pg in spansByPage for span in pg[0]]
     spans = removeSpecial(spans)
     sections = aggregateSpansToSections(spans)
     sections = remove_citations(sections)
+
     
     return sections

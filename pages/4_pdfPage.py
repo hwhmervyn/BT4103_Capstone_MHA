@@ -50,7 +50,7 @@ if not st.session_state.pdf_filtered:
             st.error("Please enter a research prompt and upload a zip folder")
         else:
             with ZipFile(uploaded_file, 'r') as zip:
-                extraction_path = "data/"
+                extraction_path = os.path.join(workingDirectory, "data/")
                 zip.extractall(extraction_path)
                 foldername_match = re.search(r'^([^/]+)/', zip.infolist()[0].filename) # Search for folder name in zip file
                 foldername = foldername_match.group(1)
@@ -82,7 +82,7 @@ if not st.session_state.pdf_filtered:
             st.session_state.relevant_papers = list_of_relevant_files
             st.session_state.pdf_filtered = True
             st.experimental_rerun()
-
+            
 if st.session_state.pdf_filtered:
     st.subheader("Here are the articles relevant to your prompt:")
     st.write(st.session_state.relevant_papers)

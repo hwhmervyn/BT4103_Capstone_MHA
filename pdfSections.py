@@ -15,51 +15,62 @@ def isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font, prevSpanText, 
   return sum(conditions) > 0
 
 def BaseAggregateSpansToSections(spans):
-    sections = []
+  sections = []
 
-    prevSpan = spans[0]
-    prevSectionText = [prevSpan['text']] #only concat text at the end of each section
-    prevSpanFontSize = round(prevSpan['size'])
-    prevSpanFont = prevSpan['font']
-    section_num = 0
+  prevSpan = spans[0][0]
+  prevSectionText = [prevSpan['text']] #only concat text at the end of each section
+  prevSpanFontSize = round(prevSpan['size'])
+  prevSpanFont = prevSpan['font']
+  section_num = 0
+  prevPage = [spans[0][1]]
 
-    for i in range(1, len(spans)):
-      span = spans[i]
-      spanText = span['text']
-      fontSize = round(span['size'])
-      font = span['font']
+  for i in range(1, len(spans)):
+    span = spans[i][0]
+    spanText = span['text']
+    fontSize = round(span['size'])
+    font = span['font']
 
-      if isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font, prevSectionText[-1], spanText):
-        sections.append(prevSectionText)
-        section_num += 1
+    if isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font, prevSectionText[-1], spanText):
+      sections.append((prevSectionText,prevPage))
+      section_num += 1
 
-        prevSpan = span
-        prevSectionText = [spanText]
-        prevSpanFontSize =  fontSize
-        prevSpanFont = font
+      prevSpan = span
+      prevSectionText = [spanText]
+      prevSpanFontSize =  fontSize
+      prevSpanFont = font
+      prevPage = [spans[i][1]]
 
-      else:
-        prevSectionText.append(spanText)
+    else:
+      prevSectionText.append(spanText)
+      if spans[i][1] not in prevPage:
+        prevPage.append(spans[i][1]) 
 
-    sections.append(prevSectionText)
-    return sections
+  sections.append((prevSectionText,prevPage))
+  return sections
 
 def joinIncompleteSections(sections):
   joinedSections = []
   numSections = len(sections)
-  prevSection = sections[0]
+  prevSection = sections[0][0]
   spec_char = "[@_#$%^&*<>}{~:]�•·"
+  prevPage = [sections[0][1][0],sections[0][1][-1]]
   for i in range(1,numSections):
-    nxtSec = sections[i]
+    nxtSec = sections[i][0]
+    nxtPage = [sections[i][1][0],sections[i][1][-1]]
     if prevSection[-1][-1] in (' ', ',', '-',"'", "‘","’",":","(", ")","—","–","–","−",'“','”',"…") or nxtSec[0][0] in (' ', ',', '-',"'","‘",".", "’", ":", "(", ")","—","–","–","−",'“','”',"…"):
       prevSection.extend(nxtSec)
+      if prevPage[1] < nxtPage[1]:
+        prevPage[1] = nxtPage[1]
     elif prevSection[-1][-1] in spec_char or nxtSec[0][0] in spec_char:
       prevSection.extend(nxtSec)
+      if prevPage[1] < nxtPage[1]:
+        prevPage[1] = nxtPage[1]
     else:
-      joinedSections.append(removeHypenAndJoin(prevSection))
+      joinedSections.append([removeHypenAndJoin(prevSection),prevPage])
       prevSection = nxtSec
+      prevPage = nxtPage
 
-  joinedSections.append(removeHypenAndJoin(prevSection))
+  joinedSections.append([removeHypenAndJoin(prevSection),prevPage])
   return joinedSections
 
 def aggregateSpansToSections(spans):

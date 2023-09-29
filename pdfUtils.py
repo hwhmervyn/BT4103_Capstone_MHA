@@ -76,5 +76,5 @@ def keepFromTitle(spansByPage):
     return spansByPage
 
 def removeSpecial(spans):
-  notSuperScript = lambda s: not (s['flags'] & 2 ** 0)
+  notSuperScript = lambda s: not (s[0]['flags'] & 2 ** 0)
   return list(filter(notSuperScript, spans))
