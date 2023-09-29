@@ -7,8 +7,6 @@ import pandas as pd
 
 from client import persistent_client, embeddings
 
-query ="cultural adaptations of pyschological first aid in various countries"
-
 def filter_relevant_pdfs(query):    
     langchain_chroma_pdf = Chroma(
         client=persistent_client,
@@ -54,11 +52,14 @@ def filter_relevant_pdfs(query):
                                 embeddings = relevant_chunks['embeddings'])
     return papers
 
-relevant_papers = filter_relevant_pdfs(query)
 
-relevant_chunks_collection = persistent_client.get_collection(name="pdf_relevant")
-print(relevant_chunks_collection.get(
-    where={"fileName": "Psychological First Aid_ Objectives, Practicing, Vulnerable Groups and Ethical Rules to Follow.pdf"}
-))
+## TEST
+# query ="cultural adaptations of pyschological first aid in various countries"
+# relevant_papers = filter_relevant_pdfs(query)
+
+# relevant_chunks_collection = persistent_client.get_collection(name="pdf_relevant")
+# print(relevant_chunks_collection.get(
+#     where={"fileName": "Psychological First Aid_ Objectives, Practicing, Vulnerable Groups and Ethical Rules to Follow.pdf"}
+# ))
  
-print("Done")
+# print("Done")
