@@ -14,6 +14,11 @@ def clearCollection():
     except:
         print('no pdf collection')
 
+    try:
+        persistent_client.delete_collection(name="pdf_child")
+    except:
+        print('no pdf_child collection')
+
 def uploadSmallChunk(collection, doc):
     return collection.add_documents(documents=[doc])
     
@@ -63,21 +68,15 @@ def uploadSmallChunk(collection, doc):
     
 
 def smallChunkCollection():
+    persistent_client.get_or_create_collection(name="pdf_child", embedding_function=embeddings)
+    
     langchain_chroma_pdf = Chroma(
         client=persistent_client,
         collection_name="pdf",
         embedding_function=embeddings,
     )
 
-    try:
-        persistent_client.delete_collection(name="pdf_child")
-    except:
-        print('no pdf collection')
-    
-    persistent_client.get_or_create_collection(name="pdf_child", embedding_function=embeddings)
-
-
-    smaller_chunk_pdf = Chroma(
+    langchain_chroma_child_pdf  = Chroma(
         client=persistent_client,
         collection_name="pdf_child",
         embedding_function=embeddings,
@@ -93,7 +92,7 @@ def smallChunkCollection():
         small_chunks.extend(chunks)
 
     executor = ThreadPoolExecutor(max_workers=5)
-    pdfFutures = [executor.submit(uploadSmallChunk, smaller_chunk_pdf, doc) for doc in small_chunks]
+    pdfFutures = [executor.submit(uploadSmallChunk, langchain_chroma_child_pdf, doc) for doc in small_chunks]
     
     return (executor, pdfFutures)
 
