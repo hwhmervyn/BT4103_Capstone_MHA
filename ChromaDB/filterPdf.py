@@ -54,14 +54,17 @@ def filter_relevant_pdfs(query):
 
 
 ## TEST
-# query ="cultural adaptations of pyschological first aid in various countries"
+# query ="effects of cannabis"
 # relevant_papers = filter_relevant_pdfs(query)
 
-relevant_chunks_collection = persistent_client.get_collection(name="pdf_relevant")
+# relevant_chunks_collection = persistent_client.get_collection(name="pdf_relevant")
 
 # print(relevant_chunks_collection.peek())
-print(relevant_chunks_collection.get(
-    where={"fileName": "data\\92\\Effectiveness of psychological first aid training for social work students, practitioners and human service professionals in Alberta, Canada.pdf"}
-))
+# print(relevant_chunks_collection.get(
+#     where={"fileName": "data\\92\\Effectiveness of psychological first aid training for social work students, practitioners and human service professionals in Alberta, Canada.pdf"}
+# ))
 
 # print("Done")
+
+
+# print(persistent_client.get_or_create_collection(name="pdf_child").get())
