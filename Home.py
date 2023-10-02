@@ -81,7 +81,7 @@ st.text("")
 ########################## NEW CONTENT ##########################
 sections = [
     {"icon": "📗", "title": "Excel Analysis", "description": "Filter an excel file of articles with a research prompt and View Results", "steps":["Navigate to 'Excel Analysis' using the sidebar", 
-                                                                                                                                                  "Insert a research prompt and upload an Excel file containing a sheet of article title and extracts",
+                                                                                                                                                  "Insert a research prompt and upload an Excel file containing a sheet of article title, abtracts, DOI and database",
                                                                                                                                                   "Click Submit and wait for the file to be processed",
                                                                                                                                                   "View filtered results and download the output"]},
     {"icon": "📂", "title": "PDF Analysis", "description": "Filter a folder of PDF articles with a research prompt and View Results", "steps":["Navigate to 'PDF Analysis' using the sidebar", 
