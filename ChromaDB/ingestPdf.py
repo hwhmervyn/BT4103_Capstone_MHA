@@ -1,6 +1,6 @@
 from langchain.vectorstores import Chroma
 from client import persistent_client, embeddings
-from pdfMain import pdfMain
+from data_preprocessing.pdfMain import pdfMain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from concurrent.futures import ThreadPoolExecutor
 

@@ -1,14 +1,14 @@
-from removeHeadersFooters import (
+from data_preprocessing.removeHeadersFooters import (
     remove_header_footer,
     find_header_spans, 
     find_footer_spans, 
     remove_header_footer_firstPage,
 )
 
-from removeTables import remove_tables, remove_empty_pages, remove_citations, get_page_num
-from pdfUtils import getSpansByPage, keepFromTitle, removeSpecial
-from pdfReferenceRMV import removeReference
-from pdfSections import aggregateSpansToSections
+from data_preprocessing.removeTables import remove_tables, remove_empty_pages, remove_citations, get_page_num
+from data_preprocessing.pdfUtils import getSpansByPage, keepFromTitle, removeSpecial
+from data_preprocessing.pdfReferenceRMV import removeReference
+from data_preprocessing.pdfSections import aggregateSpansToSections
 import fitz
 
 def pdfMain(filePath):

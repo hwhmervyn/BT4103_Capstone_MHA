@@ -54,7 +54,7 @@ def filter_relevant_pdfs(query):
 
 
 ## TEST
-# query ="effects of cannabis"
+# query ="cultural application of pychological first-aid in various countries"
 # relevant_papers = filter_relevant_pdfs(query)
 
 # relevant_chunks_collection = persistent_client.get_collection(name="pdf_relevant")

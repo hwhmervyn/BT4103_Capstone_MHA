@@ -1,6 +1,6 @@
 import re
 import fitz
-from customExceptions import CannotFindReference
+from data_preprocessing.customExceptions import CannotFindReference
 
 def getSpansByPage(listOfBlockByPage, excludeNonText=True):
   spansByPage = []
