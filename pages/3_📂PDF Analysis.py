@@ -51,6 +51,24 @@ if not st.session_state.pdf_filtered:
             st.experimental_rerun()
 
 if st.session_state.pdf_filtered:
+    new_input = st.text_input("Enter another research prompt to process the same files:", placeholder='Enter another research prompt to process the same files')
+    prompt_reupload_button = st.button('Process files with new prompt')
+
+    if prompt_reupload_button:
+        if not new_input:
+            st.error("Please enter a new research prompt")
+        else:
+            progress_text = "Article analysis in progress..."
+            loading_bar = st.progress(0, text=progress_text)
+
+            for percent_complete in range(100):
+                time.sleep(0.1)
+                loading_bar.progress(percent_complete, text=progress_text)
+
+            print("done resetting and uploading pdfs to db")
+            st.session_state.pdf_filtered = True
+            st.experimental_rerun()
+
     st.subheader("Here are the articles relevant to your prompt:")
 
     # Display output (To be changed during integration)
@@ -77,6 +95,7 @@ if st.session_state.pdf_filtered:
     count_df = df['Title'].groupby(df['Key Findings']).count().reset_index()
     st.bar_chart(data=count_df, x='Key Findings', y='Title', color=None, width=0, height=0, use_container_width=True)
     
+    col1, col2, col3 , col4, col5 = st.columns(5)
     pdf_reupload_button = st.button('Reupload another prompt and zip folder')
     if pdf_reupload_button:
         st.session_state.pdf_filtered = False
