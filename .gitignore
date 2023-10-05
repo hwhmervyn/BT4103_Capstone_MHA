@@ -8,3 +8,5 @@ ChromaDB/__pycache__/
 data/
 
 .env
+
+output/
