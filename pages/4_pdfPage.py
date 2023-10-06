@@ -59,7 +59,7 @@ if not st.session_state.pdf_filtered:
             
             pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
             st.write(uploaded_file.name[:-4])
-            (issues, executor, futures) = pdfUpload(pdfList)
+            issues, executor, futures = pdfUpload(pdfList)
             
             progessBar1 = st.progress(0, text="Uploading main pdf sections:")
             numDone, numFutures = 0, len(futures)
