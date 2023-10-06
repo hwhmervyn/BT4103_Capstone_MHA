@@ -1,4 +1,3 @@
-from langchain.vectorstores import Chroma
 import chromaUtils
 from data_preprocessing.pdfMain import pdfMain
 from langchain.text_splitter import RecursiveCharacterTextSplitter

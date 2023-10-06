@@ -37,9 +37,9 @@ def filterExcel(fileName, query):
   return (executor, futures)
 
 def getOutputDF(dfOut):
-    json_exists = dfOut["jsonOutput"].isna()
+    json_exists = ~dfOut["jsonOutput"].isna()
     dfOut.loc[json_exists, 'prediction'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('answer'))
-    dfOut.loc[json_exists, 'justification_for_relevancy'] =dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('explanation'))
+    dfOut.loc[json_exists, 'justification_for_relevancy'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('explanation'))
     
     return dfOut
 
