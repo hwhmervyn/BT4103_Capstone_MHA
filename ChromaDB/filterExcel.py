@@ -20,6 +20,7 @@ def correctFormatToJson(result_content, numTries, error_message):
 def createTask(doi, title, abstract, query):
   request = chat_prompt.format_prompt(title=title, abstract=abstract, question=query).to_messages()
   result = chat(request)
+  jsonOutput = None
   try:
     jsonOutput = excel_parser.parse(result.content)
   except JSONDecodeError as e: # UNCATCHED ERROR HERE

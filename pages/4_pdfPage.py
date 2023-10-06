@@ -7,14 +7,14 @@ import streamlit as st
 from streamlit_extras.app_logo import add_logo
 from zipfile import ZipFile
 import re
+import time
 
 import sys, os
 workingDirectory = os.getcwd()
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
 sys.path.append(chromaDirectory)
 
-from ingestPdf import pdfUpload, smallChunkCollection
-from filterPdf import filter_relevant_pdfs
+from ingestPdf import pdfUpload
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
@@ -23,11 +23,13 @@ st.markdown("<h1 style='text-align: left; color: Black;'>PDF Analysis</h1>", uns
 st.markdown('#')
 st.header('PDF Analysis')
 
+import asyncio
+
+async def my_async_function():
+    await asyncio.sleep(2)  # Asynchronously sleep for 2 seconds
+
 if 'pdf_filtered' not in st.session_state:
     st.session_state.pdf_filtered = False
-
-if 'relevant_papers' not in st.session_state:
-    st.session_state.relevant_papers = None
 
 if not st.session_state.pdf_filtered:
     input = st.text_input("Research Prompt", placeholder='Enter your research prompt')
@@ -54,6 +56,7 @@ if not st.session_state.pdf_filtered:
                 zip.extractall(extraction_path)
                 foldername_match = re.search(r'^([^/]+)/', zip.infolist()[0].filename) # Search for folder name in zip file
                 foldername = foldername_match.group(1)
+            
             pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
             st.write(uploaded_file.name[:-4])
             (issues, executor, futures) = pdfUpload(pdfList)
@@ -67,28 +70,18 @@ if not st.session_state.pdf_filtered:
                 progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
                 progessBar1.progress(progress,text="Uploading main pdf sections:") 
             
-            PARTS_ALLOCATED_UPLOAD_CHILD = 0.3
-            executor, child_futures = smallChunkCollection()
-            numDone, numFutures = 0, len(child_futures) 
-            for future in stqdm(as_completed(child_futures)):
-                result = future.result()
-                numDone += 1
-                progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN + PARTS_ALLOCATED_UPLOAD_MAIN
-                progessBar1.progress(progress, text="Uploading pdf child sections:") 
-
-            list_of_relevant_files_by_paths = filter_relevant_pdfs(input)
-            list_of_relevant_files = [re.search(r'[^\\/]*$', path).group(0) for path in list_of_relevant_files_by_paths]
-
-            st.session_state.relevant_papers = list_of_relevant_files
+            # DUMMY FOR FILTERING
+            PARTS_ALLOCATED_FILTER = 0.7
+            for percent_complete in range(30,100):
+                time.sleep(0.1)
+                progessBar1.progress(float(percent_complete/100), text="Uploading main pdf sections:")
             st.session_state.pdf_filtered = True
             st.experimental_rerun()
             
 if st.session_state.pdf_filtered:
     st.subheader("Here are the articles relevant to your prompt:")
-    st.write(st.session_state.relevant_papers)
 
     reupload_button = st.button('Reupload another prompt and zip file')
     if reupload_button:
         st.session_state.pdf_filtered = False
-        st.session_state.relevant_papers = None
         st.experimental_rerun()
