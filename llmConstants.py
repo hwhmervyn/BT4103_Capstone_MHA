@@ -10,3 +10,5 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 
 chat = ChatOpenAI(temperature=0, # lower temperature --> more predictable responses
             model_name = 'gpt-3.5-turbo')
+
+llm = OpenAI(temperature=0)

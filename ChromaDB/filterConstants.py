@@ -8,13 +8,16 @@ from langchain.prompts import (
     PromptTemplate
 )
 from langchain.chat_models import ChatOllama
-chat = ChatOllama(model='llama2', temperature=0)
+from llmConstants import chat
+# chat = ChatOllama(model='llama2', temperature=0)
 import os 
+
 os.environ['LANGCHAIN_TRACING'] = 'false'
 
-from langchain.llms import Ollama
-llm = Ollama(temperature=0)
+# from langchain.llms import Ollama
+# llm = Ollama(temperature=0)
 
+from llmConstants import llm
 # from langchain.chat_models import ChatOpenAI
 # chat = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo')
 

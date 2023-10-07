@@ -14,7 +14,7 @@ def uploadSingleDoc(collection, id, doc):
     return collection.add_documents(ids=[id], documents=[doc])
 
 def pdfUpload(listOfPDFfilepaths):
-    chromaUtils.createCollection(['pdf'])
+    chromaUtils.createCollection('pdf')
     sectionsByFile = []
     issues = []
 
@@ -34,7 +34,8 @@ def pdfUpload(listOfPDFfilepaths):
     for sections,fileName in sectionsByFile:
         sections= list(filter(lambda x: len(x[0].split(" ")) > 100, sections))
         for section in sections:
-            chunks = text_splitter.create_documents([section[0]], metadatas=[{'fileName':fileName,'pageNum':f"{section[1][0]} to {section[1][1]}"}]*1)
+            print(fileName.split("\\")[-1])
+            chunks = text_splitter.create_documents([section[0]], metadatas=[{'fileName':fileName.split("\\")[-1],'pageNum':f"{section[1][0]} to {section[1][1]}"}]*1)
             sectionChunks.extend(chunks)
 
     chromaUtils.createCollection("pdf")

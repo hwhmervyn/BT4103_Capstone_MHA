@@ -6,6 +6,7 @@ from filterConstants import chat, chat_prompt, excel_parser, retry_prompt, outpu
 import pandas as pd
 from json.decoder import JSONDecodeError
 from concurrent.futures import ThreadPoolExecutor
+from langchain.callbacks import get_openai_callback
 
 def correctFormatToJson(result_content, numTries, error_message):
   if numTries > 3:
@@ -18,17 +19,22 @@ def correctFormatToJson(result_content, numTries, error_message):
     return jsonResult
 
 def createTask(doi, title, abstract, query):
-  request = chat_prompt.format_prompt(title=title, abstract=abstract, question=query).to_messages()
-  result = chat(request)
-  jsonOutput = None
-  try:
-    jsonOutput = excel_parser.parse(result.content)
-  except JSONDecodeError as e: # UNCATCHED ERROR HERE
-    jsonOutput = correctFormatToJson(result.content, 1, str(e))
-  return (doi, title, abstract, result.content, jsonOutput)
+  with get_openai_callback() as usage_info:
+    request = chat_prompt.format_prompt(title=title, abstract=abstract, question=query).to_messages()
+    result = chat(request)
+    jsonOutput = None
+    try:
+      jsonOutput = excel_parser.parse(result.content)
+    except Exception as e: # UNCATCHED ERROR HERE
+      print('JSON Format Error')
+      jsonOutput = correctFormatToJson(result.content, 1, str(e))
+    total_input_tokens = usage_info.prompt_tokens
+    total_output_tokens = usage_info.completion_tokens
+    total_cost = usage_info.total_cost
+    return (doi, title, abstract, result.content, jsonOutput, total_input_tokens, total_output_tokens, total_cost)
 
 def filterExcel(fileName, query):
-  df = pd.read_excel(fileName).dropna(how='all')[['DOI','TITLE','ABSTRACT']].iloc[:20]
+  df = pd.read_excel(fileName).dropna(how='all')[['DOI','TITLE','ABSTRACT']].iloc[:5]
   executor = ThreadPoolExecutor(max_workers=2)
   futures = []
   for _, row in df.iterrows():

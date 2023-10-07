@@ -3,7 +3,7 @@ from streamlit_extras.app_logo import add_logo
 from concurrent.futures import as_completed
 import pandas as pd
 
-
+from cost_breakdown.update_cost import update_usage_logs
 import sys,os
 sys.path.append('ChromaDB/')
 from filterExcel import filterExcel, getOutputDF
@@ -38,13 +38,18 @@ if not st.session_state.filtered:
             st.error("Please enter a research prompt and upload an excel file")
         else:
             _, futures = filterExcel(uploaded_file,  input)
-            issues, results, numDone, numFutures = [],[], 0, len(futures)
+            issues, results, numDone, numFutures, total_input_tokens, total_output_tokens, total_cost = [],[], 0, len(futures), 0, 0, 0
             progessBar = st.progress(0, text="Article filtering in progress...")
             for future in as_completed(futures):
                 row = future.result()
-                results.append(row)
+                total_input_tokens += row[5]
+                total_output_tokens += row[6]
+                total_cost += row[7]
+                results.append(row[0:5])
                 numDone += 1
-                progessBar.progress(numDone/numFutures) 
+                progessBar.progress(numDone/numFutures)
+            
+            update_usage_logs("Excel Filtering", input, total_input_tokens,total_output_tokens,total_cost)
             dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","llmOutput", "jsonOutput"])
             dfOut = getOutputDF(dfOut)
             dfOut.to_excel("output/test_output_pfa.xlsx", index=False)
