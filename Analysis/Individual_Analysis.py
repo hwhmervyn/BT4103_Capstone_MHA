@@ -2,6 +2,7 @@ from ChromaDB.chromaUtils import getCollection
 from llmConstants import chat
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+from langchain.callbacks import get_openai_callback
 import pandas as pd
 import textwrap
 import plotly.graph_objects as go
@@ -45,23 +46,27 @@ def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt_template, l
   #List to store the evidence
   evidence_lst = []
   print(len(unique_filename_lst))
-  for specific_filename in unique_filename_lst:
-    print('\n')
-    print(f'File Name: {specific_filename}')
-    #Get the findings using the LLM
-    result = get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt_template, llm)
-    #Check whether the pdf is related to the research question and update the lists accordingly
-    if 'Yes' in result:
-      yes_no_lst.append('Yes')
-    else:
-      yes_no_lst.append('No')
-    print(result)
-    evidence_lst.append(result)
+  with get_openai_callback() as usage_info:
+    for specific_filename in unique_filename_lst:
+      print('\n')
+      print(f'File Name: {specific_filename}')
+      #Get the findings using the LLM
+      result = get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt_template, llm)
+      #Check whether the pdf is related to the research question and update the lists accordingly
+      if 'Yes' in result:
+        yes_no_lst.append('Yes')
+      else:
+        yes_no_lst.append('No')
+      print(result)
+      evidence_lst.append(result)
+  total_input_tokens = usage_info.prompt_tokens
+  total_output_tokens = usage_info.completion_tokens
+  total_cost = usage_info.total_cost
 
   #Output a dataframe
   uncleaned_findings_dict= {'Article Name': unique_filename_lst, 'Answer' : yes_no_lst, 'Evidence' : evidence_lst}
   uncleaned_findings_df = pd.DataFrame(uncleaned_findings_dict)
-  return uncleaned_findings_df
+  return (uncleaned_findings_df, total_input_tokens, total_output_tokens, total_cost)
 
 
 #Cleans the evidence strings
@@ -120,8 +125,11 @@ mention_y_n_prompt_template = """
   """
 mention_y_n_prompt = PromptTemplate.from_template(mention_y_n_prompt_template)
 
-#Get the findings and output a placeholder dataframe
-uncleaned_findings_df = get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt_template, chat)
+#Get the findings in a tuple
+results_tup = get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt_template, chat)
+
+#Retrieve the dataframe
+uncleaned_findings_df = results_tup[0]
 
 #Clean the findings
 cleaned_findings_df = clean_findings_df(uncleaned_findings_df)
