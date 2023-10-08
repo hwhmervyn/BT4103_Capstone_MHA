@@ -1,4 +1,4 @@
-from chromaUtils import getCollection
+from ChromaDB.chromaUtils import getCollection
 from llmConstants import chat
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
