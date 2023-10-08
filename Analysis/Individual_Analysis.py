@@ -4,9 +4,9 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain.callbacks import get_openai_callback
 import pandas as pd
+import re
 import textwrap
 import plotly.graph_objects as go
-
 
 
 #Get the unique file names in the pdf collection
@@ -71,18 +71,17 @@ def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt_template, l
 
 #Cleans the evidence strings
 def clean_evidence(finding_str):
-  #Split the string based on new lines
-  finding_str_lst = finding_str.split("\n")
-  #Filter out the unnecessary strings
-  #str_removed = ['Yes', "No", None]
-  #filter_condition = lambda string : '' not in string
-  finding_str_lst_filtered = list(filter(None, finding_str_lst))
-  finding_str_lst_filtered = finding_str_lst_filtered[1:]
-  #Combine into a string again
-  finding_str_filtered = ''.join(finding_str_lst_filtered)
+  #Remove the Yes No
+  yes_no_pattern = r'\b(?:Yes|No)\b'
+  finding_str = re.sub(yes_no_pattern, '', finding_str)
+  #Remove the . in the case of Yes.
+  full_stop_pattern = r'^[.\s]*'
+  finding_str = re.sub(full_stop_pattern, '', finding_str)
+  #Remove the 1., 2., 3. and replace with the *
+  numbering_pattern = r'^\d+\.\s'  # Matches lines starting with a number, period, and space
+  finding_str = re.sub(numbering_pattern, '*', finding_str, flags=re.MULTILINE) 
   #Text Wrap the string
-  str_wrap_lst = textwrap.fill(finding_str_filtered, 30)
-  finding_str_final = ''.join(str_wrap_lst)
+  finding_str_final = textwrap.fill(finding_str, 30)
   return finding_str_final
 
 #Clean the findings df
