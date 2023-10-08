@@ -80,8 +80,10 @@ def clean_evidence(finding_str):
   #Remove the 1., 2., 3. and replace with the *
   numbering_pattern = r'^\d+\.\s'  # Matches lines starting with a number, period, and space
   finding_str = re.sub(numbering_pattern, '*', finding_str, flags=re.MULTILINE) 
-  #Text Wrap the string
-  finding_str_final = textwrap.fill(finding_str, 30)
+  #Text Wrap the string (may not need)
+  finding_str = textwrap.fill(finding_str, 30)
+  #Replace the * with breaks so that we can display a line break 
+  finding_str_final = finding_str.replace('*', "<br>")
   return finding_str_final
 
 #Clean the findings df
