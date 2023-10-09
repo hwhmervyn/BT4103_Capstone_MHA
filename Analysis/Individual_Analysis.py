@@ -23,12 +23,12 @@ def get_unique_filenames(pdf_collection):
 
 
 #Retrieve findings from the llm
-def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt_template, llm):
+def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm):
   #Create a Retrieval Chain
   qa_chain = RetrievalQA.from_chain_type(llm=llm,
                                          chain_type="stuff",
                                          retriever= pdf_collection.as_retriever(search_type="similarity", search_kwargs={'k': 3, 'filter': {'fileName': specific_filename}}),
-                                         chain_type_kwargs={"prompt": mention_y_n_prompt_template},
+                                         chain_type_kwargs={"prompt": mention_y_n_prompt},
                                          return_source_documents=True)
   #Get the results
   result_dict = qa_chain({"query": query})
@@ -36,7 +36,7 @@ def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_
   return result
 
 #Queries the pdfs and outputs a dataframe
-def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt_template, llm):
+def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, llm):
   #Get the unique filenames from the pdf collection
   unique_filename_lst = get_unique_filenames(pdf_collection)
   #Just a placeholder to limit the number of filenames to 5
@@ -51,7 +51,7 @@ def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt_template, l
       print('\n')
       print(f'File Name: {specific_filename}')
       #Get the findings using the LLM
-      result = get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt_template, llm)
+      result = get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm)
       #Check whether the pdf is related to the research question and update the lists accordingly
       if 'Yes' in result:
         yes_no_lst.append('Yes')
@@ -127,7 +127,7 @@ mention_y_n_prompt_template = """
 mention_y_n_prompt = PromptTemplate.from_template(mention_y_n_prompt_template)
 
 #Get the findings in a tuple
-results_tup = get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt_template, chat)
+results_tup = get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, chat)
 
 #Retrieve the dataframe
 uncleaned_findings_df = results_tup[0]
