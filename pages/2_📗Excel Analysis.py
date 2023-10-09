@@ -3,7 +3,7 @@ from streamlit_extras.app_logo import add_logo
 from concurrent.futures import as_completed
 import pandas as pd
 
-from cost_breakdown.update_cost import update_usage_logs
+from cost_breakdown.update_cost import update_usage_logs, Stage
 import sys,os
 sys.path.append('ChromaDB/')
 from filterExcel import filterExcel, getOutputDF
@@ -49,10 +49,10 @@ if not st.session_state.filtered:
                 numDone += 1
                 progessBar.progress(numDone/numFutures)
             
-            update_usage_logs("Excel Filtering", input, total_input_tokens,total_output_tokens,total_cost)
+            update_usage_logs(Stage.EXCEL_FILTERING.value, input, total_input_tokens,total_output_tokens,total_cost)
             dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","llmOutput", "jsonOutput"])
             dfOut = getOutputDF(dfOut)
-            dfOut.to_excel("output/test_output_pfa.xlsx", index=False)
+            dfOut.to_excel("output/excel_result.xlsx", index=False)
 
             st.session_state.filtered = input
             st.experimental_rerun()
@@ -64,10 +64,10 @@ else:
     st.subheader("Results")
 
     # Display output (To be changed during integration)
-    df = pd.read_excel("output/test_output_pfa.xlsx")
+    df = pd.read_excel("output/excel_result.xlsx")
     # st.download_button(label="Download Excel file", data="output/test_output_pfa.xlsx", file_name='results.xlsx') 
 
-    with open("output/test_output_pfa.xlsx", 'rb') as my_file:
+    with open("output/excel_result.xlsx", 'rb') as my_file:
         st.download_button(label = 'Download', data = my_file, file_name='results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') 
         st.dataframe(df, width=3000, height=1000)
 
