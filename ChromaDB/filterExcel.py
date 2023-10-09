@@ -14,20 +14,22 @@ def correctFormatToJson(result_content, numTries, error_message):
   else:
     try:
       jsonResult = output_fixer.parse_with_prompt(result_content, retry_prompt.format_prompt(error=error_message, output=result_content))
-    except Exception as e:
+    except JSONDecodeError:
       jsonResult = correctFormatToJson(result_content, numTries+1, error_message) 
+    except Exception:
+      jsonResult = None
     return jsonResult
 
 def createTask(doi, title, abstract, query):
   with get_openai_callback() as usage_info:
     request = chat_prompt.format_prompt(title=title, abstract=abstract, question=query).to_messages()
     result = chat(request)
-    jsonOutput = None
     try:
       jsonOutput = excel_parser.parse(result.content)
-    except Exception as e: # UNCATCHED ERROR HERE
-      print('JSON Format Error')
+    except JSONDecodeError as e:
       jsonOutput = correctFormatToJson(result.content, 1, str(e))
+    except Exception:
+      jsonOutput = None
     total_input_tokens = usage_info.prompt_tokens
     total_output_tokens = usage_info.completion_tokens
     total_cost = usage_info.total_cost

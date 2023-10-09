@@ -14,7 +14,7 @@ workingDirectory = os.getcwd()
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
 sys.path.append(chromaDirectory)
 
-from ingestPdf import pdfUpload
+from ingestPdf import schedulePdfUpload
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
@@ -58,7 +58,7 @@ if not st.session_state.pdf_filtered:
             
             pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
             st.write(uploaded_file.name[:-4])
-            issues, executor, futures = pdfUpload(pdfList)
+            issues, executor, futures = schedulePdfUpload(pdfList)
             
             progessBar1 = st.progress(0, text="Processing documents:")
             numDone, numFutures = 0, len(futures)
