@@ -5,3 +5,6 @@ Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
 2023-10-09 14:11:40.518980,Excel Filtering,lets gooo,2811,270,0.0047565
 2023-10-09 14:15:56.005216,Excel Filtering,lets goo,2806,268,0.004745
 2023-10-09 14:53:25.815060,Excel Filtering,haah,2806,169,0.004547
+2023-10-09 21:30:59.433739,Support Analysis,Is cannabis more harmful than tobacco?,1362,111,0.002265
+2023-10-09 22:01:02.408849,Support Analysis,,0,0,0.0
+2023-10-09 22:04:49.094048,Support Analysis,,0,0,0.0
