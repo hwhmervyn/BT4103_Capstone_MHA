@@ -1,5 +1,5 @@
 from langchain.vectorstores import Chroma
-from client import persistent_client, embeddings
+from ChromaDB.client import persistent_client, embeddings
 
 def getCollection(collection_name):
     langchain_chroma = Chroma(
