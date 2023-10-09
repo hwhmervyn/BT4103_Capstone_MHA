@@ -7,7 +7,7 @@ class Stage(Enum):
     EXCEL_FILTERING = "Excel Filtering"
     SUPPORT_ANALYSIS = "Support Analysis"
     PDF_FILTERING = "PDF Filtering"
-    INDIVIDUAL_FILTERING = "Individual Filtering"
+    INDIVIDUAL_ANALYSIS = "Individual Analysis"
 
 
 singapore = pytz.timezone('Asia/Singapore')
