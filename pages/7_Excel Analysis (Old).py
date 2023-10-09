@@ -66,12 +66,9 @@ else:
     st.subheader("Here are the articles relevant to your prompt:")
 
     # Display output (To be changed during integration)
-    df = pd.read_excel("output/excel_result.xlsx")
-    # st.download_button(label="Download Excel file", data="output/test_output_pfa.xlsx", file_name='results.xlsx') 
-
-    with open("output/excel_result.xlsx", 'rb') as my_file:
-        st.download_button(label = 'Download', data = my_file, file_name='results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') 
-        st.dataframe(df, width=3000, height=1000)
+    df = pd.read_excel('data/combined.xlsx', sheet_name='no duplicates')
+    st.download_button(label="Download Excel file", data='data/combined.xlsx', file_name='results.xlsx') 
+    st.dataframe(df, width=3000, height=1000)
 
     reupload_button = st.button('Reupload another prompt and excel file')
     if reupload_button:
