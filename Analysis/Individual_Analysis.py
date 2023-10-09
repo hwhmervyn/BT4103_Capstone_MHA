@@ -6,6 +6,7 @@ from langchain.callbacks import get_openai_callback
 import pandas as pd
 import re
 import textwrap
+from random import sample
 import plotly.graph_objects as go
 
 #Get the unique file names in the pdf collection
@@ -39,7 +40,7 @@ def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, llm):
   #Get the unique filenames from the pdf collection
   unique_filename_lst = get_unique_filenames(pdf_collection)
   #Just a placeholder to limit the number of filenames to 5
-  unique_filename_lst =  unique_filename_lst[:5]
+  unique_filename_lst =  sample(unique_filename_lst, 5)
   #List to store yes or no
   yes_no_lst = []
   #List to store the evidence
