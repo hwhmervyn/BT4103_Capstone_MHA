@@ -1,16 +1,31 @@
+import pandas as pd
+import streamlit as st
+from concurrent.futures import as_completed
+from stqdm import stqdm
+import glob
 import streamlit as st
 from streamlit_extras.app_logo import add_logo
-import time
-import pandas as pd
-
-import os
 from zipfile import ZipFile
+import re
+import time
+
+import sys, os
+workingDirectory = os.getcwd()
+chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
+sys.path.append(chromaDirectory)
+
+from ingestPdf import pdfUpload
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
 
 st.markdown("<h1 style='text-align: left; color: Black;'>PDF Analysis</h1>", unsafe_allow_html=True)
 st.markdown('#')
+
+import asyncio
+
+async def my_async_function():
+    await asyncio.sleep(2)  # Asynchronously sleep for 2 seconds
 
 if 'pdf_filtered' not in st.session_state:
     st.session_state.pdf_filtered = False
@@ -35,68 +50,40 @@ if not st.session_state.pdf_filtered:
         elif not input or not uploaded_file:
             st.error("Please enter a research prompt and upload a zip folder")
         else:
-            progress_text = "Article analysis in progress..."
-            loading_bar = st.progress(0, text=progress_text)
-
             with ZipFile(uploaded_file, 'r') as zip:
-                extraction_path = "data/"
+                extraction_path = os.path.join(workingDirectory, "data/")
                 zip.extractall(extraction_path)
+                foldername_match = re.search(r'^([^/]+)/', zip.infolist()[0].filename) # Search for folder name in zip file
+                foldername = foldername_match.group(1)
+            
+            pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
+            st.write(uploaded_file.name[:-4])
+            issues, executor, futures = pdfUpload(pdfList)
+            
+            progessBar1 = st.progress(0, text="Processing documents:")
+            numDone, numFutures = 0, len(futures)
+            PARTS_ALLOCATED_UPLOAD_MAIN = 0.3
+            for future in stqdm(as_completed(futures)):
+                result = future.result()
+                numDone += 1
+                progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
+                progessBar1.progress(progress,text="Processing documents:") 
 
-            for percent_complete in range(100):
+            PARTS_ALLOCATED_FILTER = 0.7
+            for percent_complete in range(30,100):
                 time.sleep(0.1)
-                loading_bar.progress(percent_complete, text=progress_text)
+                progessBar1.progress(float(percent_complete/100), text="Filtering documents:")
 
-            print("done resetting and uploading pdfs to db")
-            st.session_state.pdf_filtered = True
+            st.session_state.pdf_filtered = input
             st.experimental_rerun()
-
+            
 if st.session_state.pdf_filtered:
-    new_input = st.text_input("Enter another research prompt to process the same files:", placeholder='Enter another research prompt to process the same files')
-    prompt_reupload_button = st.button('Process files with new prompt')
+    st.subheader("Prompt")
+    st.text(st.session_state.pdf_filtered)
 
-    if prompt_reupload_button:
-        if not new_input:
-            st.error("Please enter a new research prompt")
-        else:
-            progress_text = "Article analysis in progress..."
-            loading_bar = st.progress(0, text=progress_text)
+    st.subheader("Results")
 
-            for percent_complete in range(100):
-                time.sleep(0.1)
-                loading_bar.progress(percent_complete, text=progress_text)
-
-            print("done resetting and uploading pdfs to db")
-            st.session_state.pdf_filtered = True
-            st.experimental_rerun()
-
-    st.subheader("Here are the articles relevant to your prompt:")
-
-    # Display output (To be changed during integration)
-    data = [['Article 1', 'Finding 1'],['Article 2', 'Finding 2']]
-    df = pd.DataFrame(data, columns=['Title', 'Key Findings'])
-
-    with ZipFile('output/filtered_pdfs.zip', 'w') as zip_object:
-        for folder_name, sub_folders, file_names in os.walk('data/'):
-            for filename in file_names:
-                file_path = os.path.join(folder_name, filename)
-                zip_object.write(file_path, os.path.basename(file_path))
-
-    if os.path.exists('output/filtered_pdfs.zip'):
-        print("Zip file created")
-    else:
-        print("Zip file not created")
-
-    st.download_button(label="Download PDF files", data='output/filtered_pdfs.zip', file_name='filtered_pdfs.zip') 
-    st.dataframe(df, width=3000, height=1000)
-
-    st.markdown('##')
-    st.subheader('Visualised Findings:')
-
-    count_df = df['Title'].groupby(df['Key Findings']).count().reset_index()
-    st.bar_chart(data=count_df, x='Key Findings', y='Title', color=None, width=0, height=0, use_container_width=True)
-    
-    col1, col2, col3 , col4, col5 = st.columns(5)
-    pdf_reupload_button = st.button('Reupload another prompt and zip folder')
-    if pdf_reupload_button:
+    reupload_button = st.button('Reupload another prompt and zip file')
+    if reupload_button:
         st.session_state.pdf_filtered = False
         st.experimental_rerun()
