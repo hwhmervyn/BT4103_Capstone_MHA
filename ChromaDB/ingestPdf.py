@@ -13,7 +13,7 @@ def uploadSmallChunk(collection, doc):
 def uploadSingleDoc(collection, id, doc):
     return collection.add_documents(ids=[id], documents=[doc])
 
-def pdfUpload(listOfPDFfilepaths):
+def schedulePdfUpload(listOfPDFfilepaths):
     chromaUtils.createCollection('pdf')
     sectionsByFile = []
     issues = []
@@ -46,7 +46,7 @@ def pdfUpload(listOfPDFfilepaths):
     
     return (issues, executor, pdfFutures)
 
-# _, futures = pdfUpload(pdf_files)
+# _, futures = schedulePdfUpload(pdf_files)
 # # Below is for testing in debug mode
 # from tqdm import tqdm
 # from concurrent.futures import ThreadPoolExecutor, as_completed
