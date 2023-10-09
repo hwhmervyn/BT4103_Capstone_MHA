@@ -97,7 +97,7 @@ def clean_findings_df(uncleaned_findings_df):
 #Generate a table visualisation
 def generate_visualisation(cleaned_findings_df):
   fig = go.Figure(data=[go.Table(
-    columnwidth = [10,50],
+    columnwidth = [10,10,50],
     header=dict(values=list(cleaned_findings_df.columns),
                 fill_color='paleturquoise',
                 align='left'),
