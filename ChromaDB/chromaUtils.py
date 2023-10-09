@@ -9,7 +9,6 @@ def getCollection(collection_name):
     )
     return langchain_chroma
 
-
 def clearCollection(list_of_collection_names):
     for collection_name in list_of_collection_names:
         try:
@@ -19,3 +18,8 @@ def clearCollection(list_of_collection_names):
 
 def createCollection(collection_name):
     persistent_client.get_or_create_collection(name=collection_name, embedding_function=embeddings)
+
+def getDistinctFileNameList(collection_name):
+    metadata_list = getCollection(collection_name).get()['metadatas']
+    papers = [doc.get('fileName') for doc in metadata_list]
+    return list(set(papers))
