@@ -9,7 +9,6 @@ def getCollection(collection_name):
     )
     return langchain_chroma
 
-
 def clearCollection(list_of_collection_names):
     for collection_name in list_of_collection_names:
         try:

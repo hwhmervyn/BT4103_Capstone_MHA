@@ -1,16 +1,12 @@
 import streamlit as st
 from streamlit_extras.app_logo import add_logo
-import time
-
-import sys
-import os
-sys.path.append('ChromaDB/')
-import ingestExcel
 from concurrent.futures import as_completed
-from stqdm import stqdm
 import pandas as pd
-from pathlib import Path
-from io import BytesIO
+
+from cost_breakdown.update_cost import update_usage_logs
+import sys,os
+sys.path.append('ChromaDB/')
+from filterExcel import filterExcel, getOutputDF
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
@@ -41,34 +37,39 @@ if not st.session_state.filtered:
         elif not input or not uploaded_file:
             st.error("Please enter a research prompt and upload an excel file")
         else:
-            progress_text = "Article filtering in progress..."
-            loading_bar = st.progress(0, text=progress_text)
-            df = pd.read_excel(uploaded_file, sheet_name='no duplicates') # Remove sheet name during integration
-
-            # Consider using Ming Shi's implementation during integration
-            for percent_complete in range(100):
-                time.sleep(0.1)
-                loading_bar.progress(percent_complete, text=progress_text)
+            _, futures = filterExcel(uploaded_file,  input)
+            issues, results, numDone, numFutures, total_input_tokens, total_output_tokens, total_cost = [],[], 0, len(futures), 0, 0, 0
+            progessBar = st.progress(0, text="Article filtering in progress...")
+            for future in as_completed(futures):
+                row = future.result()
+                total_input_tokens += row[5]
+                total_output_tokens += row[6]
+                total_cost += row[7]
+                results.append(row[0:5])
+                numDone += 1
+                progessBar.progress(numDone/numFutures)
             
-            # executor, futures = ingestExcel.excelUpload(uploaded_file)
-            # numDone, numFutures = 0, len(futures)
-            # for future in stqdm(as_completed(futures)):
-            #     result = future.result()
-            #     numDone += 1
-            #     loading_bar.progress((numDone/numFutures), text=progress_text)
-                
-            print("done resetting and uploading abstract and title to db")
-            st.session_state.filtered = True
+            update_usage_logs("Excel Filtering", input, total_input_tokens,total_output_tokens,total_cost)
+            dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","llmOutput", "jsonOutput"])
+            dfOut = getOutputDF(dfOut)
+            dfOut.to_excel("output/test_output_pfa.xlsx", index=False)
+
+            st.session_state.filtered = input
             st.experimental_rerun()
 
 else:
+    st.subheader("Prompt")
+    st.text(st.session_state.filtered)
 
-    st.subheader("Here are the articles relevant to your prompt:")
+    st.subheader("Results")
 
     # Display output (To be changed during integration)
-    df = pd.read_excel('data/combined.xlsx', sheet_name='no duplicates')
-    st.download_button(label="Download Excel file", data='data/combined.xlsx', file_name='results.xlsx') 
-    st.dataframe(df, width=3000, height=1000)
+    df = pd.read_excel("output/test_output_pfa.xlsx")
+    # st.download_button(label="Download Excel file", data="output/test_output_pfa.xlsx", file_name='results.xlsx') 
+
+    with open("output/test_output_pfa.xlsx", 'rb') as my_file:
+        st.download_button(label = 'Download', data = my_file, file_name='results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') 
+        st.dataframe(df, width=3000, height=1000)
 
     reupload_button = st.button('Reupload another prompt and excel file')
     if reupload_button:

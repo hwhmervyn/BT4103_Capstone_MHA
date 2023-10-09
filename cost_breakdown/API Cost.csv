@@ -1,2 +1,7 @@
 Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
 2023-10-07 18:02:38.497946,Excel Filtering,does the article mentions psychological first-aid?,3691,332,0.0062005
+2023-10-09 12:25:59.685613,Excel Filtering,Does the article mention psychological first aid,2831,243,0.0047325
+2023-10-09 14:05:53.282795,Excel Filtering,Lets try this again,2816,330,0.004884
+2023-10-09 14:11:40.518980,Excel Filtering,lets gooo,2811,270,0.0047565
+2023-10-09 14:15:56.005216,Excel Filtering,lets goo,2806,268,0.004745
+2023-10-09 14:53:25.815060,Excel Filtering,haah,2806,169,0.004547

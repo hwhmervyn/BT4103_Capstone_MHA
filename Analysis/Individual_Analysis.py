@@ -8,7 +8,6 @@ import re
 import textwrap
 import plotly.graph_objects as go
 
-
 #Get the unique file names in the pdf collection
 def get_unique_filenames(pdf_collection):
   #Get the pdf collection with metadatas which include the filename
