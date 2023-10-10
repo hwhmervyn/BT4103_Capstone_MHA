@@ -1,4 +1,4 @@
-from Individual_Analysis import cleaned_findings_df
+#from Individual_Analysis import cleaned_findings_df
 from llmConstants import chat
 from langchain.schema.document import Document
 from langchain.prompts import PromptTemplate
@@ -7,6 +7,9 @@ from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 from langchain.chains import ReduceDocumentsChain, MapReduceDocumentsChain
 from langchain.callbacks import get_openai_callback
 
+import sys,os
+sys.path.append('cost_breakdown')
+from update_cost import update_usage_logs
 
 def get_common_themes(df, llm):
     docs = df['Findings'].apply(lambda x: Document(page_content=x[4:])).tolist() # Remove <br> and convert to Document type
@@ -58,6 +61,13 @@ def get_common_themes(df, llm):
         total_output_tokens = usage_info.completion_tokens
         total_cost = usage_info.total_cost
         print(result, total_input_tokens, total_output_tokens, total_cost)
+        update_usage_logs("Support Analysis", "N/A", total_input_tokens, total_output_tokens, total_cost)
 
-result_tup = get_common_themes(cleaned_findings_df, chat)
-common_themes = result_tup[0]
+        return result
+
+def agg_analysis_main(cleaned_findings_df):
+    result_tup = get_common_themes(cleaned_findings_df, chat)
+    print(result_tup)
+    common_themes = result_tup[0]
+
+    return common_themes

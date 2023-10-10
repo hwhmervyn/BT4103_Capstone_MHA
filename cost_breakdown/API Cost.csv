@@ -11,3 +11,7 @@ Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
 2023-10-09 16:32:17.832034,Excel Filtering,indicate whether the articles mention culture adaptations of psychological first aid,2442,328,0.004319
 2023-10-09 16:51:56.072149,Excel Filtering,Is the article about Sports,2412,253,0.004124
 2023-10-09 16:54:29.217022,Excel Filtering,Is the article about drugs,2412,259,0.004136
+2023-10-10 09:12:00.296342,Individual Analysis,is first aid mentioned,2849,276,0.0048255
+2023-10-10 09:12:52.740165,Support Analysis,N/A,680,319,0.001658
+2023-10-10 09:16:21.917322,Individual Analysis,is first aid mentioned,2849,276,0.0048255
+2023-10-10 09:17:15.212454,Support Analysis,N/A,680,318,0.0016560000000000001

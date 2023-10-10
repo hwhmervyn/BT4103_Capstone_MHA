@@ -8,6 +8,11 @@ import re
 import textwrap
 from random import sample
 import plotly.graph_objects as go
+from concurrent.futures import ThreadPoolExecutor
+
+import sys,os
+sys.path.append('cost_breakdown')
+from update_cost import update_usage_logs
 
 #Get the unique file names in the pdf collection
 def get_unique_filenames(pdf_collection):
@@ -39,13 +44,20 @@ def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_
 def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, llm):
   #Get the unique filenames from the pdf collection
   unique_filename_lst = get_unique_filenames(pdf_collection)
+  print(unique_filename_lst)
   #Just a placeholder to limit the number of filenames to 5
-  unique_filename_lst =  sample(unique_filename_lst, 5)
+  unique_filename_lst =  sample(unique_filename_lst, 3)
   #List to store yes or no
   yes_no_lst = []
   #List to store the evidence
   evidence_lst = []
   print(len(unique_filename_lst))
+  
+  #executor = ThreadPoolExecutor(max_workers=1)
+  #pdfFutures = [executor.submit(uploadSingleDoc, langchain_chroma_pdf, str(id), doc) for doc, id in zip(sectionChunks, range(len(sectionChunks)))]
+  
+  #return (issues, executor, pdfFutures)
+
   with get_openai_callback() as usage_info:
     for specific_filename in unique_filename_lst:
       print('\n')
@@ -62,12 +74,12 @@ def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, llm):
   total_input_tokens = usage_info.prompt_tokens
   total_output_tokens = usage_info.completion_tokens
   total_cost = usage_info.total_cost
+  update_usage_logs("Individual Analysis", query, total_input_tokens, total_output_tokens, total_cost)
 
   #Output a dataframe
   uncleaned_findings_dict= {'Article Name': unique_filename_lst, 'Answer' : yes_no_lst, 'Evidence' : evidence_lst}
   uncleaned_findings_df = pd.DataFrame(uncleaned_findings_dict)
   return (uncleaned_findings_df, total_input_tokens, total_output_tokens, total_cost)
-
 
 #Cleans the evidence strings
 def clean_evidence(finding_str):
@@ -106,34 +118,38 @@ def generate_visualisation(cleaned_findings_df):
                align='left'))
 ])
   fig.show()
+  return fig
 
-#Get the pdf collection
-collection_name = 'pdf'
-pdf_collection = getCollection(collection_name)
+def ind_analysis_main(query):
+  #Get the pdf collection
+  collection_name = 'pdf'
+  pdf_collection = getCollection(collection_name)
 
-#Initialise the prompt template
-query = "Does the article mention Psychological First Aid?"
-mention_y_n_prompt_template = """
-  [INST]<<SYS>>
-  You are a psychology researcher extracting findings from research papers.
-  If you don't know the answer, just say that you don't know, do not make up an answer.
-  Use only the context below to answer the question.<</SYS>>
-  Context: {context}
-  Question: {question}
-  Only provide your answer. Do not provide comments.
-  Answer Yes or No in 1 word. List 3 sentences of evidence to explain.
-  [/INST]
-  """
-mention_y_n_prompt = PromptTemplate.from_template(mention_y_n_prompt_template)
+  #Initialise the prompt template
+  #query = "Does the article mention Psychological First Aid?"
+  mention_y_n_prompt_template = """
+    [INST]<<SYS>>
+    You are a psychology researcher extracting findings from research papers.
+    If you don't know the answer, just say that you don't know, do not make up an answer.
+    Use only the context below to answer the question.<</SYS>>
+    Context: {context}
+    Question: {question}
+    Only provide your answer. Do not provide comments.
+    Answer Yes or No in 1 word. List 3 sentences of evidence to explain.
+    [/INST]
+    """
+  mention_y_n_prompt = PromptTemplate.from_template(mention_y_n_prompt_template)
 
-#Get the findings in a tuple
-results_tup = get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, chat)
+  #Get the findings in a tuple
+  results_tup = get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, chat)
 
-#Retrieve the dataframe
-uncleaned_findings_df = results_tup[0]
+  #Retrieve the dataframe
+  uncleaned_findings_df = results_tup[0]
 
-#Clean the findings
-cleaned_findings_df = clean_findings_df(uncleaned_findings_df)
+  #Clean the findings
+  cleaned_findings_df = clean_findings_df(uncleaned_findings_df)
 
-#Generate the visualisations
-generate_visualisation(cleaned_findings_df)
+  #Generate the visualisations
+  fig = generate_visualisation(cleaned_findings_df)
+
+  return cleaned_findings_df
