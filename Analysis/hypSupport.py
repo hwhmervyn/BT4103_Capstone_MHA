@@ -14,7 +14,7 @@ from llmConstants import chat
 from ChromaDB.chromaUtils import getCollection, getDistinctFileNameList
 
 ### Aesthetic parameters ###
-COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightslategrey"}
+COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey"}
 # Text wrap for output in table
 WRAPPER = textwrap.TextWrapper(width=80) # creates a split every 80 characters
 
@@ -71,10 +71,13 @@ def get_stance_and_evidence(response):
   print(response) # TODO REMOVE
   response_dict_obj = json.loads(response)
   stance = response_dict_obj["stance"]
-  evidence = response_dict_obj["evidence"]
-  return stance, evidence
+  evidence_list = response_dict_obj["evidence"]
+  # Join list of evidence into a single string.
+  evidence_str = ". ".join(evidence_list)
+  return stance, evidence_str
 
-def clean_and_join_text_list(text_list):
+def add_line_breaks(text):
+  text_list = text.split(". ")
   new_text_list = []
   for text in text_list:
     # Add line breaks for easier viewing of output
@@ -92,7 +95,7 @@ def get_support_df(query):
   stance_list = []
   evidence_list = []
   source_docs_list = []
-  article_title_list = getDistinctFileNameList("pdf")[:1] # TODO RESTRICT TO 1 FOR TESTING
+  article_title_list = getDistinctFileNameList("pdf")[:1] # RESTRICT TO 1 FOR TESTING
   total_num_articles = len(article_title_list)
 
   for i in range(total_num_articles):
@@ -112,32 +115,29 @@ def get_support_df(query):
   support_df = pd.DataFrame({"article": article_title_list, "stance": stance_list, "evidence": evidence_list, "source_docs": source_docs_list})
   return support_df
 
-
 def get_support_table(support_df):
     df = support_df.copy()[["article", "stance", "evidence"]]
 
     # TODO REMOVE
     df["article"] = df["article"].apply(lambda x: x.replace('data\\Compilation of articles\\', ''))
 
-    # Join text in list and add line breaks to separate sentences
-    df["evidence"] = df["evidence"].apply(lambda x: clean_and_join_text_list(x))
+    # Add line breaks to separate sentences
+    df["evidence"] = df["evidence"].apply(lambda x: add_line_breaks(x))
     fig = go.Figure(data=[go.Table(
       columnorder = [1,2,3],
-      columnwidth = [50,200,400],
+      columnwidth = [50,180,420],
       header = dict(
         values = ['<b>Answer</b>', '<b>Article Title</b>', '<b>Evidence</b>'],
-        line_color='darkslategray',
         fill_color='midnightblue',
         align='center',
-        font=dict(color='white', size=12),
+        font=dict(color='white', size=14),
         height=40
       ),
       cells=dict(
         values=[df.stance, df.article, df.evidence],
-        line_color='darkslategray',
         fill_color=[df["stance"].map(COLOUR_MAPPING), "white", "white"],
         align=['center', 'left', 'left'],
-        font_size=12
+        font_size=14
         ))
     ])
     return fig
@@ -149,5 +149,4 @@ def get_support_chart(support_df):
       y=df["count"],
       marker_color=list(df["stance"].map(COLOUR_MAPPING)),
   )])
-  fig.update_layout(title_text='Count of article reponse category for hypothesis support')
   return fig

@@ -10,3 +10,4 @@ data/
 .env
 
 output/
+cost_breakdown/API Cost.csv
