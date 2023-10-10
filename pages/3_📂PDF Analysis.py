@@ -12,9 +12,14 @@ import time
 import sys, os
 workingDirectory = os.getcwd()
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
-sys.path.append(chromaDirectory)
+analysisDirectory = os.path.join(workingDirectory, "Analysis")
 
+sys.path.append(chromaDirectory)
 from ingestPdf import schedulePdfUpload
+
+sys.path.append(analysisDirectory)
+from Individual_Analysis import ind_analysis_main
+from Aggregated_Analysis import agg_analysis_main
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
@@ -69,12 +74,20 @@ if not st.session_state.pdf_filtered:
                 progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
                 progessBar1.progress(progress,text="Processing documents:") 
 
+            ind_findings = ind_analysis_main(input)
+            agg_findings = agg_analysis_main(ind_findings)
+            print(agg_findings)
+
+            '''
             PARTS_ALLOCATED_FILTER = 0.7
             for percent_complete in range(30,100):
                 time.sleep(0.1)
                 progessBar1.progress(float(percent_complete/100), text="Filtering documents:")
+            '''
 
             st.session_state.pdf_filtered = input
+            st.session_state.pdf_ind_fig = ind_findings
+            st.session_state.pdf_agg_fig = agg_findings
             st.experimental_rerun()
             
 if st.session_state.pdf_filtered:
@@ -82,6 +95,10 @@ if st.session_state.pdf_filtered:
     st.text(st.session_state.pdf_filtered)
 
     st.subheader("Results")
+    st.dataframe(st.session_state.pdf_ind_fig)
+
+    st.subheader("Key Themes")
+    st.text(st.session_state.pdf_agg_fig)
 
     reupload_button = st.button('Reupload another prompt and zip file')
     if reupload_button:
