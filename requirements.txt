@@ -12,3 +12,4 @@ streamlit==1.26.0
 streamlit_extras==0.3.4
 sentence-transformers==2.2.2
 plotly==5.17.0
+tiktoken==0.5.1
