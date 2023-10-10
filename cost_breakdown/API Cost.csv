@@ -25,3 +25,4 @@ Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
 2023-10-10 10:11:51.925824,Support Analysis,Is cannabis more harmful than tobacco?,1500,69,0.0023880000000000004
 2023-10-10 14:43:28.019296,Individual Analysis,does the article mention cultural application of psychological first aid,3445,281,0.0057295
 2023-10-10 15:19:44.709794,Individual Analysis,does the article mention psychological first aid?,3187,286,0.0053525000000000005
+2023-10-10 19:57:26.184003,Support Analysis,is cannabis more harmful than tobacco?,1121,113,0.0019075000000000001

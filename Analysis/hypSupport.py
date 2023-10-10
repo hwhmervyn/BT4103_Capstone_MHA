@@ -1,17 +1,11 @@
 import json
 import textwrap
-import time
 import pandas as pd
 import plotly.graph_objects as go
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 
-# Build path from working directory and add to system paths to facilitate local module import
-import os, sys
-sys.path.append(os.path.join(os.getcwd(), "ChromaDB"))
-
 from llmConstants import chat
-from ChromaDB.chromaUtils import getCollection, getDistinctFileNameList
 
 ### Aesthetic parameters ###
 COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey"}
@@ -86,34 +80,6 @@ def add_line_breaks(text):
   return "".join(new_text_list)
 
 ### Output functions ###
-
-def get_support_df(query):
-  # Instantiate database
-  db = getCollection("pdf")
-
-  # Initialise holder lists
-  stance_list = []
-  evidence_list = []
-  source_docs_list = []
-  article_title_list = getDistinctFileNameList("pdf")[:1] # RESTRICT TO 1 FOR TESTING
-  total_num_articles = len(article_title_list)
-
-  for i in range(total_num_articles):
-    article_title = article_title_list[i]
-    start = time.time()
-    response, source_docs = get_llm_response(db, query, article_title)
-    end = time.time()
-    # Get stance and evidence. Append to holder lists
-    stance, evidence = get_stance_and_evidence(response)
-    stance_list.append(stance)
-    evidence_list.append(evidence)
-    source_docs_list.append(source_docs)
-    # Log to track progress
-    time_taken = round(end - start, 0)
-    print(f"{i+1}/{total_num_articles} completed. Time taken: {time_taken}s.")
-  
-  support_df = pd.DataFrame({"article": article_title_list, "stance": stance_list, "evidence": evidence_list, "source_docs": source_docs_list})
-  return support_df
 
 def get_support_table(support_df):
     df = support_df.copy()[["article", "stance", "evidence"]]
