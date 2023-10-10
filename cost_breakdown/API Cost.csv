@@ -11,3 +11,4 @@ Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
 2023-10-09 16:32:17.832034,Excel Filtering,indicate whether the articles mention culture adaptations of psychological first aid,2442,328,0.004319
 2023-10-09 16:51:56.072149,Excel Filtering,Is the article about Sports,2412,253,0.004124
 2023-10-09 16:54:29.217022,Excel Filtering,Is the article about drugs,2412,259,0.004136
+2023-10-10 10:11:51.925824,Support Analysis,Is cannabis more harmful than tobacco?,1500,69,0.0023880000000000004
