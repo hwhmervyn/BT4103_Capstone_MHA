@@ -114,6 +114,12 @@ def generate_visualisation(cleaned_findings_df):
   fig.show()
   return fig
 
+#Get pdf filenames that mention the topic
+def get_yes_pdf_filenames(cleaned_findings_df):
+  answer = 'yes'
+  yes_pdf = cleaned_findings_df.query('Answer = @answer')
+  return yes_pdf['Article Name'].values.tolist()
+
 def ind_analysis_main(query, progressBar1):
   #progessBar1.progress(float(percent_complete/100), text="Filtering documents:")
 
