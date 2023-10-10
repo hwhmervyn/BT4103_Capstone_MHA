@@ -65,24 +65,27 @@ if not st.session_state.pdf_filtered:
             st.write(uploaded_file.name[:-4])
             issues, executor, futures = schedulePdfUpload(pdfList)
             
-            progessBar1 = st.progress(0, text="Processing documents:")
+            progressBar1 = st.progress(0, text="Processing documents")
             numDone, numFutures = 0, len(futures)
             PARTS_ALLOCATED_UPLOAD_MAIN = 0.3
             for future in stqdm(as_completed(futures)):
                 result = future.result()
                 numDone += 1
                 progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
-                progessBar1.progress(progress,text="Processing documents:") 
+                progressBar1.progress(progress,text="Processing documents") 
 
-            ind_findings = ind_analysis_main(input)
-            agg_findings = agg_analysis_main(ind_findings)
-            print(agg_findings)
+            #PARTS_ALLOCATED_IND_ANALYSIS = 0.5
+            ind_findings = ind_analysis_main(input, progressBar1)
+            
+            #PARTS_ALLOCATED_AGG_ANALYSIS = 0.2
+            progressBar1.progress(float(80/100), text=f"Aggregating findings")
+            agg_findings = agg_analysis_main(ind_findings, progressBar1)
 
             '''
             PARTS_ALLOCATED_FILTER = 0.7
             for percent_complete in range(30,100):
                 time.sleep(0.1)
-                progessBar1.progress(float(percent_complete/100), text="Filtering documents:")
+                progessBar1.progress(float(percent_complete/100), text="Filtering documents")
             '''
 
             st.session_state.pdf_filtered = input

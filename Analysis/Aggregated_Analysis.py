@@ -6,6 +6,7 @@ from langchain.chains.llm import LLMChain
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 from langchain.chains import ReduceDocumentsChain, MapReduceDocumentsChain
 from langchain.callbacks import get_openai_callback
+import time
 
 import sys,os
 sys.path.append('cost_breakdown')
@@ -65,9 +66,11 @@ def get_common_themes(df, llm):
 
         return result
 
-def agg_analysis_main(cleaned_findings_df):
+def agg_analysis_main(cleaned_findings_df, progressBar1):
     result_tup = get_common_themes(cleaned_findings_df, chat)
-    print(result_tup)
-    common_themes = result_tup[0]
+    common_themes = result_tup
+
+    progressBar1.progress(float(100/100), text=f"Completed! Just a moment...")
+    time.sleep(0.2)
 
     return common_themes

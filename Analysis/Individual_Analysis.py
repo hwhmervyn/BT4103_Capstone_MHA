@@ -8,7 +8,7 @@ import re
 import textwrap
 from random import sample
 import plotly.graph_objects as go
-from concurrent.futures import ThreadPoolExecutor
+import time
 
 import sys,os
 sys.path.append('cost_breakdown')
@@ -25,7 +25,6 @@ def get_unique_filenames(pdf_collection):
   #Get the unique filenames
   unique_filename_lst = list(set(duplicated_filename_lst))
   return unique_filename_lst
-
 
 #Retrieve findings from the llm
 def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm):
@@ -52,11 +51,6 @@ def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, llm):
   #List to store the evidence
   evidence_lst = []
   print(len(unique_filename_lst))
-  
-  #executor = ThreadPoolExecutor(max_workers=1)
-  #pdfFutures = [executor.submit(uploadSingleDoc, langchain_chroma_pdf, str(id), doc) for doc, id in zip(sectionChunks, range(len(sectionChunks)))]
-  
-  #return (issues, executor, pdfFutures)
 
   with get_openai_callback() as usage_info:
     for specific_filename in unique_filename_lst:
@@ -120,7 +114,9 @@ def generate_visualisation(cleaned_findings_df):
   fig.show()
   return fig
 
-def ind_analysis_main(query):
+def ind_analysis_main(query, progressBar1):
+  #progessBar1.progress(float(percent_complete/100), text="Filtering documents:")
+
   #Get the pdf collection
   collection_name = 'pdf'
   pdf_collection = getCollection(collection_name)
@@ -140,7 +136,18 @@ def ind_analysis_main(query):
     """
   mention_y_n_prompt = PromptTemplate.from_template(mention_y_n_prompt_template)
 
+  #Get list of names of all articles
+  unique_filename_lst = get_unique_filenames(pdf_collection)
+  no_of_articles = len(unique_filename_lst)
+
   #Get the findings in a tuple
+  estimated_time = no_of_articles * 12
+  minutes = (estimated_time // 60) + 1
+  if minutes == 1:
+    progressBar1.progress(float(30/100), text=f"Analysing documents (approximately 1 minute)")
+  else:
+    progressBar1.progress(float(30/100), text=f"Analysing documents (approximately {minutes} minutes)")
+  
   results_tup = get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, chat)
 
   #Retrieve the dataframe
