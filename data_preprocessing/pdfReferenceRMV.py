@@ -1,6 +1,12 @@
 import fitz
-from data_preprocessing.pdfUtils import find_Reference, remove_reference
-from data_preprocessing.customExceptions import CannotFindReference
+
+import sys, os
+workingDirectory = os.getcwd()
+preProcessingDirectory = os.path.join(workingDirectory, "data_preprocessing")
+sys.path.append(preProcessingDirectory)
+
+from pdfUtils import find_Reference, remove_reference
+from customExceptions import CannotFindReference
 
 def removeReference(doc, fileName):
     '''takes in a pdf file path and outputs a new pdf with reference removed. 

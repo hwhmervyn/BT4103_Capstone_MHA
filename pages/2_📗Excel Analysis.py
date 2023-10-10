@@ -3,10 +3,11 @@ from streamlit_extras.app_logo import add_logo
 from concurrent.futures import as_completed
 import pandas as pd
 
-from cost_breakdown.update_cost import update_usage_logs, Stage
 import sys,os
 sys.path.append('ChromaDB/')
 from filterExcel import filterExcel, getOutputDF
+sys.path.append('cost_breakdown/')
+from update_cost import update_usage_logs, Stage
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)

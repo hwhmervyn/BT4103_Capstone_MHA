@@ -1,5 +1,11 @@
 from langchain.vectorstores import Chroma
-from ChromaDB.client import persistent_client, embeddings
+
+import sys, os
+workingDirectory = os.getcwd()
+chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
+sys.path.append(chromaDirectory)
+
+from client import persistent_client, embeddings
 
 def getCollection(collection_name):
     langchain_chroma = Chroma(

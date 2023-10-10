@@ -9,7 +9,7 @@ import os, sys
 sys.path.append(os.path.join(os.getcwd(), "analysis"))
 sys.path.append(os.path.join(os.getcwd(), "cost_breakdown"))
 
-from analysis.hypSupport import get_support_df, get_support_chart, get_support_table
+from hypSupport import get_support_df, get_support_chart, get_support_table
 from cost_breakdown.update_cost import update_usage_logs
 
 st.set_page_config(layout="wide")

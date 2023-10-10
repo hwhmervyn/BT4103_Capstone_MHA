@@ -1,15 +1,20 @@
-from data_preprocessing.removeHeadersFooters import (
+import fitz
+import sys, os
+workingDirectory = os.getcwd()
+preProcessingDirectory = os.path.join(workingDirectory, "data_preprocessing")
+sys.path.append(preProcessingDirectory)
+
+from removeHeadersFooters import (
     remove_header_footer,
     find_header_spans, 
     find_footer_spans, 
     remove_header_footer_firstPage,
 )
 
-from data_preprocessing.removeTables import remove_tables, remove_empty_pages, remove_citations, get_page_num
-from data_preprocessing.pdfUtils import getSpansByPage, keepFromTitle, removeSpecial
-from data_preprocessing.pdfReferenceRMV import removeReference
-from data_preprocessing.pdfSections import aggregateSpansToSections
-import fitz
+from removeTables import remove_tables, remove_empty_pages, remove_citations, get_page_num
+from pdfUtils import getSpansByPage, keepFromTitle, removeSpecial
+from pdfReferenceRMV import removeReference
+from pdfSections import aggregateSpansToSections
 
 def pdfMain(filePath):
     doc = fitz.open(filePath)

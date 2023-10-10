@@ -1,11 +1,14 @@
 import chromaUtils
-from data_preprocessing.pdfMain import pdfMain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from concurrent.futures import ThreadPoolExecutor
 
 import sys, os
 workingDirectory = os.getcwd()
+preProcessingDirectory = os.path.join(workingDirectory, "data_preprocessing")
 sys.path.append(workingDirectory)
+sys.path.append(preProcessingDirectory)
+
+from pdfMain import pdfMain
 
 def uploadSmallChunk(collection, doc):
     return collection.add_documents(documents=[doc])
@@ -14,7 +17,7 @@ def uploadSingleDoc(collection, id, doc):
     return collection.add_documents(ids=[id], documents=[doc])
 
 def schedulePdfUpload(listOfPDFfilepaths):
-    chromaUtils.createCollection('pdf')
+    chromaUtils.clearCollection(['pdf'])
     sectionsByFile = []
     issues = []
 

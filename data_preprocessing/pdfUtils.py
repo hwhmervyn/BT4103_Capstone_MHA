@@ -1,6 +1,12 @@
 import re
 import fitz
-from data_preprocessing.customExceptions import CannotFindReference
+
+import sys, os
+workingDirectory = os.getcwd()
+preProcessingDirectory = os.path.join(workingDirectory, "data_preprocessing")
+sys.path.append(preProcessingDirectory)
+
+from customExceptions import CannotFindReference
 
 def getSpansByPage(listOfBlockByPage, excludeNonText=True):
   spansByPage = []
