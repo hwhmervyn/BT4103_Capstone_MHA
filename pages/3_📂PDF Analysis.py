@@ -58,8 +58,10 @@ if not st.session_state.pdf_filtered:
             with ZipFile(uploaded_file, 'r') as zip:
                 extraction_path = os.path.join(workingDirectory, "data/")
                 zip.extractall(extraction_path)
-                foldername_match = re.search(r'^([^/]+)/', zip.infolist()[0].filename) # Search for folder name in zip file
-                foldername = foldername_match.group(1)
+                foldername = zip.infolist()[0].filename
+                foldername_match = re.search(r'^([^/]+)/', foldername) # Search for folder name in zip file
+                if foldername_match:
+                    foldername = foldername_match.group(1)
             
             pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
             issues, executor, futures = schedulePdfUpload(pdfList)

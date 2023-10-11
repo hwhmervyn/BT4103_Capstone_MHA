@@ -6,7 +6,7 @@ from langchain.llms import OpenAI
 
 # Read local ".env" file stored in top-most directory to retrieve API key
 _ = load_dotenv(find_dotenv())
-openai.api_key = os.environ["OPENAI_API_KEY"] 
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # Instantiate LLM
 
