@@ -47,3 +47,9 @@ Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
 2023-10-11 15:48:21.872959,Support Analysis,N/A,38,372,0.000801
 2023-10-11 15:55:00.431134,Individual Analysis,Does the article mention Psychological First Aid?,0,0,0.0
 2023-10-11 15:56:00.017753,Support Analysis,N/A,38,385,0.000827
+2023-10-11 16:04:25.535116,Individual Analysis,Does the article mention Psychological First Aid?,0,0,0.0
+2023-10-11 16:05:20.154561,Support Analysis,N/A,38,385,0.000827
+2023-10-11 16:08:54.722146,Individual Analysis,How so?,0,0,0.0
+2023-10-11 16:09:53.106877,Support Analysis,N/A,38,370,0.000797
+2023-10-11 16:13:07.096275,Individual Analysis,does the article mention first aid,1777,183,0.0030315
+2023-10-11 16:13:43.450443,Support Analysis,N/A,398,246,0.0010890000000000001

@@ -156,7 +156,7 @@ def generate_visualisation(cleaned_findings_df):
   ], layout=layout)
 
   fig.update_layout(autosize=False,
-                    height=200)
+                    height=400)
 
   return fig
 

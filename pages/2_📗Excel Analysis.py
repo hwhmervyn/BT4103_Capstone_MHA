@@ -48,7 +48,7 @@ if not st.session_state.filtered:
                 total_cost += row[7]
                 results.append(row[0:5])
                 numDone += 1
-                progessBar.progress(numDone/numFutures)
+                progessBar.progress(numDone/numFutures, text="Article filtering in progress...")
             
             update_usage_logs(Stage.EXCEL_FILTERING.value, input, total_input_tokens,total_output_tokens,total_cost)
             dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","llmOutput", "jsonOutput"])

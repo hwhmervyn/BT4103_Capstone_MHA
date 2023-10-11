@@ -62,6 +62,8 @@ if not st.session_state.pdf_filtered:
                 foldername_match = re.search(r'^([^/]+)/', foldername) # Search for folder name in zip file
                 if foldername_match:
                     foldername = foldername_match.group(1)
+                else:
+                    foldername = ""
             
             pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
             issues, executor, futures = schedulePdfUpload(pdfList)
