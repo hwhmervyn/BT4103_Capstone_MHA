@@ -61,3 +61,4 @@ Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
 2023-10-11 17:25:35.978657,Support Analysis,Is psychological first aid effective in preventing mental disorders? ,3004,219,0.0049440000000000005
 2023-10-11 17:27:21.937830,Support Analysis,Is psychological first aid effective in preventing mental disorders? ,3004,210,0.004926
 2023-10-11 17:34:53.716995,Support Analysis,Is psychological first aid effective in preventing mental disorders? ,3004,219,0.0049440000000000005
+2023-10-11 19:24:12.704215,Excel Filtering,Is the article relevant to psychological first aid?,377,52,0.0006695000000000001

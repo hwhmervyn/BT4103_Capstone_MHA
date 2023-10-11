@@ -1,6 +1,7 @@
 import statistics
 import re 
 
+# Removed Blank Pages (After Headers, Footers & References Removed)
 def remove_empty_pages(span_lst):
     removed_pages = []
     new_span_lst = []
@@ -15,6 +16,7 @@ def remove_empty_pages(span_lst):
     else:
         return removed_pages, span_lst
 
+# Remove Tables (Tables have inconsistent font size/type with the rest of the text)
 def remove_tables(span_lst):
     page_sizes = []
     span_sizes = []
@@ -89,10 +91,12 @@ def remove_citations(sections):
     for section_index in range (0,len(sections)):
         section = re.sub("\(.*?\)","",sections[section_index][0])
         section = re.sub("\[.*?\]","",section)
+        section = re.sub(r"[�]","",section)
         section = re.sub(r'\s+', ' ', section)
         sections[section_index][0] = section
     return sections
 
+# Get Page number range of a section
 def get_page_num(spansByPage, removed_pages):
     newSpansByPage = []
     page_num = 1
