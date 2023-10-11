@@ -53,3 +53,11 @@ Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
 2023-10-11 16:09:53.106877,Support Analysis,N/A,38,370,0.000797
 2023-10-11 16:13:07.096275,Individual Analysis,does the article mention first aid,1777,183,0.0030315
 2023-10-11 16:13:43.450443,Support Analysis,N/A,398,246,0.0010890000000000001
+2023-10-11 16:30:18.593977,Individual Analysis,Does the article mention psychological first aid?,2305,211,0.0038795
+2023-10-11 16:32:09.575558,Support Analysis,test,0,0,0.0
+2023-10-11 16:51:34.949657,Individual Analysis,does the article mention psychological first aid?,2305,205,0.0038675
+2023-10-11 16:52:29.081567,Support Analysis,N/A,519,323,0.0014245
+2023-10-11 17:22:54.965460,Support Analysis,Is psychological first aid effective in preventing mental disorders? ,0,0,0.0
+2023-10-11 17:25:35.978657,Support Analysis,Is psychological first aid effective in preventing mental disorders? ,3004,219,0.0049440000000000005
+2023-10-11 17:27:21.937830,Support Analysis,Is psychological first aid effective in preventing mental disorders? ,3004,210,0.004926
+2023-10-11 17:34:53.716995,Support Analysis,Is psychological first aid effective in preventing mental disorders? ,3004,219,0.0049440000000000005
