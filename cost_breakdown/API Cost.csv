@@ -36,3 +36,7 @@ Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
 2023-10-11 11:51:16.628342,Support Analysis,N/A,405,234,0.0010755
 2023-10-11 11:53:46.032397,Individual Analysis,is first aid mentioned,2131,181,0.0035585
 2023-10-11 11:54:32.517867,Support Analysis,N/A,405,234,0.0010755
+2023-10-11 11:59:43.161237,Individual Analysis,What are the cultural adaptations of Psychological First Aid,2299,113,0.0036745000000000007
+2023-10-11 12:00:23.489929,Support Analysis,N/A,402,206,0.001015
+2023-10-11 12:04:47.106873,Individual Analysis,what are the cultural adaptations of Psychological First Aid,2891,48,0.004432500000000001
+2023-10-11 12:05:09.098461,Support Analysis,N/A,281,120,0.0006615
