@@ -162,8 +162,7 @@ def generate_visualisation(cleaned_findings_df):
 
 #Get pdf filenames that mention the topic
 def get_yes_pdf_filenames(cleaned_findings_df):
-  answer = 'yes'
-  yes_pdf = cleaned_findings_df.query('Answer = @answer')
+  yes_pdf = cleaned_findings_df.copy()[cleaned_findings_df["Answer"].str.lower() == "yes"]
   return yes_pdf['Article Name'].values.tolist()
 
 def ind_analysis_main(query, progressBar1):
