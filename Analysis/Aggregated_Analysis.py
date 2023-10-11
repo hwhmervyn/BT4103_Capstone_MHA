@@ -1,5 +1,3 @@
-#from Individual_Analysis import cleaned_findings_df
-from llmConstants import chat
 from langchain.schema.document import Document
 from langchain.prompts import PromptTemplate
 from langchain.chains.llm import LLMChain
@@ -9,8 +7,17 @@ from langchain.callbacks import get_openai_callback
 import time
 
 import sys,os
-sys.path.append('cost_breakdown')
+workingDirectory = os.getcwd()
+costDirectory = os.path.join(workingDirectory, "cost_breakdown")
+analysisDirectory = os.path.join(workingDirectory, "Analysis")
+
+from llmConstants import chat
+
+sys.path.append(costDirectory)
 from update_cost import update_usage_logs
+
+sys.path.append(analysisDirectory)
+#from Individual_Analysis import cleaned_findings_df
 
 def get_common_themes(df, llm):
     docs = df['Findings'].apply(lambda x: Document(page_content=x[4:])).tolist() # Remove <br> and convert to Document type
@@ -67,10 +74,11 @@ def get_common_themes(df, llm):
         return result
 
 def agg_analysis_main(cleaned_findings_df, progressBar1):
+    progressBar1.progress(float(80/100), text=f"Aggregating key themes...")
     result_tup = get_common_themes(cleaned_findings_df, chat)
     common_themes = result_tup
 
     progressBar1.progress(float(100/100), text=f"Completed! Just a moment...")
-    time.sleep(0.2)
+    time.sleep(1)
 
     return common_themes

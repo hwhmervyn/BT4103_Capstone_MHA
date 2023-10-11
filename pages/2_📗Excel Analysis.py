@@ -60,7 +60,7 @@ if not st.session_state.filtered:
 
 else:
     st.subheader("Prompt")
-    st.text(st.session_state.filtered)
+    st.markdown(st.session_state.filtered)
 
     st.subheader("Results")
 

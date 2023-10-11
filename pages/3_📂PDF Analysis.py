@@ -4,6 +4,7 @@ from concurrent.futures import as_completed
 from stqdm import stqdm
 import glob
 import streamlit as st
+from streamlit_card import card
 from streamlit_extras.app_logo import add_logo
 from zipfile import ZipFile
 import re
@@ -18,7 +19,7 @@ sys.path.append(chromaDirectory)
 from ingestPdf import schedulePdfUpload
 
 sys.path.append(analysisDirectory)
-from Individual_Analysis import ind_analysis_main
+from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
 
 st.set_page_config(layout="wide")
@@ -62,46 +63,55 @@ if not st.session_state.pdf_filtered:
                 foldername = foldername_match.group(1)
             
             pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
-            st.write(uploaded_file.name[:-4])
             issues, executor, futures = schedulePdfUpload(pdfList)
             
-            progressBar1 = st.progress(0, text="Processing documents")
+            progressBar1 = st.progress(0, text="Processing documents...")
             numDone, numFutures = 0, len(futures)
             PARTS_ALLOCATED_UPLOAD_MAIN = 0.3
             for future in stqdm(as_completed(futures)):
                 result = future.result()
                 numDone += 1
                 progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
-                progressBar1.progress(progress,text="Processing documents") 
+                progressBar1.progress(progress,text="Processing documents...") 
 
-            #PARTS_ALLOCATED_IND_ANALYSIS = 0.5
-            ind_findings = ind_analysis_main(input, progressBar1)
-            
-            #PARTS_ALLOCATED_AGG_ANALYSIS = 0.2
-            progressBar1.progress(float(80/100), text=f"Aggregating findings")
+            ind_findings, findings_visual = ind_analysis_main(input, progressBar1)
+            ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
+            time.sleep(2)
+
             agg_findings = agg_analysis_main(ind_findings, progressBar1)
 
-            '''
-            PARTS_ALLOCATED_FILTER = 0.7
-            for percent_complete in range(30,100):
-                time.sleep(0.1)
-                progessBar1.progress(float(percent_complete/100), text="Filtering documents")
-            '''
-
             st.session_state.pdf_filtered = input
-            st.session_state.pdf_ind_fig = ind_findings
+            st.session_state.pdf_ind_fig1 = findings_visual
+            st.session_state.pdf_ind_fig2 = ind_findings
             st.session_state.pdf_agg_fig = agg_findings
             st.experimental_rerun()
             
 if st.session_state.pdf_filtered:
     st.subheader("Prompt")
-    st.text(st.session_state.pdf_filtered)
+    st.markdown(st.session_state.pdf_filtered)
 
     st.subheader("Results")
-    st.dataframe(st.session_state.pdf_ind_fig)
+    with open("output/pdf_analysis_results.xlsx", 'rb') as my_file:
+        st.download_button(label = 'Download', data = my_file, file_name='pdf_analysis_results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    st.plotly_chart(st.session_state.pdf_ind_fig1, use_container_width=True)
 
     st.subheader("Key Themes")
-    st.text(st.session_state.pdf_agg_fig)
+    st.markdown(st.session_state.pdf_agg_fig)
+
+    # Summary visualisations (in the form of cards)
+    #st.subheader("Summary")
+    #num_relevant_articles = len(get_yes_pdf_filenames(st.session_state.pdf_ind_fig2))
+    #num_articles = st.session_state.pdf_ind_fig2.shape[0]
+
+    #card1 = card(
+    #    title=num_articles,
+    #    text="Total Articles Analysed",
+    #)
+
+    #card1 = card(
+    #    title=num_relevant_articles,
+    #    text="Total Relevant Articles",
+    #)
 
     reupload_button = st.button('Reupload another prompt and zip file')
     if reupload_button:
