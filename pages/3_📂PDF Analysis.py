@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 from concurrent.futures import as_completed
-from stqdm import stqdm
 import glob
 import streamlit as st
 from streamlit_card import card
@@ -68,7 +67,7 @@ if not st.session_state.pdf_filtered:
             progressBar1 = st.progress(0, text="Processing documents...")
             numDone, numFutures = 0, len(futures)
             PARTS_ALLOCATED_UPLOAD_MAIN = 0.3
-            for future in stqdm(as_completed(futures)):
+            for future in as_completed(futures):
                 result = future.result()
                 numDone += 1
                 progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
