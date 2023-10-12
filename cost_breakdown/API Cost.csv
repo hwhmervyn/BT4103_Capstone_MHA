@@ -1,4 +1,16 @@
 Date,Processing Stage,Query,Total Input Tokens,Total Output Tokens,Total Cost
+2023-10-07 18:02:38.497946,Excel Filtering,does the article mentions psychological first-aid?,3691,332,0.0062005
+2023-10-09 12:25:59.685613,Excel Filtering,Does the article mention psychological first aid,2831,243,0.0047325
+2023-10-09 14:05:53.282795,Excel Filtering,Lets try this again,2816,330,0.004884
+2023-10-09 14:11:40.518980,Excel Filtering,lets gooo,2811,270,0.0047565
+2023-10-09 14:15:56.005216,Excel Filtering,lets goo,2806,268,0.004745
+2023-10-09 14:53:25.815060,Excel Filtering,haah,2806,169,0.004547
+2023-10-09 21:30:59.433739,Support Analysis,Is cannabis more harmful than tobacco?,1362,111,0.002265
+2023-10-09 22:01:02.408849,Support Analysis,,0,0,0.0
+2023-10-09 22:04:49.094048,Support Analysis,,0,0,0.0
+2023-10-09 16:32:17.832034,Excel Filtering,indicate whether the articles mention culture adaptations of psychological first aid,2442,328,0.004319
+2023-10-09 16:51:56.072149,Excel Filtering,Is the article about Sports,2412,253,0.004124
+2023-10-09 16:54:29.217022,Excel Filtering,Is the article about drugs,2412,259,0.004136
 2023-10-11 09:19:56.253806,Individual Analysis,does the article mention first aid,2584,207,0.00429
 2023-10-11 09:20:50.519225,Support Analysis,N/A,512,270,0.0013080000000000001
 2023-10-11 09:24:38.771640,Individual Analysis,does the article mention first aid,2584,207,0.00429
