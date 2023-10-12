@@ -11,4 +11,4 @@ data/
 
 output/
 cost_breakdown/API Cost.csv
-cost_breakdown/API Cost.csv
+cost_breakdown/__pycache__
