@@ -50,7 +50,7 @@ def getOutputDF(dfOut):
     dfOut.loc[json_exists, 'prediction'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('answer'))
     dfOut.insert(4,'justification_for_relevancy', None, True)
     dfOut.loc[json_exists, 'justification_for_relevancy'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('explanation'))
-    
+    dfOut = dfOut.drop('jsonOutput', axis=1)
     return dfOut
 
 # # FOR TESTING
