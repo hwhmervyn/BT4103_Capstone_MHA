@@ -1,4 +1,4 @@
-from ChromaDB.chromaUtils import getCollection
+from ChromaDB.chromaUtils import getCollection, getDistinctFileNameList
 from llmConstants import chat
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
@@ -19,17 +19,6 @@ COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightg
 # Text wrap for output in table
 WRAPPER = textwrap.TextWrapper(width=160) # creates a split every 160 characters
 
-#Get the unique file names in the pdf collection
-def get_unique_filenames(pdf_collection):
-  #Get the pdf collection with metadatas which include the filename
-  pdf_collection_with_metadata = pdf_collection.get(include=["metadatas"])
-  #Get the metadata list
-  metadata_dict_lst = pdf_collection_with_metadata['metadatas']
-  #Get every single filename that maps to each document
-  duplicated_filename_lst = [metadata_dict['fileName'] for metadata_dict in metadata_dict_lst]
-  #Get the unique filenames
-  unique_filename_lst = list(set(duplicated_filename_lst))
-  return unique_filename_lst
 
 #Retrieve findings from the llm
 def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm):
@@ -45,9 +34,9 @@ def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_
   return result
 
 #Queries the pdfs and outputs a dataframe
-def get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, llm, progressBar1):
+def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_prompt, llm, progressBar1):
   #Get the unique filenames from the pdf collection
-  unique_filename_lst = get_unique_filenames(pdf_collection)
+  unique_filename_lst = getDistinctFileNameList(collection_name)
   total_num_articles = len(unique_filename_lst)
   #Just a placeholder to limit the number of filenames to 5
   #unique_filename_lst =  sample(unique_filename_lst, 5)
@@ -185,7 +174,7 @@ def ind_analysis_main(query, progressBar1):
     """
   mention_y_n_prompt = PromptTemplate.from_template(mention_y_n_prompt_template)
   
-  results_tup = get_findings_from_pdfs(pdf_collection, query, mention_y_n_prompt, chat, progressBar1)
+  results_tup = get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_prompt, chat, progressBar1)
 
   #Retrieve the dataframe
   uncleaned_findings_df = results_tup[0]
