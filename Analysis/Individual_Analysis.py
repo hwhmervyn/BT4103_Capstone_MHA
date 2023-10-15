@@ -3,9 +3,15 @@ from llmConstants import chat
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain.callbacks import get_openai_callback
+from langchain.output_parsers import PydanticOutputParser
+from pydantic import BaseModel, Field, validator
+from typing import List
+
+
 import pandas as pd
-import re
 import textwrap
+import re
+import json
 from random import sample
 import plotly.graph_objects as go
 import time
@@ -14,10 +20,41 @@ import sys,os
 sys.path.append('cost_breakdown')
 from update_cost import update_usage_logs
 
-### Aesthetic parameters ###
+
+### Global Parameters ###
+
+# Aesthetic parameters #
 COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey"}
 # Text wrap for output in table
 WRAPPER = textwrap.TextWrapper(width=160) # creates a split every 160 characters
+
+#Create a class for output parser
+class Response(BaseModel):
+    answer: str = Field(description= "Answer Yes or No in 1 word" )
+    evidence: List[str] = Field(description="List 3 sentences of evidence to explain")
+
+
+def create_prompt():
+  mention_y_n_prompt_template = """
+    [INST]<<SYS>>
+    You are a psychology researcher extracting findings from research papers.
+    If you don't know the answer, just say that you don't know, do not make up an answer.
+    Use only the context below to answer the question.<</SYS>>
+    Context: {context}
+    Question: {question}
+    Format: {format_instructions}
+    """
+
+  parser = PydanticOutputParser(pydantic_object=Response)
+
+  mention_y_n_prompt = PromptTemplate(
+    template= mention_y_n_prompt_template,
+    input_variables=["context", "question"],
+    partial_variables={"format_instructions": parser.get_format_instructions()})
+  
+  return mention_y_n_prompt
+
+
 
 
 #Retrieve findings from the llm
@@ -64,7 +101,9 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
       else:
         yes_no_lst.append('No')
       print(result)
-      evidence_lst.append(result)
+      result_dict = json.loads(result)
+      evidence = result_dict['evidence']
+      evidence_lst.append(evidence)
 
       numDone += 1
       progress = PARTS_ALLOCATED_UPLOAD_MAIN + (float(numDone/total_num_articles) * PARTS_ALLOCATED_IND_ANALYSIS)
@@ -81,47 +120,30 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
   uncleaned_findings_df = pd.DataFrame(uncleaned_findings_dict)
   return (uncleaned_findings_df, total_input_tokens, total_output_tokens, total_cost)
 
-#Cleans the evidence strings
-def clean_evidence(finding_str):
-  #Remove the Yes No
-  yes_no_pattern = r'\b(?:Yes|No)\b'
-  finding_str = re.sub(yes_no_pattern, '', finding_str)
-  #Remove the . in the case of Yes.
-  full_stop_pattern = r'^[.\s]*'
-  finding_str = re.sub(full_stop_pattern, '', finding_str)
-  #Remove the 1., 2., 3. and replace with the *
-  numbering_pattern = r'^\d+\.\s'  # Matches lines starting with a number, period, and space
-  finding_str = re.sub(numbering_pattern, '', finding_str, flags=re.MULTILINE)
-  #Insert newline after full stops
-  full_stop_pattern2 = r'\.'
-  finding_str = re.sub(full_stop_pattern2, '.\n', finding_str)
-  #Text Wrap the string (may not need)
-  #finding_str = textwrap.fill(finding_str, 30)
-  #Replace the * with breaks so that we can display a line break 
-  #finding_str_final = finding_str.replace('*', "")
-  return finding_str
+
+#Add line breaks to the paragraphs
+def add_line_breaks(text_list):
+  new_text_list = []
+  for text in text_list:
+    # Add line breaks for easier viewing of output
+    new_text = "<br>" + "<br>".join(WRAPPER.wrap(text.strip())) 
+    new_text_list.append(new_text)
+  return "".join(new_text_list)
 
 #Clean the findings df
 def clean_findings_df(uncleaned_findings_df):
   cleaned_findings_df = uncleaned_findings_df.copy()
-  cleaned_findings_df['Findings'] = cleaned_findings_df['Evidence'].apply(lambda evidence : clean_evidence(evidence))
-  
-  #Drop the Evidence columns
+  #Get the findings just paragraphs
+  cleaned_findings_df['Findings'] = cleaned_findings_df['Evidence'].apply(lambda evidence_list : " ".join(evidence_list))
+  #Add line breaks
+  cleaned_findings_df['Findings_Visualised'] = cleaned_findings_df['Evidence'].apply(lambda evidence_list: add_line_breaks(evidence_list))
+  #Drop the Evidence column
   cleaned_findings_df = cleaned_findings_df.drop(columns = 'Evidence')
   return cleaned_findings_df
 
-def add_line_breaks(text):
-  text_list = text.split(". ")
-  new_text_list = []
-  for text in text_list:
-    # Add line breaks for easier viewing of output
-    new_text = "<br>".join(WRAPPER.wrap(text.strip())) + '</br>'
-    new_text_list.append(new_text)
-  return "".join(new_text_list)
 
 #Generate a table visualisation
 def generate_visualisation(cleaned_findings_df):
-  cleaned_findings_df['Findings_Visualised'] = cleaned_findings_df['Findings'].apply(lambda x: add_line_breaks(x))
 
   layout = go.Layout(
     margin=go.layout.Margin(
@@ -134,7 +156,7 @@ def generate_visualisation(cleaned_findings_df):
   )
 
   fig = go.Figure(data=[go.Table(
-    columnwidth = [50,50,280],
+    columnwidth = [50,50,300],
     header=dict(values=['Article Name', 'Answer', 'Findings'],
                 fill_color='paleturquoise',
                 align='left'),
@@ -143,9 +165,6 @@ def generate_visualisation(cleaned_findings_df):
                align='left')
     )
   ], layout=layout)
-
-  fig.update_layout(autosize=False,
-                    height=400)
 
   return fig
 
@@ -160,20 +179,9 @@ def ind_analysis_main(query, progressBar1):
   pdf_collection = getCollection(collection_name)
 
   #Initialise the prompt template
-  #query = "Does the article mention Psychological First Aid?"
-  mention_y_n_prompt_template = """
-    [INST]<<SYS>>
-    You are a psychology researcher extracting findings from research papers.
-    If you don't know the answer, just say that you don't know, do not make up an answer.
-    Use only the context below to answer the question.<</SYS>>
-    Context: {context}
-    Question: {question}
-    Only provide your answer. Do not provide comments.
-    Answer Yes or No in 1 word. List 3 sentences of evidence to explain.
-    [/INST]
-    """
-  mention_y_n_prompt = PromptTemplate.from_template(mention_y_n_prompt_template)
+  mention_y_n_prompt = create_prompt()
   
+  #Get findings from the pdfs
   results_tup = get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_prompt, chat, progressBar1)
 
   #Retrieve the dataframe
