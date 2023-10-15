@@ -11,8 +11,6 @@ workingDirectory = os.getcwd()
 costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 analysisDirectory = os.path.join(workingDirectory, "Analysis")
 
-from Individual_Analysis import get_yes_pdf_filenames
-
 from llmConstants import chat
 
 sys.path.append(costDirectory)
@@ -22,7 +20,7 @@ sys.path.append(analysisDirectory)
 #from Individual_Analysis import cleaned_findings_df
 
 def get_common_themes(df, llm):
-    df = get_yes_pdf_filenames(df)
+    df = df.loc[df['Answer'].isin('Yes')]
     docs = df['Findings'].apply(lambda x: Document(page_content=x[4:])).tolist() # Remove <br> and convert to Document type
 
     with get_openai_callback() as usage_info:
