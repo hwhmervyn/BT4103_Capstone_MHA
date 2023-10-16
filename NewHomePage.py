@@ -35,6 +35,11 @@ st.markdown("""
 .icon {
 }
             
+.element-container:has(#button-after) + div button {
+ background-color: #6c757d;
+ color: white;
+ }
+            
 </style>
 """, unsafe_allow_html=True)
 
@@ -59,6 +64,7 @@ with col4:
 with col5:
     pass
 with col3:
+    st.markdown('<span id="button-after"></span>', unsafe_allow_html=True)
     get_started = st.button('Get Started', key = 'get_started')
     if get_started:
         switch_page("get started")
