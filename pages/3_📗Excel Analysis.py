@@ -5,7 +5,7 @@ import pandas as pd
 
 import sys,os
 sys.path.append('ChromaDB/')
-from filterExcel import filterExcel, getOutputDF
+from filterExcel import filterExcel, getOutputDF, generate_visualisation, clean_findings_df
 sys.path.append('cost_breakdown/')
 from update_cost import update_usage_logs, Stage
 
@@ -66,11 +66,15 @@ else:
 
     # Display output (To be changed during integration)
     df = pd.read_excel("output/excel_result.xlsx")
+    clean_df = clean_findings_df(df)
+    fig = generate_visualisation(clean_df)
+    st.session_state.excel_filter_fig1 = fig
     # st.download_button(label="Download Excel file", data="output/test_output_pfa.xlsx", file_name='results.xlsx') 
 
     with open("output/excel_result.xlsx", 'rb') as my_file:
         st.download_button(label = 'Download', data = my_file, file_name='results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') 
-        st.dataframe(df, width=3000, height=1000)
+        
+    st.plotly_chart(st.session_state.excel_filter_fig1, use_container_width=True)
 
     reupload_button = st.button('Reupload another prompt and excel file')
     if reupload_button:

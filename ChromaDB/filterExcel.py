@@ -4,6 +4,8 @@ sys.path.append(workingDirectory)
 
 from filterConstants import chat, chat_prompt, excel_parser, retry_prompt, output_fixer
 import pandas as pd
+import textwrap
+import plotly.graph_objects as go
 from json.decoder import JSONDecodeError
 from concurrent.futures import ThreadPoolExecutor
 from langchain.callbacks import get_openai_callback
@@ -52,6 +54,50 @@ def getOutputDF(dfOut):
     dfOut.loc[json_exists, 'justification_for_relevancy'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('explanation'))
     dfOut = dfOut.drop('jsonOutput', axis=1)
     return dfOut
+
+WRAPPER = textwrap.TextWrapper(width=100) 
+COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey"}
+
+#Add line breaks to the paragraphs
+def add_line_breaks(text):
+  new_text = "<br>" + "<br>".join(WRAPPER.wrap(text.strip())) 
+  return new_text
+
+#Clean the findings df
+def clean_findings_df(uncleaned_findings_df):
+  cleaned_findings_df = uncleaned_findings_df.copy()
+  #Add line breaks
+  cleaned_findings_df['Findings_Visualised'] = cleaned_findings_df['ABSTRACT'].apply(lambda text: add_line_breaks(text))
+  #Drop the Evidence column
+  cleaned_findings_df = cleaned_findings_df.drop(columns = 'ABSTRACT')
+  return cleaned_findings_df
+
+
+#Generate a table visualisation
+def generate_visualisation(cleaned_findings_df):
+
+  layout = go.Layout(
+    margin=go.layout.Margin(
+      l=0, #left margin
+      r=0, #right margin
+      b=0, #bottom margin
+      t=0,  #top margin
+      pad=0
+    )
+  )
+
+  fig = go.Figure(data=[go.Table(
+    columnwidth = [150,150,450,50,150,150],
+    header=dict(values=['DOI','TITLE','ABSTRACT', 'prediction', 'justification_for_relevancy', 'llmOutput'],
+                fill_color='paleturquoise',
+                align='left'),
+    cells=dict(values=[cleaned_findings_df['DOI'], cleaned_findings_df['TITLE'],cleaned_findings_df['Findings_Visualised'],cleaned_findings_df['prediction'],cleaned_findings_df['justification_for_relevancy'],cleaned_findings_df['llmOutput']],
+               fill_color=['white','white','white',cleaned_findings_df['prediction'].map(COLOUR_MAPPING),'white','white'],
+               align='left')
+    )
+  ], layout=layout)
+
+  return fig
 
 # # FOR TESTING
 # executor, futures = filterExcel("data/combined.xlsx",  "Is the article about Food.")
