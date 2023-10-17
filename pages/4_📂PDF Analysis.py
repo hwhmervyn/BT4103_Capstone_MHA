@@ -10,6 +10,7 @@ import time
 
 import sys, os
 workingDirectory = os.getcwd()
+dataDirectory = os.path.join(workingDirectory, "data")
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
 analysisDirectory = os.path.join(workingDirectory, "Analysis")
 
@@ -19,6 +20,12 @@ from ingestPdf import schedulePdfUpload
 sys.path.append(analysisDirectory)
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
+
+from os import listdir
+from os.path import abspath
+from os.path import isdir
+from os.path import join
+from shutil import rmtree
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
@@ -35,6 +42,14 @@ if 'pdf_filtered' not in st.session_state:
     st.session_state.pdf_filtered = False
 
 if not st.session_state.pdf_filtered:
+    # Remove all folders in 'data' folder
+    for file in listdir(dataDirectory):
+        full_path = join(abspath(dataDirectory), file)
+
+    if isdir(full_path):
+        rmtree(full_path)
+
+    # Page layout
     input = st.text_input("Research Prompt", placeholder='Enter your research prompt')
 
     st.markdown('##')
@@ -93,6 +108,7 @@ if st.session_state.pdf_filtered:
     st.markdown(st.session_state.pdf_filtered)
 
     st.subheader("Results")
+
     # Summary visualisations (in the form of cards)
     num_relevant_articles = len(get_yes_pdf_filenames(st.session_state.pdf_ind_fig2))
     num_articles = st.session_state.pdf_ind_fig2.shape[0]
@@ -132,10 +148,12 @@ if st.session_state.pdf_filtered:
     st.text("")
     st.text("")
 
+    # Result Table
     with open("output/pdf_analysis_results.xlsx", 'rb') as my_file:
         st.download_button(label = 'Download Excel', data = my_file, file_name='pdf_analysis_results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     st.plotly_chart(st.session_state.pdf_ind_fig1, use_container_width=True)
 
+    # Key Themes
     st.subheader("Key Themes")
     st.markdown(st.session_state.pdf_agg_fig)
 
