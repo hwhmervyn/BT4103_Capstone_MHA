@@ -1,9 +1,9 @@
 import json
 import textwrap
-import pandas as pd
 import plotly.graph_objects as go
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
+from langchain.chains import LLMChain
 
 from llmConstants import chat
 
@@ -61,13 +61,25 @@ def get_llm_response(db, query, article_title):
   result = qa_chain({"query": query})
   return (result["result"], result["source_documents"])
 
+def correct_format_json(response):
+  prompt_template = """Convert the given string to a JSON object. 
+    Format: ### {format_instructions} ###
+    String to convert: ### {string} ###
+  """
+  prompt = PromptTemplate(template=prompt_template,
+                            input_variables=["string"],
+                            partial_variables={"format_instructions": OUTPUT_FORMAT_INSTRUCTIONS})
+  format_correction_chain = LLMChain(llm=LLM, prompt=prompt)
+  result = format_correction_chain.run(response)
+  return result
+
 def get_stance_and_evidence(response):
-  print(response) # TODO REMOVE
   response_dict_obj = json.loads(response)
-  stance = response_dict_obj["stance"]
+  # Ensure consistency of reponse by removing whitespaces, converting to lowercase, and capitalising first letter
+  stance = response_dict_obj["stance"].strip().lower().capitalize()
   evidence_list = response_dict_obj["evidence"]
   # Join list of evidence into a single string.
-  evidence_str = ". ".join(evidence_list)
+  evidence_str = ". ".join(evidence_list).strip()
   return stance, evidence_str
 
 def add_line_breaks(text):
@@ -84,9 +96,6 @@ def add_line_breaks(text):
 def get_support_table(support_df):
     df = support_df.copy()[["article", "stance", "evidence"]]
 
-    # TODO REMOVE
-    df["article"] = df["article"].apply(lambda x: x.replace('data\\Compilation of articles\\', ''))
-
     # Add line breaks to separate sentences
     df["evidence"] = df["evidence"].apply(lambda x: add_line_breaks(x))
     fig = go.Figure(data=[go.Table(
@@ -101,7 +110,7 @@ def get_support_table(support_df):
       ),
       cells=dict(
         values=[df.stance, df.article, df.evidence],
-        fill_color=[df["stance"].map(COLOUR_MAPPING), "white", "white"],
+        fill_color=[df["stance"].map(COLOUR_MAPPING).fillna("black"), "white", "white"],
         align=['center', 'left', 'left'],
         font_size=14
         ))
@@ -113,6 +122,6 @@ def get_support_chart(support_df):
   fig = go.Figure(data=[go.Bar(
       x=df["stance"],
       y=df["count"],
-      marker_color=list(df["stance"].map(COLOUR_MAPPING)),
+      marker_color=list(df["stance"].map(COLOUR_MAPPING).fillna("black")),
   )])
   return fig
