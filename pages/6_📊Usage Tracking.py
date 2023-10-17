@@ -5,6 +5,8 @@ import sys, os
 workingDirectory = os.getcwd()
 costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 
+st.set_page_config(layout="wide")
+
 st.markdown("<h1 style='text-align: left; color: Black;'>Usage Tracking</h1>", unsafe_allow_html=True)
 st.markdown('#')
 
