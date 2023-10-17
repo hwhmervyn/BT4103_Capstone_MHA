@@ -3,7 +3,6 @@ import streamlit as st
 from concurrent.futures import as_completed
 import glob
 import streamlit as st
-from streamlit_card import card
 from streamlit_extras.app_logo import add_logo
 from zipfile import ZipFile
 import re
@@ -94,27 +93,51 @@ if st.session_state.pdf_filtered:
     st.markdown(st.session_state.pdf_filtered)
 
     st.subheader("Results")
+    # Summary visualisations (in the form of cards)
+    num_relevant_articles = len(get_yes_pdf_filenames(st.session_state.pdf_ind_fig2))
+    num_articles = st.session_state.pdf_ind_fig2.shape[0]
+
+    st.markdown("""
+    <style>
+    div[data-testid="metric-container"] {
+    background-color: rgba(28, 131, 225, 0.1);
+    border: 1px solid rgba(28, 131, 225, 0.1);
+    padding: 5% 5% 5% 10%;
+    border-radius: 5px;
+    color: rgb(30, 103, 119);
+    overflow-wrap: break-word;
+    }
+
+    div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div {
+    overflow-wrap: break-word;
+    white-space: break-spaces;
+    color: red;
+    }
+                
+    div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div p {
+    font-size: 150% !important;
+    }
+    </style>
+    """
+    , unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col2:
+        st.metric("Articles Analysed", num_articles)
+    
+    with col4:
+        st.metric("Relevant Articles", num_relevant_articles)
+
+    st.text("")
+    st.text("")
+    st.text("")
+
     with open("output/pdf_analysis_results.xlsx", 'rb') as my_file:
-        st.download_button(label = 'Download', data = my_file, file_name='pdf_analysis_results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        st.download_button(label = 'Download Excel', data = my_file, file_name='pdf_analysis_results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     st.plotly_chart(st.session_state.pdf_ind_fig1, use_container_width=True)
 
     st.subheader("Key Themes")
     st.markdown(st.session_state.pdf_agg_fig)
-
-    # Summary visualisations (in the form of cards)
-    #st.subheader("Summary")
-    #num_relevant_articles = len(get_yes_pdf_filenames(st.session_state.pdf_ind_fig2))
-    #num_articles = st.session_state.pdf_ind_fig2.shape[0]
-
-    #card1 = card(
-    #    title=num_articles,
-    #    text="Total Articles Analysed",
-    #)
-
-    #card1 = card(
-    #    title=num_relevant_articles,
-    #    text="Total Relevant Articles",
-    #)
 
     reupload_button = st.button('Reupload another prompt and zip file')
     if reupload_button:
