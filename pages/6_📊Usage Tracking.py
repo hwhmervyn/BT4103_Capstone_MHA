@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_extras.app_logo import add_logo
 import pandas as pd
 
 import sys, os
@@ -6,6 +7,7 @@ workingDirectory = os.getcwd()
 costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 
 st.set_page_config(layout="wide")
+add_logo("images/htpd_text.png", height=100)
 
 st.markdown("<h1 style='text-align: left; color: Black;'>Usage Tracking</h1>", unsafe_allow_html=True)
 st.markdown('#')
