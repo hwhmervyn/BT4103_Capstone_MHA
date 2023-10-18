@@ -6,9 +6,7 @@ from enum import Enum
 class Stage(Enum):
     EXCEL_FILTERING = "Excel Filtering"
     SUPPORT_ANALYSIS = "Support Analysis"
-    PDF_FILTERING = "PDF Filtering"
-    INDIVIDUAL_ANALYSIS = "Individual Analysis"
-
+    PDF_ANALYSIS = "PDF Analysis"
 
 singapore = pytz.timezone('Asia/Singapore')
 

@@ -39,7 +39,7 @@ Question: {question}\n
 human_prompt = HumanMessagePromptTemplate.from_template(human_template)
 
 response_schemas = [
-  ResponseSchema(name="answer", description="a Yes or No answer", type="string"),
+  ResponseSchema(name="answer", description="a Yes, No or Unsure answer", type="string"),
   ResponseSchema(name="explanation", description="Explanation on why it is or it isn't relevant", type="string")
 ]
 excel_parser = StructuredOutputParser.from_response_schemas(response_schemas)

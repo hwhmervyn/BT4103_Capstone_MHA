@@ -7,7 +7,6 @@ from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field, validator
 from typing import List
 
-
 import pandas as pd
 import textwrap
 import re
@@ -18,8 +17,7 @@ import time
 
 import sys,os
 sys.path.append('cost_breakdown')
-from update_cost import update_usage_logs
-
+from update_cost import update_usage_logs, Stage
 
 ### Global Parameters ###
 
@@ -32,7 +30,6 @@ WRAPPER = textwrap.TextWrapper(width=160) # creates a split every 160 characters
 class Response(BaseModel):
     answer: str = Field(description= "Answer Yes or No in 1 word" )
     evidence: List[str] = Field(description="List 3 sentences of evidence to explain")
-
 
 def create_prompt():
   mention_y_n_prompt_template = """
@@ -53,9 +50,6 @@ def create_prompt():
     partial_variables={"format_instructions": parser.get_format_instructions()})
   
   return mention_y_n_prompt
-
-
-
 
 #Retrieve findings from the llm
 def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm):
@@ -113,13 +107,12 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
   total_input_tokens = usage_info.prompt_tokens
   total_output_tokens = usage_info.completion_tokens
   total_cost = usage_info.total_cost
-  update_usage_logs("Individual Analysis", query, total_input_tokens, total_output_tokens, total_cost)
+  update_usage_logs(Stage.PDF_ANALYSIS.value, query, total_input_tokens, total_output_tokens, total_cost)
 
   #Output a dataframe
   uncleaned_findings_dict= {'Article Name': unique_filename_lst, 'Answer' : yes_no_lst, 'Evidence' : evidence_lst}
   uncleaned_findings_df = pd.DataFrame(uncleaned_findings_dict)
   return (uncleaned_findings_df, total_input_tokens, total_output_tokens, total_cost)
-
 
 #Add line breaks to the paragraphs
 def add_line_breaks(text_list):
@@ -141,7 +134,6 @@ def clean_findings_df(uncleaned_findings_df):
   cleaned_findings_df = cleaned_findings_df.drop(columns = 'Evidence')
   return cleaned_findings_df
 
-
 #Generate a table visualisation
 def generate_visualisation(cleaned_findings_df):
 
@@ -152,6 +144,9 @@ def generate_visualisation(cleaned_findings_df):
       b=0, #bottom margin
       t=0,  #top margin
       pad=0
+    ),
+    border=go.layout.Annotation(
+      borderpad=1
     )
   )
 

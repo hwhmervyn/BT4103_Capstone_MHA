@@ -3,7 +3,6 @@ import streamlit as st
 from concurrent.futures import as_completed
 import glob
 import streamlit as st
-from streamlit_card import card
 from streamlit_extras.app_logo import add_logo
 from zipfile import ZipFile
 import re
@@ -11,6 +10,7 @@ import time
 
 import sys, os
 workingDirectory = os.getcwd()
+dataDirectory = os.path.join(workingDirectory, "data")
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
 analysisDirectory = os.path.join(workingDirectory, "Analysis")
 
@@ -20,6 +20,12 @@ from ingestPdf import schedulePdfUpload
 sys.path.append(analysisDirectory)
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
+
+from os import listdir
+from os.path import abspath
+from os.path import isdir
+from os.path import join
+from shutil import rmtree
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
@@ -36,6 +42,14 @@ if 'pdf_filtered' not in st.session_state:
     st.session_state.pdf_filtered = False
 
 if not st.session_state.pdf_filtered:
+    # Remove all folders in 'data' folder
+    for file in listdir(dataDirectory):
+        full_path = join(abspath(dataDirectory), file)
+
+    if isdir(full_path):
+        rmtree(full_path)
+
+    # Page layout
     input = st.text_input("Research Prompt", placeholder='Enter your research prompt')
 
     st.markdown('##')
@@ -94,27 +108,54 @@ if st.session_state.pdf_filtered:
     st.markdown(st.session_state.pdf_filtered)
 
     st.subheader("Results")
-    with open("output/pdf_analysis_results.xlsx", 'rb') as my_file:
-        st.download_button(label = 'Download', data = my_file, file_name='pdf_analysis_results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    st.plotly_chart(st.session_state.pdf_ind_fig1, use_container_width=True)
-
-    st.subheader("Key Themes")
-    st.markdown(st.session_state.pdf_agg_fig)
 
     # Summary visualisations (in the form of cards)
-    #st.subheader("Summary")
-    #num_relevant_articles = len(get_yes_pdf_filenames(st.session_state.pdf_ind_fig2))
-    #num_articles = st.session_state.pdf_ind_fig2.shape[0]
+    num_relevant_articles = len(get_yes_pdf_filenames(st.session_state.pdf_ind_fig2))
+    num_articles = st.session_state.pdf_ind_fig2.shape[0]
 
-    #card1 = card(
-    #    title=num_articles,
-    #    text="Total Articles Analysed",
-    #)
+    st.markdown("""
+    <style>
+    div[data-testid="metric-container"] {
+    background-color: rgba(28, 131, 225, 0.1);
+    border: 1px solid rgba(28, 131, 225, 0.1);
+    padding: 5% 5% 5% 10%;
+    border-radius: 5px;
+    color: rgb(30, 103, 119);
+    overflow-wrap: break-word;
+    }
 
-    #card1 = card(
-    #    title=num_relevant_articles,
-    #    text="Total Relevant Articles",
-    #)
+    div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div {
+    overflow-wrap: break-word;
+    white-space: break-spaces;
+    color: red;
+    }
+                
+    div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div p {
+    font-size: 150% !important;
+    }
+    </style>
+    """
+    , unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col2:
+        st.metric("Articles Analysed", num_articles)
+    
+    with col4:
+        st.metric("Relevant Articles", num_relevant_articles)
+
+    st.text("")
+    st.text("")
+    st.text("")
+
+    # Result Table
+    with open("output/pdf_analysis_results.xlsx", 'rb') as my_file:
+        st.download_button(label = 'Download Excel', data = my_file, file_name='pdf_analysis_results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    st.plotly_chart(st.session_state.pdf_ind_fig1, use_container_width=True)
+
+    # Key Themes
+    st.subheader("Key Themes")
+    st.markdown(st.session_state.pdf_agg_fig)
 
     reupload_button = st.button('Reupload another prompt and zip file')
     if reupload_button:

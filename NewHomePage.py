@@ -1,20 +1,23 @@
-
 import json 
 import requests 
-  
+from streamlit_extras.app_logo import add_logo
 import streamlit as st 
 from streamlit_lottie import st_lottie 
+from streamlit_extras.switch_page_button import switch_page
 
-# For the st lottie
+#Setting page config
+st.set_page_config(layout="centered")
+
+#Add logo
+add_logo("images/htpd_text.png", height=100)
+
+#Add animatioon
 path = "images/research_animation.json"
 with open(path,"r") as file: 
     url = json.load(file) 
 
-
-
-#First segment of title
-with st.container():
-    st.markdown("""
+#CSS
+st.markdown("""
 <style>
 .research {
     font-size: 100px;
@@ -34,36 +37,39 @@ with st.container():
 
 .icon {
 }
+            
+.element-container:has(#button-after) + div button {
+ background-color: #6c757d;
+ color: white;
+ }
+            
 </style>
 """, unsafe_allow_html=True)
-    st.markdown("<h1 style='text-align: center; padding-top: 0rem;'><p class='research'>research<p class='xpress'>Xpress</p></h1>", unsafe_allow_html=True)
-    st.markdown("<h4 style='text-align: center; color: Black;'>Synthesize Research Evidence through AI Capabilities</h4>", unsafe_allow_html=True)
 
-st.markdown('#') 
+#Title
+st.markdown("<h1 style='text-align: center; padding-top: 0rem;'><p class='research'>research<p class='xpress'>Xpress</p></h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: Black;'>Synthesize Research Evidence through AI Capabilities</h4>", unsafe_allow_html=True)
 
+#Animation
+st_lottie(url, 
+    loop=True, 
+    quality='high',
+    key='second'
+    )
+      
+   
+col1, col2, col3 , col4, col5 = st.columns(5)
 
-#Another container
-with st.container():
-    left_column, right_column = st.columns(2)
-    with left_column:
-        st.header("Purpose")
-        st.write("##")
-        st.write('With our dashboard, you can quickly assess the key points, methods, and findings in those dense articles, making the research process smoother and faster!')
-        st.button("Get Started", type="secondary")
-
-    with right_column:
-        st_lottie(url, 
-            height=300, 
-            width=400, 
-            loop=True, 
-            quality='high',
-            key='research_lottie'
-            )
-
-
-
-        
-
-
-
-
+with col1:
+    pass
+with col2:
+    pass
+with col4:
+    pass
+with col5:
+    pass
+with col3:
+    st.markdown('<span id="button-after"></span>', unsafe_allow_html=True)
+    get_started = st.button('Get Started', key = 'get_started')
+    if get_started:
+        switch_page("get started")
