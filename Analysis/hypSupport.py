@@ -82,14 +82,19 @@ def get_stance_and_evidence(response):
   evidence_str = ". ".join(evidence_list).strip()
   return stance, evidence_str
 
+def get_full_cleaned_df(support_df):
+  df = support_df.copy()
+  df["evidence"] = df["evidence"].apply(lambda x: " ".join(x.split(". ")))
+  return df
+
 def add_line_breaks(text):
   text_list = text.split(". ")
   new_text_list = []
   for text in text_list:
     # Add line breaks for easier viewing of output
-    new_text = '<br>' + "<br>".join(WRAPPER.wrap(text.strip())) + '</br>'
+    new_text = '<br>' + "<br>".join(WRAPPER.wrap(text.strip())) + '.</br>'
     new_text_list.append(new_text)
-  return "".join(new_text_list)
+  return "".join(new_text_list).replace("..", ".")
 
 ### Output functions ###
 
@@ -125,8 +130,3 @@ def get_support_chart(support_df):
       marker_color=list(df["stance"].map(COLOUR_MAPPING).fillna("black")),
   )])
   return fig
-
-def get_full_cleaned_df(support_df):
-  df = support_df.copy()
-  df["evidence"] = df["evidence"].apply(lambda x: " ".join(x.split(". ")))
-  return df
