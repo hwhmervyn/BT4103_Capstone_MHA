@@ -1,9 +1,0 @@
-[[pages]]
-path = "../BT4103_Capstone_MHA/home.py"
-name = "Home"
-icon = ":house:"
-
-[[pages]]
-path = "../BT4103_Capstone_MHA/excel_analysis.py"
-name = "Excel"
-icon = "📗"
