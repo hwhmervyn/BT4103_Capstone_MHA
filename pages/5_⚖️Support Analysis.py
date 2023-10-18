@@ -13,7 +13,7 @@ sys.path.append(os.path.join(os.getcwd(), "cost_breakdown"))
 from chromaUtils import getCollection, getDistinctFileNameList
 from hypSupport import get_llm_response, get_stance_and_evidence, get_support_chart, get_support_table
 from Individual_Analysis import get_yes_pdf_filenames
-from update_cost import update_usage_logs
+from update_cost import update_usage_logs, Stage
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
@@ -112,7 +112,7 @@ if start_analysis:
                 #                     mime='text/csv')
                 
                 # Update usage info
-                update_usage_logs("Support Analysis", input, 
+                update_usage_logs(Stage.SUPPORT_ANALYSIS.value, input, 
                                 usage_info.prompt_tokens, usage_info.completion_tokens, usage_info.total_cost)
     else:
         st.warning("Please input a prompt")

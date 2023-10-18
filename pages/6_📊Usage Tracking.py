@@ -66,7 +66,7 @@ font-size: 150% !important;
 
 col1, col2, col3, col4, col5 = st.columns(5)
 with col2:
-    st.metric("Total Cost ($USD)", df['Total Cost'].sum())
+    st.metric("Total Cost ($USD)", round(df['Total Cost'].sum(), 4))
 
 with col3:
     st.metric("Total Input Tokens", df['Total Input Tokens'].sum())

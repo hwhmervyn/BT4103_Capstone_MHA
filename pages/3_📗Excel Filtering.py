@@ -12,7 +12,7 @@ from update_cost import update_usage_logs, Stage
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
 
-st.markdown("<h1 style='text-align: left; color: Black;'>Excel Analysis</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: left; color: Black;'>Excel Filtering</h1>", unsafe_allow_html=True)
 st.markdown('#')
 
 if 'filtered' not in st.session_state:
@@ -72,7 +72,7 @@ else:
     # st.download_button(label="Download Excel file", data="output/test_output_pfa.xlsx", file_name='results.xlsx') 
 
     with open("output/excel_result.xlsx", 'rb') as my_file:
-        st.download_button(label = 'Download', data = my_file, file_name='results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') 
+        st.download_button(label = 'Download Excel', data = my_file, file_name='results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') 
         
     st.plotly_chart(st.session_state.excel_filter_fig1, use_container_width=True)
 

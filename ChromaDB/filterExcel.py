@@ -55,7 +55,7 @@ def getOutputDF(dfOut):
     dfOut = dfOut.drop('jsonOutput', axis=1)
     return dfOut
 
-WRAPPER = textwrap.TextWrapper(width=100) 
+WRAPPER = textwrap.TextWrapper(width=85) 
 COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey"}
 
 #Add line breaks to the paragraphs
@@ -87,8 +87,8 @@ def generate_visualisation(cleaned_findings_df):
   )
 
   fig = go.Figure(data=[go.Table(
-    columnwidth = [150,150,450,50,150,150],
-    header=dict(values=['DOI','TITLE','ABSTRACT', 'prediction', 'justification_for_relevancy', 'llmOutput'],
+    columnwidth = [150,150,430,70,150,150],
+    header=dict(values=['DOI','Title','Abstract', 'Prediction', 'Justification for Relevancy', 'llmOutput'],
                 fill_color='paleturquoise',
                 align='left'),
     cells=dict(values=[cleaned_findings_df['DOI'], cleaned_findings_df['TITLE'],cleaned_findings_df['Findings_Visualised'],cleaned_findings_df['prediction'],cleaned_findings_df['justification_for_relevancy'],cleaned_findings_df['llmOutput']],

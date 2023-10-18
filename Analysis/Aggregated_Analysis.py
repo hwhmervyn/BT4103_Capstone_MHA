@@ -14,7 +14,7 @@ analysisDirectory = os.path.join(workingDirectory, "Analysis")
 from llmConstants import chat
 
 sys.path.append(costDirectory)
-from update_cost import update_usage_logs
+from update_cost import update_usage_logs, Stage
 
 sys.path.append(analysisDirectory)
 #from Individual_Analysis import cleaned_findings_df
@@ -70,7 +70,7 @@ def get_common_themes(df, llm):
         total_output_tokens = usage_info.completion_tokens
         total_cost = usage_info.total_cost
         print(result, total_input_tokens, total_output_tokens, total_cost)
-        update_usage_logs("Aggregated Analysis", "N/A", total_input_tokens, total_output_tokens, total_cost)
+        update_usage_logs(Stage.PDF_ANALYSIS.value, "N/A", total_input_tokens, total_output_tokens, total_cost)
 
         return result
 
