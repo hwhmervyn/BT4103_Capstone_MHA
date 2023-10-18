@@ -5,8 +5,6 @@ import pandas as pd
 from langchain.callbacks import get_openai_callback
 from json.decoder import JSONDecodeError
 
-import io
-
 # Build path from working directory and add to system paths to facilitate local module import
 import os, sys
 sys.path.append(os.path.join(os.getcwd(), "ChromaDB"))
@@ -14,7 +12,7 @@ sys.path.append(os.path.join(os.getcwd(), "analysis"))
 sys.path.append(os.path.join(os.getcwd(), "cost_breakdown"))
 
 from chromaUtils import getCollection, getDistinctFileNameList
-from hypSupport import get_llm_response, correct_format_json, get_stance_and_evidence, get_support_chart, get_support_table
+from hypSupport import get_llm_response, correct_format_json, get_stance_and_evidence, get_support_chart, get_support_table, get_full_cleaned_df
 from Individual_Analysis import get_yes_pdf_filenames
 from update_cost import update_usage_logs
 
@@ -24,10 +22,11 @@ add_logo("images/htpd_text.png", height=100)
 st.markdown("<h1 style='text-align: left; color: Black;'>Support Analysis</h1>", unsafe_allow_html=True)
 st.markdown('#')
 
-input = st.text_input("Research Prompt", placeholder='Enter your prompt (e.g. Is drug A more harmful than drug B?)')
+input = st.text_input("Research Prompt", placeholder='Enter your research prompt (e.g. Is drug A more harmful than drug B?)')
+st.markdown('##')
 col1, col2 = st.columns(2)
 with col1: 
-    start_analysis = st.button("Analyse literature support")
+    start_analysis = st.button("Submit")
 with col2:
     analyse_all_articles = st.toggle("All articles", value=False, 
                                      help="Select the toggle to analyse all uploaded articles. If not selected, analysis will only be conducted on filtered articles.")
@@ -103,7 +102,7 @@ if start_analysis:
                     progress_display_text = f"Analysing articles: {i+1}/{total_num_articles} completed. Time taken: {time_taken}s."
                     progressBar.progress((i+1)/total_num_articles, text=progress_display_text)
                     
-                support_df = pd.DataFrame({"article": article_title_list, "stance": stance_list, "evidence": evidence_list, "source_docs": source_docs_list})
+                support_df = pd.DataFrame({"article": article_title_list, "stance": stance_list, "evidence": evidence_list, "source_docs": source_docs_list, "raw_output": response_list})
                 end_total = time.time()
                 
                 # Display success message
@@ -122,37 +121,31 @@ if start_analysis:
                 # support_df = pd.read_csv("C:/Users/laitz/OneDrive/Documents/BT4103_Capstone_MHA/output/support_output [Is cannabis more harmful than tobacco_].csv")
 
                 st.markdown('#')
-                st.text("Support Summary Chart:")
+                st.subheader("Support Summary Chart:")
                 fig1 = get_support_chart(support_df)
                 fig1.update_layout(title_text='Distribution of article response')
                 st.plotly_chart(fig1, use_container_width=True)
 
-                st.text("Support Summary Table:")
+                st.subheader("Support Summary Table:")
                 fig2 = get_support_table(support_df)
                 fig2.update_layout(title_text='Article response and evidence', margin_autoexpand=True, height=800)
                 st.plotly_chart(fig2, use_container_width=True)
 
-                # # Create an in-memory buffer
-                # buffer = io.BytesIO()
-
-                # Save the figure as a pdf to the buffer
-                # fig1.write_image(file=buffer, format="pdf")
-
-                # Download the pdf from the buffer
+                # Download Plotly figure as HTML
                 # st.download_button(
-                #     label="Download PDF",
-                #     data=buffer,
-                #     file_name="figure.pdf",
-                #     mime="application/pdf",
+                #     label="Download HTML",
+                #     data=fig2.to_html(),
+                #     file_name="figure.html",
+                #     mime="text/html",
                 # )
             
-                # TODO
-                # st.download_button(label="Download output dataframe (csv file)",
-                #                     # Store output results in a csv file
-                #                     data=support_df.to_csv(index=False),
-                #                     # Query appended at end of output file name
-                #                     file_name=f'support_output [{input}].csv',
-                #                     mime='text/csv')
+                # Download output as csv file
+                st.download_button(label="Download full output (.csv file)",
+                                    # Store output results in a csv file
+                                    data=get_full_cleaned_df(support_df).to_csv(index=False),
+                                    # Query appended at end of output file name
+                                    file_name=f'support_output [{input}].csv',
+                                    mime='text/csv')
                 
                 # Update usage info
                 update_usage_logs("Support Analysis", input, 

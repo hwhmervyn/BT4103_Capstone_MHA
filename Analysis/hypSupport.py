@@ -125,3 +125,8 @@ def get_support_chart(support_df):
       marker_color=list(df["stance"].map(COLOUR_MAPPING).fillna("black")),
   )])
   return fig
+
+def get_full_cleaned_df(support_df):
+  df = support_df.copy()
+  df["evidence"] = df["evidence"].apply(lambda x: " ".join(x.split(". ")))
+  return df
