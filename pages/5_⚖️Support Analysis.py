@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit_extras.app_logo import add_logo
-import time
 import pandas as pd
 from langchain.callbacks import get_openai_callback
 from json.decoder import JSONDecodeError
@@ -62,7 +61,6 @@ if not st.session_state.support_analysis_prompt:
 
             # Obtain dataframe of LLM responses. Only run if number of articles > 0
             if total_num_articles > 0:
-                start_total = time.time()
                 # Connect to database
                 db = getCollection("pdf")
 
@@ -78,7 +76,6 @@ if not st.session_state.support_analysis_prompt:
                     progressBar = st.progress(0, text="Analysing articles...")
 
                     for i in range(total_num_articles):
-                        start = time.time()
                         try: 
                             article_title = article_title_list[i]
                             # Make LLM call to get response
@@ -101,22 +98,18 @@ if not st.session_state.support_analysis_prompt:
                         except Exception:
                             article_error_list.append(article_title)
 
-                        end = time.time()
-                        # Track time taken
-                        time_taken = round(end - start, 0)
-                        progress_display_text = f"Analysing articles: {i+1}/{total_num_articles} completed. Time taken: {time_taken}s."
+                        # Update progress
+                        progress_display_text = f"Analysing articles: {i+1}/{total_num_articles} completed."
                         progressBar.progress((i+1)/total_num_articles, text=progress_display_text)
                         
                     support_df_raw = pd.DataFrame({"article": article_title_list, "stance": stance_list, "evidence": evidence_list, "source_docs": source_docs_list, "raw_output": response_list})
                     # Store dataframe as Excel file in local output folder
                     support_df_cleaned = get_full_cleaned_df(support_df_raw)
                     support_df_cleaned.to_excel("output/support_analysis_results.xlsx", index=False)
-                    end_total = time.time()
                     
                     # Display success message
                     progressBar.empty()
-                    time_taken_total = round((end_total - start_total)/60, 1)
-                    st.success(f"Analysis Complete. Total time taken: {time_taken_total}min.")
+                    st.success(f"Analysis Complete.")
 
                     # Display error message if there are articles that cannot be analysed due to error
                     if len(article_error_list) > 0:
