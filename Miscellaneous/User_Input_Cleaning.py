@@ -95,14 +95,10 @@ def run_relevancy_check(query):
 	relevant_qn_checker_llm_response = relevant_qn_checker_llm_chain(query)
 	return get_relevancy(relevant_qn_checker_llm_response)
 
-### Testing purposes ###
+#Runs both spelling + relevancy checks
+def process_user_input(query):
+	corrected_question = run_spell_check(query)
+	relevancy = run_relevancy_check(corrected_question)
+	return relevancy.lower()
 
-## To check for grammar and spelling
-#error_query = "Doe 678 the artcle mention && ^^ any cultre relted adaption??"
-#corrected_question = run_spell_check(error_query)
-#print(f'Corrected Question is {corrected_question}')
-
-## To check for relevant of irrelevant
-#irrelevant_error_query = "Does the article mention drug harms"
-#relevancy = run_relevancy_check(irrelevant_error_query)
-#print(f'Relevancy is {relevancy}')
+	

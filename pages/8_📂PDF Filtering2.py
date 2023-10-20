@@ -9,14 +9,18 @@ workingDirectory = os.getcwd()
 dataDirectory = os.path.join(workingDirectory, "data")
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
 analysisDirectory = os.path.join(workingDirectory, "Analysis")
+miscellaneousDirectory = os.path.join(workingDirectory, "Miscellaneous")
+
 
 sys.path.append(chromaDirectory)
 sys.path.append(analysisDirectory)
+sys.path.append(miscellaneousDirectory)
 
 import chromaUtils
 from ingestPdf2 import copyCollection
 from Individual_Analysis2 import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis2 import agg_analysis_main
+from User_Input_Cleaning import process_user_input
 
 from os import listdir
 from os.path import abspath
@@ -79,32 +83,36 @@ if not st.session_state.pdf_filtered:
                                                 str(int(bool(output_collection_name and output_collection_name not in chromaUtils.getListOfCollection())))
 
         if not err_messages.get(err_code):
-            PARTS_ALLOCATED_IND_ANALYSIS = 0.5
-            PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
-            PARTS_ALLOCATED_COPY = 0.2
-            progressBar1 = st.progress(0, text="Processing documents...")
-            time.sleep(2)
-            ind_findings = ind_analysis_main(prompt, input_collection_name, progressBar1)
-            ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
-            time.sleep(2)
+            relevant_output = process_user_input(prompt)
+            if relevant_output == 'irrelevant':
+                st.error('Irrelevant Output! Please input a relevant prompt')
+            else:
+                PARTS_ALLOCATED_IND_ANALYSIS = 0.5
+                PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
+                PARTS_ALLOCATED_COPY = 0.2
+                progressBar1 = st.progress(0, text="Processing documents...")
+                time.sleep(2)
+                ind_findings = ind_analysis_main(prompt, input_collection_name, progressBar1)
+                ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
+                time.sleep(2)
 
-            rel_ind_findings = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
-            agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
-            
-            rel_file_names = rel_ind_findings['Article Name'].values.tolist()
-            executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
-            numDone, numFutures = 0, len(futures)
-            for future in as_completed(futures):
-                result = future.result()
-                numDone += 1
-                progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
-                progressBar1.progress(progress,text="Uploading documents...")
+                rel_ind_findings = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
+                agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
                 
-            st.session_state.pdf_filtered = prompt
-            # st.session_state.pdf_ind_fig1 = findings_visual
-            st.session_state.pdf_ind_fig2 = ind_findings
-            st.session_state.pdf_agg_fig = agg_findings
-            st.experimental_rerun()
+                rel_file_names = rel_ind_findings['Article Name'].values.tolist()
+                executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
+                numDone, numFutures = 0, len(futures)
+                for future in as_completed(futures):
+                    result = future.result()
+                    numDone += 1
+                    progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
+                    progressBar1.progress(progress,text="Uploading documents...")
+                    
+                st.session_state.pdf_filtered = prompt
+                # st.session_state.pdf_ind_fig1 = findings_visual
+                st.session_state.pdf_ind_fig2 = ind_findings
+                st.session_state.pdf_agg_fig = agg_findings
+                st.experimental_rerun()
         else:
            st.error(err_messages[err_code]) 
             
