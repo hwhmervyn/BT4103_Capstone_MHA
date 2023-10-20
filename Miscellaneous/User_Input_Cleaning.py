@@ -98,11 +98,11 @@ def run_relevancy_check(query):
 ### Testing purposes ###
 
 ## To check for grammar and spelling
-error_query = "Doe 678 the artcle mention && ^^ any cultre relted adaption??"
-corrected_question = run_spell_check(error_query)
-print(f'Corrected Question is {corrected_question}')
+#error_query = "Doe 678 the artcle mention && ^^ any cultre relted adaption??"
+#corrected_question = run_spell_check(error_query)
+#print(f'Corrected Question is {corrected_question}')
 
 ## To check for relevant of irrelevant
-irrelevant_error_query = "Does the article mention drug harms"
-relevancy = run_relevancy_check(irrelevant_error_query)
-print(f'Relevancy is {relevancy}')
+#irrelevant_error_query = "Does the article mention drug harms"
+#relevancy = run_relevancy_check(irrelevant_error_query)
+#print(f'Relevancy is {relevancy}')
