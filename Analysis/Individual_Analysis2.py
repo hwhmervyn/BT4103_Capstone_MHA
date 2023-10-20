@@ -142,9 +142,6 @@ def generate_visualisation(cleaned_findings_df):
       b=0, #bottom margin
       t=0,  #top margin
       pad=0
-    ),
-    border=go.layout.Annotation(
-      borderpad=1
     )
   )
 
