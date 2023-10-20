@@ -92,11 +92,11 @@ if not st.session_state.pdf_filtered:
                 PARTS_ALLOCATED_COPY = 0.2
                 progressBar1 = st.progress(0, text="Processing documents...")
                 time.sleep(2)
-                ind_findings = ind_analysis_main(prompt, input_collection_name, progressBar1)
+                ind_findings, findings_visual = ind_analysis_main(prompt, input_collection_name, progressBar1)
                 ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
                 time.sleep(2)
 
-                rel_ind_findings = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
+                rel_ind_findings  = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
                 agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
                 
                 rel_file_names = rel_ind_findings['Article Name'].values.tolist()
@@ -109,7 +109,7 @@ if not st.session_state.pdf_filtered:
                     progressBar1.progress(progress,text="Uploading documents...")
                     
                 st.session_state.pdf_filtered = prompt
-                # st.session_state.pdf_ind_fig1 = findings_visual
+                st.session_state.pdf_ind_fig1 = findings_visual
                 st.session_state.pdf_ind_fig2 = ind_findings
                 st.session_state.pdf_agg_fig = agg_findings
                 st.experimental_rerun()

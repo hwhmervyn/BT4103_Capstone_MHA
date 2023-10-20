@@ -1,14 +1,17 @@
 from llmConstants import chat
-from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQA, LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.callbacks import get_openai_callback
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field, validator
 from typing import List
+from json.decoder import JSONDecodeError
 
 import pandas as pd
 import textwrap
 import json
+import re 
+from json.decoder import JSONDecodeError
 import plotly.graph_objects as go
 
 import sys, os
@@ -28,11 +31,16 @@ COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightg
 # Text wrap for output in table
 WRAPPER = textwrap.TextWrapper(width=160) # creates a split every 160 characters
 
+
 #Create a class for output parser
 class Response(BaseModel):
     answer: str = Field(description= "Answer Yes or No in 1 word" )
     evidence: List[str] = Field(description="List 3 sentences of evidence to explain")
 
+#Parser
+OUTPUT_PARSER = PydanticOutputParser(pydantic_object=Response)
+
+#Create the prompt based on prompt template + output parser
 def create_prompt():
   mention_y_n_prompt_template = """
     [INST]<<SYS>>
@@ -44,14 +52,43 @@ def create_prompt():
     Format: {format_instructions}
     """
 
-  parser = PydanticOutputParser(pydantic_object=Response)
-
   mention_y_n_prompt = PromptTemplate(
     template= mention_y_n_prompt_template,
     input_variables=["context", "question"],
-    partial_variables={"format_instructions": parser.get_format_instructions()})
+    partial_variables={"format_instructions": OUTPUT_PARSER.get_format_instructions()})
   
   return mention_y_n_prompt
+
+#Fix the output of the string for the json to detect that it's a dictionary
+def fix_output(string, llm):
+    prompt_template = """Convert the given string to a JSON object. 
+      Format: ### {format_instructions} ###
+      String to convert: ### {string} ###
+    """
+    prompt = PromptTemplate(template=prompt_template,
+                              input_variables=["string"],
+                              partial_variables={"format_instructions": OUTPUT_PARSER.get_format_instructions()})
+    format_correction_chain = LLMChain(llm=llm, prompt=prompt)
+    result = format_correction_chain.run(string)
+    return result
+
+#Correct output for the evidence if needed else return original
+def check_evidence_format(result, llm):
+  evidence = None
+  try:
+    result_dict = json.loads(result)
+    evidence = result_dict['evidence']
+  except JSONDecodeError:
+    json_string = fix_output(result, llm)
+    try:
+      result_dict = json.loads(json_string)
+      evidence = result_dict['evidence']
+    except Exception:
+      evidence = result
+  except Exception:
+    evidence = result
+  return evidence
+
 
 #Retrieve findings from the llm
 def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm):
@@ -93,8 +130,9 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
         yes_no_lst.append('Yes')
       else:
         yes_no_lst.append('No')
-      result_dict = json.loads(result)
-      evidence = result_dict['evidence']
+
+      #Get the evidence 
+      evidence = check_evidence_format(result, llm)
       evidence_lst.append(evidence)
 
       numDone += 1
@@ -180,6 +218,6 @@ def ind_analysis_main(query, collection_name, progressBar1):
   cleaned_findings_df = clean_findings_df(uncleaned_findings_df)
 
   #Generate the visualisations
-  # fig = generate_visualisation(cleaned_findings_df)
+  fig = generate_visualisation(cleaned_findings_df)
 
-  return cleaned_findings_df[["Article Name", "Answer", "Findings"]]
+  return cleaned_findings_df[["Article Name", "Answer", "Findings"]], fig
