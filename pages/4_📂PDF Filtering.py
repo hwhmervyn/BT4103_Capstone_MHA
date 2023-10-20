@@ -3,6 +3,7 @@ from concurrent.futures import as_completed
 import streamlit as st
 from streamlit_extras.app_logo import add_logo
 import time
+from langchain.callbacks import get_openai_callback
 
 import sys, os
 workingDirectory = os.getcwd()
@@ -10,17 +11,20 @@ dataDirectory = os.path.join(workingDirectory, "data")
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
 analysisDirectory = os.path.join(workingDirectory, "Analysis")
 miscellaneousDirectory = os.path.join(workingDirectory, "Miscellaneous")
+costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 
 
 sys.path.append(chromaDirectory)
 sys.path.append(analysisDirectory)
 sys.path.append(miscellaneousDirectory)
+sys.path.append(costDirectory)
 
 import chromaUtils
 from ingestPdf2 import copyCollection
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
 from User_Input_Cleaning import process_user_input
+from update_cost import update_usage_logs, Stage
 
 from os import listdir
 from os.path import abspath
@@ -83,7 +87,13 @@ if not st.session_state.pdf_filtered:
                                                 str(int(bool(output_collection_name and output_collection_name not in chromaUtils.getListOfCollection())))
 
         if not err_messages.get(err_code):
-            relevant_output = process_user_input(prompt)
+            with get_openai_callback() as usage_info:
+                relevant_output = process_user_input(prompt)
+                total_input_tokens = usage_info.prompt_tokens
+                total_output_tokens = usage_info.completion_tokens
+                total_cost = usage_info.total_cost
+                update_usage_logs(Stage.MISCELLANEOUS.value, prompt, total_input_tokens, total_output_tokens, total_cost)
+
             if relevant_output == 'irrelevant':
                 st.error('Irrelevant Output! Please input a relevant prompt')
             else:
