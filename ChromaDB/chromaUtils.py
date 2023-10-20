@@ -19,6 +19,7 @@ def clearCollection(list_of_collection_names):
     for collection_name in list_of_collection_names:
         try:
             persistent_client.delete_collection(name=collection_name)
+            print(f"Collection {collection_name} has been deleted")
         except:
             print(collection_name)
 
@@ -29,3 +30,9 @@ def getDistinctFileNameList(collection_name):
     metadata_list = getCollection(collection_name).get()['metadatas']
     papers = [doc.get('fileName') for doc in metadata_list]
     return list(set(papers))
+
+def getListOfCollection():
+    collections = persistent_client.list_collections()
+    collections = [c.name for c in collections]
+    collections.sort()
+    return collections

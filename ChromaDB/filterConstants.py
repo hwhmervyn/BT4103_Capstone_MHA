@@ -1,4 +1,3 @@
-from langchain.chat_models import ChatOllama
 from langchain.output_parsers.structured import StructuredOutputParser, ResponseSchema
 from langchain.output_parsers import OutputFixingParser
 from langchain.prompts import (
@@ -7,19 +6,9 @@ from langchain.prompts import (
     HumanMessagePromptTemplate,
     PromptTemplate
 )
-from langchain.chat_models import ChatOllama
-from llmConstants import chat
-# chat = ChatOllama(model='llama2', temperature=0)
 import os 
-
 os.environ['LANGCHAIN_TRACING'] = 'false'
-
-# from langchain.llms import Ollama
-# llm = Ollama(temperature=0)
-
 from llmConstants import llm
-# from langchain.chat_models import ChatOpenAI
-# chat = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo')
 
 system_template = '''
 Use the following pieces of context to answer the question.
