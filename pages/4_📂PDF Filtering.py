@@ -88,7 +88,7 @@ if not st.session_state.pdf_filtered:
 
         if not err_messages.get(err_code):
             with get_openai_callback() as usage_info:
-                relevant_output = process_user_input(prompt)
+                corrected_input, relevant_output = process_user_input(prompt)
                 total_input_tokens = usage_info.prompt_tokens
                 total_output_tokens = usage_info.completion_tokens
                 total_cost = usage_info.total_cost
@@ -102,7 +102,7 @@ if not st.session_state.pdf_filtered:
                 PARTS_ALLOCATED_COPY = 0.2
                 progressBar1 = st.progress(0, text="Processing documents...")
                 time.sleep(2)
-                ind_findings, findings_visual = ind_analysis_main(prompt, input_collection_name, progressBar1)
+                ind_findings, findings_visual = ind_analysis_main(corrected_input, input_collection_name, progressBar1)
                 ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
                 time.sleep(2)
 

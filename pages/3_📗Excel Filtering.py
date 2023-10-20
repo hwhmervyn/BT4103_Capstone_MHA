@@ -7,13 +7,16 @@ import pandas as pd
 import sys,os
 
 workingDirectory = os.getcwd()
-chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
-miscellaneousDirectory = os.path.join(workingDirectory, "Miscellaneous")
-costDirectory = os.path.join(workingDirectory, "cost_breakdown")
+chromaDirectory = os.path.join(os.getcwd(), "ChromaDB")
+costDirectory = os.path.join(os.getcwd(), "cost_breakdown")
+cleanDirectory = os.path.join(os.getcwd(), "Miscellaneous")
 
-sys.path.append(chromaDirectory)
-sys.path.append(miscellaneousDirectory)
-sys.path.append(costDirectory)
+if chromaDirectory not in sys.path:
+    sys.path.append(chromaDirectory)
+if costDirectory not in sys.path:
+    sys.path.append(costDirectory)
+if cleanDirectory not in sys.path:
+    sys.path.append(cleanDirectory)
 
 from filterExcel import filterExcel, getOutputDF, generate_visualisation, clean_findings_df
 from User_Input_Cleaning import process_user_input
@@ -50,7 +53,7 @@ if not st.session_state.filtered:
             st.error("Please enter a research prompt and upload an excel file")
         else:
             with get_openai_callback() as usage_info:
-                relevant_output = process_user_input(input)
+                corrected_input, relevant_output = process_user_input(input)
                 total_input_tokens = usage_info.prompt_tokens
                 total_output_tokens = usage_info.completion_tokens
                 total_cost = usage_info.total_cost
@@ -58,7 +61,7 @@ if not st.session_state.filtered:
             if relevant_output == 'irrelevant':
                 st.error('Irrelevant Output! Please input a relevant prompt')
             else:
-                _, futures = filterExcel(uploaded_file,  input)
+                _, futures = filterExcel(uploaded_file,  corrected_input)
                 issues, results, numDone, numFutures, total_input_tokens, total_output_tokens, total_cost = [],[], 0, len(futures), 0, 0, 0
                 progessBar = st.progress(0, text="Article filtering in progress...")
                 for future in as_completed(futures):
@@ -70,7 +73,7 @@ if not st.session_state.filtered:
                     numDone += 1
                     progessBar.progress(numDone/numFutures, text="Article filtering in progress...")
                 
-                update_usage_logs(Stage.EXCEL_FILTERING.value, input, total_input_tokens,total_output_tokens,total_cost)
+                update_usage_logs(Stage.EXCEL_FILTERING.value, corrected_input, total_input_tokens,total_output_tokens,total_cost)
                 dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","llmOutput", "jsonOutput"])
                 dfOut = getOutputDF(dfOut)
                 dfOut.to_excel("output/excel_result.xlsx", index=False)

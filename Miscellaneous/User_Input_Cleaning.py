@@ -65,8 +65,10 @@ def create_relevant_qn_checker_prompt():
 	Format: Answer either Relevant or Irrelevant in 1 word
 	"""
 	#Input examples for the llm to check against
-	examples = [ {'question': 'Does the article mention how psychological first aid should be mentioned?',
-				 },
+	examples = [{'question': 'Is the article relevant to psychological first aid?',
+				},
+             	{'question': 'Does the article mention how psychological first aid should be mentioned?',
+				},
                 { 'question': 'Regarding psychological first aid, what did the article mention?',
 				},
                 {'question' : 'What is mentioned about culture related information?',
@@ -99,6 +101,6 @@ def run_relevancy_check(query):
 def process_user_input(query):
 	corrected_question = run_spell_check(query)
 	relevancy = run_relevancy_check(corrected_question)
-	return relevancy.lower()
+	return corrected_question, relevancy.lower()
 
 	
