@@ -22,6 +22,7 @@ sys.path.append(analysisDirectory)
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
 
+sys.path.append(miscellaneousDirectory)
 from User_Input_Cleaning import  run_spell_check, run_relevancy_check
 
 from os import listdir
@@ -72,39 +73,50 @@ if not st.session_state.pdf_filtered:
         elif not input or not uploaded_file:
             st.error("Please enter a research prompt and upload a zip folder")
         else:
-            with ZipFile(uploaded_file, 'r') as zip:
-                extraction_path = os.path.join(workingDirectory, "data/")
-                zip.extractall(extraction_path)
-                foldername = zip.infolist()[0].filename
-                foldername_match = re.search(r'^([^/]+)/', foldername) # Search for folder name in zip file
-                if foldername_match:
-                    foldername = foldername_match.group(1)
-                else:
-                    foldername = ""
+            #run a spell check
+            corrected_input = run_spell_check(input)
+            #Check the relevancy
+            relevancy = run_relevancy_check(corrected_input)
+
+            #If irrelevant
+            if relevancy.lower() == 'irrelevant':
+                st.error("Irrelevant prompt")
             
-            pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
-            issues, executor, futures = schedulePdfUpload(pdfList)
-            
-            progressBar1 = st.progress(0, text="Processing documents...")
-            numDone, numFutures = 0, len(futures)
-            PARTS_ALLOCATED_UPLOAD_MAIN = 0.3
-            for future in as_completed(futures):
-                result = future.result()
-                numDone += 1
-                progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
-                progressBar1.progress(progress,text="Processing documents...") 
+            #If relevant
+            else:
+                with ZipFile(uploaded_file, 'r') as zip:
+                    extraction_path = os.path.join(workingDirectory, "data/")
+                    zip.extractall(extraction_path)
+                    foldername = zip.infolist()[0].filename
+                    foldername_match = re.search(r'^([^/]+)/', foldername) # Search for folder name in zip file
+                    if foldername_match:
+                        foldername = foldername_match.group(1)
+                    else:
+                        foldername = ""
+                
+                pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
+                issues, executor, futures = schedulePdfUpload(pdfList)
+                
+                progressBar1 = st.progress(0, text="Processing documents...")
+                numDone, numFutures = 0, len(futures)
+                PARTS_ALLOCATED_UPLOAD_MAIN = 0.3
+                for future in as_completed(futures):
+                    result = future.result()
+                    numDone += 1
+                    progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
+                    progressBar1.progress(progress,text="Processing documents...") 
 
-            ind_findings, findings_visual = ind_analysis_main(input, progressBar1)
-            ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
-            time.sleep(2)
+                ind_findings, findings_visual = ind_analysis_main(input, progressBar1)
+                ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
+                time.sleep(2)
 
-            agg_findings = agg_analysis_main(ind_findings, progressBar1)
+                agg_findings = agg_analysis_main(ind_findings, progressBar1)
 
-            st.session_state.pdf_filtered = input
-            st.session_state.pdf_ind_fig1 = findings_visual
-            st.session_state.pdf_ind_fig2 = ind_findings
-            st.session_state.pdf_agg_fig = agg_findings
-            st.experimental_rerun()
+                st.session_state.pdf_filtered = input
+                st.session_state.pdf_ind_fig1 = findings_visual
+                st.session_state.pdf_ind_fig2 = ind_findings
+                st.session_state.pdf_agg_fig = agg_findings
+                st.experimental_rerun()
             
 if st.session_state.pdf_filtered:
     st.subheader("Prompt")
