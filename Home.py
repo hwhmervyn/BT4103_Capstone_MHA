@@ -71,4 +71,4 @@ with col3:
     st.markdown('<span id="button-after"></span>', unsafe_allow_html=True)
     get_started = st.button('Get Started', key = 'get_started')
     if get_started:
-        switch_page("get started")
+        switch_page("user guide")
