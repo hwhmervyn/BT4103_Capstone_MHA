@@ -12,7 +12,31 @@ import base64
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
 
+########################## BACKGROUND IMAGE ##########################
+def get_base64(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
+def set_background(png_file):
+    bin_str = get_base64(png_file)
+    page_bg_img = '''
+    <style>
+    .stApp {
+    background-image: url("data:image/png;base64,%s");
+    background-size: cover;
+    }
+    </style>
+    ''' % bin_str
+    st.markdown(page_bg_img, unsafe_allow_html=True)
+
+set_background('images/bg2.jpg')
+########################## END BACKGROUND IMAGE ##########################
+
+st.markdown("<h1 style='text-align: left; color: Black;'>User Guide</h1>", unsafe_allow_html=True)
+st.write("")
+st.write("")
+st.write("")
 
 sections = [
     {"icon": "📗", "title": "Excel Analysis", "description": "Filter an excel file of articles with a research prompt and view results", "steps":["Navigate to 'Excel Analysis' using the sidebar", 
@@ -30,19 +54,17 @@ sections = [
 ]
 
 # Display sections in a grid layout
-col1, col2, col3 = st.columns([1, 4, 1])
-with col2:
-    st.markdown("<h4 style='text-align: center; color: Black; border: 2px solid black; padding: 7px;'>Features & Functionalities</h4>", unsafe_allow_html=True)
+#col1, col2, col3 = st.columns([1, 4, 1])
+#with col2:
+for section in sections:
+    st.subheader(f"**{section['icon']} {section['title']}**\n{section['description']}")
+    num = 1
+    for step in section['steps']:
+        st.write(f"**{num}.** {step}")
+        num += 1
     st.text("")
-    st.text("")
 
-with col2:
-    for section in sections:
-        st.subheader(f"**{section['icon']} {section['title']}**\n{section['description']}")
-        num = 1
-        for step in section['steps']:
-            st.write(f"**{num}.** {step}")
-            num += 1
-        st.text("")
-
-
+st.text("")
+st.text("")
+st.text("")
+st.write("For more details, refer to our full documentation here.")
