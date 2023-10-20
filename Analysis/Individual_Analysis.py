@@ -1,22 +1,27 @@
-from ChromaDB.chromaUtils import getCollection, getDistinctFileNameList
 from llmConstants import chat
-from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQA, LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.callbacks import get_openai_callback
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field, validator
 from typing import List
+from json.decoder import JSONDecodeError
 
 import pandas as pd
 import textwrap
-import re
 import json
-from random import sample
+import re 
+from json.decoder import JSONDecodeError
 import plotly.graph_objects as go
-import time
 
-import sys,os
-sys.path.append('cost_breakdown')
+import sys, os
+workingDirectory = os.getcwd()
+chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
+costDirectory = os.path.join(workingDirectory, "cost_breakdown")
+sys.path.append(costDirectory)
+sys.path.append(chromaDirectory)
+
+import chromaUtils
 from update_cost import update_usage_logs, Stage
 
 ### Global Parameters ###
@@ -26,11 +31,16 @@ COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightg
 # Text wrap for output in table
 WRAPPER = textwrap.TextWrapper(width=160) # creates a split every 160 characters
 
+
 #Create a class for output parser
 class Response(BaseModel):
     answer: str = Field(description= "Answer Yes or No in 1 word" )
     evidence: List[str] = Field(description="List 3 sentences of evidence to explain")
 
+#Parser
+OUTPUT_PARSER = PydanticOutputParser(pydantic_object=Response)
+
+#Create the prompt based on prompt template + output parser
 def create_prompt():
   mention_y_n_prompt_template = """
     [INST]<<SYS>>
@@ -42,14 +52,43 @@ def create_prompt():
     Format: {format_instructions}
     """
 
-  parser = PydanticOutputParser(pydantic_object=Response)
-
   mention_y_n_prompt = PromptTemplate(
     template= mention_y_n_prompt_template,
     input_variables=["context", "question"],
-    partial_variables={"format_instructions": parser.get_format_instructions()})
+    partial_variables={"format_instructions": OUTPUT_PARSER.get_format_instructions()})
   
   return mention_y_n_prompt
+
+#Fix the output of the string for the json to detect that it's a dictionary
+def fix_output(string, llm):
+    prompt_template = """Convert the given string to a JSON object. 
+      Format: ### {format_instructions} ###
+      String to convert: ### {string} ###
+    """
+    prompt = PromptTemplate(template=prompt_template,
+                              input_variables=["string"],
+                              partial_variables={"format_instructions": OUTPUT_PARSER.get_format_instructions()})
+    format_correction_chain = LLMChain(llm=llm, prompt=prompt)
+    result = format_correction_chain.run(string)
+    return result
+
+#Correct output for the evidence if needed else return original
+def check_evidence_format(result, llm):
+  evidence = None
+  try:
+    result_dict = json.loads(result)
+    evidence = result_dict['evidence']
+  except JSONDecodeError:
+    json_string = fix_output(result, llm)
+    try:
+      result_dict = json.loads(json_string)
+      evidence = result_dict['evidence']
+    except Exception:
+      evidence = result
+  except Exception:
+    evidence = result
+  return evidence
+
 
 #Retrieve findings from the llm
 def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm):
@@ -67,7 +106,7 @@ def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_
 #Queries the pdfs and outputs a dataframe
 def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_prompt, llm, progressBar1):
   #Get the unique filenames from the pdf collection
-  unique_filename_lst = getDistinctFileNameList(collection_name)
+  unique_filename_lst = chromaUtils.getDistinctFileNameList(collection_name)
   total_num_articles = len(unique_filename_lst)
   #Just a placeholder to limit the number of filenames to 5
   #unique_filename_lst =  sample(unique_filename_lst, 5)
@@ -78,15 +117,12 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
   print(total_num_articles)
 
   # For progress bar
-  PARTS_ALLOCATED_UPLOAD_MAIN = 0.3
   PARTS_ALLOCATED_IND_ANALYSIS = 0.5
   numDone = 0
-  progressBar1.progress(PARTS_ALLOCATED_UPLOAD_MAIN, text=f"Analysing articles: {numDone}/{total_num_articles} completed...") 
+  progressBar1.progress(0, text=f"Analysing articles: {numDone}/{total_num_articles} completed...") 
 
   with get_openai_callback() as usage_info:
     for specific_filename in unique_filename_lst:
-      print('\n')
-      print(f'File Name: {specific_filename}')
       #Get the findings using the LLM
       result = get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm)
       #Check whether the pdf is related to the research question and update the lists accordingly
@@ -94,13 +130,13 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
         yes_no_lst.append('Yes')
       else:
         yes_no_lst.append('No')
-      print(result)
-      result_dict = json.loads(result)
-      evidence = result_dict['evidence']
+
+      #Get the evidence 
+      evidence = check_evidence_format(result, llm)
       evidence_lst.append(evidence)
 
       numDone += 1
-      progress = PARTS_ALLOCATED_UPLOAD_MAIN + (float(numDone/total_num_articles) * PARTS_ALLOCATED_IND_ANALYSIS)
+      progress = (float(numDone/total_num_articles) * PARTS_ALLOCATED_IND_ANALYSIS)
       progress_display_text = f"Analysing articles: {numDone}/{total_num_articles} completed..."
       progressBar1.progress(progress, text=progress_display_text)
       
@@ -165,10 +201,9 @@ def get_yes_pdf_filenames(cleaned_findings_df):
   yes_pdf = cleaned_findings_df.copy()[cleaned_findings_df["Answer"].str.lower() == "yes"]
   return yes_pdf['Article Name'].values.tolist()
 
-def ind_analysis_main(query, progressBar1):
+def ind_analysis_main(query, collection_name, progressBar1):
   #Get the pdf collection
-  collection_name = 'pdf'
-  pdf_collection = getCollection(collection_name)
+  pdf_collection = chromaUtils.getCollection(collection_name)
 
   #Initialise the prompt template
   mention_y_n_prompt = create_prompt()

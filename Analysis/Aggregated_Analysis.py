@@ -20,7 +20,6 @@ sys.path.append(analysisDirectory)
 #from Individual_Analysis import cleaned_findings_df
 
 def get_common_themes(df, llm):
-    df = df[df["Answer"].str.lower() == "yes"]
     docs = df['Findings'].apply(lambda x: Document(page_content=x[4:])).tolist() # Remove <br> and convert to Document type
 
     with get_openai_callback() as usage_info:
@@ -75,11 +74,13 @@ def get_common_themes(df, llm):
         return result
 
 def agg_analysis_main(cleaned_findings_df, progressBar1):
-    progressBar1.progress(float(80/100), text=f"Aggregating key themes...")
+    PARTS_ALLOCATED_IND_ANALYSIS = 0.5
+    PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
+    
+    progressBar1.progress(PARTS_ALLOCATED_IND_ANALYSIS, text=f"Aggregating key themes...")
     result_tup = get_common_themes(cleaned_findings_df, chat)
     common_themes = result_tup
-
-    progressBar1.progress(float(100/100), text=f"Completed! Just a moment...")
+    progressBar1.progress(PARTS_ALLOCATED_AGG_ANALYSIS+PARTS_ALLOCATED_IND_ANALYSIS, text=f"Completed! Just a moment...")
     time.sleep(1)
 
     return common_themes

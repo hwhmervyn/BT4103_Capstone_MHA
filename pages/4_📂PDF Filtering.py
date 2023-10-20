@@ -1,11 +1,7 @@
-import pandas as pd
 import streamlit as st
 from concurrent.futures import as_completed
-import glob
 import streamlit as st
 from streamlit_extras.app_logo import add_logo
-from zipfile import ZipFile
-import re
 import time
 
 import sys, os
@@ -15,35 +11,48 @@ chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
 analysisDirectory = os.path.join(workingDirectory, "Analysis")
 miscellaneousDirectory = os.path.join(workingDirectory, "Miscellaneous")
 
-sys.path.append(chromaDirectory)
-from ingestPdf import schedulePdfUpload
 
+sys.path.append(chromaDirectory)
 sys.path.append(analysisDirectory)
+sys.path.append(miscellaneousDirectory)
+
+import chromaUtils
+from ingestPdf2 import copyCollection
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
-
-sys.path.append(miscellaneousDirectory)
-from User_Input_Cleaning import  run_spell_check, run_relevancy_check
+from User_Input_Cleaning import process_user_input
 
 from os import listdir
 from os.path import abspath
 from os.path import isdir
 from os.path import join
 from shutil import rmtree
+import asyncio
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
 
-st.markdown("<h1 style='text-align: left; color: Black;'>PDF Analysis</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: left; color: Black;'>PDF Filtering</h1>", unsafe_allow_html=True)
 st.markdown('#')
-
-import asyncio
 
 async def my_async_function():
     await asyncio.sleep(2)  # Asynchronously sleep for 2 seconds
 
 if 'pdf_filtered' not in st.session_state:
     st.session_state.pdf_filtered = False
+if 'collection' not in st.session_state:
+    st.session_state.collection = None
+
+#collection_name, file_upload, prompt
+err_messages = {
+    "000": "Please select an input collection to use, enter a research prompt and, enter a collection name(that hasn't been used yet) to store the filtered articles",
+    "100": "Please enter a research prompt and a collection name(that hasn't been used yet) to store the filtered articles",
+    "010": "Please select an input collection to use and and a collection name(that hasn't been used yet) to store the filtered articles",
+    "001": "Please select an input collection to used andenter a research prompt",
+    "011": "Please select an input collection to use",
+    "101": "Please enter a research prompt",
+    "110": "Please enter a collection name(that hasn't been used yet) to store the filtered articles",
+}
 
 if not st.session_state.pdf_filtered:
     # Remove all folders in 'data' folder
@@ -54,10 +63,13 @@ if not st.session_state.pdf_filtered:
         rmtree(full_path)
 
     # Page layout
-    input = st.text_input("Research Prompt", placeholder='Enter your research prompt')
+    input_collection_name = st.selectbox(
+        'Input Collection', chromaUtils.getListOfCollection(), 
+        placeholder="Select the Collection you would like to use"
+    )
 
-    st.markdown('##')
-    uploaded_file = st.file_uploader("Upload your zip folder here", type=['zip'], help='Upload a zip folder containing only PDF research articles')
+    prompt = st.text_input("Research Prompt", placeholder='Enter your research prompt')
+    output_collection_name = st.text_input("Output Collection Name", placeholder='e.g. pfa-and-culture', help="It is recommended to pick a name that is similar to your prompt")
 
     st.markdown('##')
     col1, col2, col3 , col4, col5, col6, col7 = st.columns(7)
@@ -66,57 +78,43 @@ if not st.session_state.pdf_filtered:
         button = st.button('Submit')
         
     if button:
-        if input and not uploaded_file:
-            st.error("Please upload a zip folder")
-        elif not input and uploaded_file:
-            st.error("Please enter a research prompt")
-        elif not input or not uploaded_file:
-            st.error("Please enter a research prompt and upload a zip folder")
-        else:
-            #run a spell check
-            corrected_input = run_spell_check(input)
-            #Check the relevancy
-            relevancy = run_relevancy_check(corrected_input)
+        err_code = str(int(bool(input_collection_name)))+\
+                                    str(int(bool(prompt)))+\
+                                                str(int(bool(output_collection_name and output_collection_name not in chromaUtils.getListOfCollection())))
 
-            #If irrelevant
-            if relevancy.lower() == 'irrelevant':
-                st.error("Irrelevant prompt")
-            
-            #If relevant
+        if not err_messages.get(err_code):
+            relevant_output = process_user_input(prompt)
+            if relevant_output == 'irrelevant':
+                st.error('Irrelevant Output! Please input a relevant prompt')
             else:
-                with ZipFile(uploaded_file, 'r') as zip:
-                    extraction_path = os.path.join(workingDirectory, "data/")
-                    zip.extractall(extraction_path)
-                    foldername = zip.infolist()[0].filename
-                    foldername_match = re.search(r'^([^/]+)/', foldername) # Search for folder name in zip file
-                    if foldername_match:
-                        foldername = foldername_match.group(1)
-                    else:
-                        foldername = ""
-                
-                pdfList = glob.glob(os.path.join('data', foldername, '*.pdf'))
-                issues, executor, futures = schedulePdfUpload(pdfList)
-                
+                PARTS_ALLOCATED_IND_ANALYSIS = 0.5
+                PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
+                PARTS_ALLOCATED_COPY = 0.2
                 progressBar1 = st.progress(0, text="Processing documents...")
-                numDone, numFutures = 0, len(futures)
-                PARTS_ALLOCATED_UPLOAD_MAIN = 0.3
-                for future in as_completed(futures):
-                    result = future.result()
-                    numDone += 1
-                    progress = float(numDone/numFutures) * PARTS_ALLOCATED_UPLOAD_MAIN
-                    progressBar1.progress(progress,text="Processing documents...") 
-
-                ind_findings, findings_visual = ind_analysis_main(input, progressBar1)
+                time.sleep(2)
+                ind_findings, findings_visual = ind_analysis_main(prompt, input_collection_name, progressBar1)
                 ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
                 time.sleep(2)
 
-                agg_findings = agg_analysis_main(ind_findings, progressBar1)
-
-                st.session_state.pdf_filtered = input
+                rel_ind_findings  = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
+                agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
+                
+                rel_file_names = rel_ind_findings['Article Name'].values.tolist()
+                executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
+                numDone, numFutures = 0, len(futures)
+                for future in as_completed(futures):
+                    result = future.result()
+                    numDone += 1
+                    progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
+                    progressBar1.progress(progress,text="Uploading documents...")
+                    
+                st.session_state.pdf_filtered = prompt
                 st.session_state.pdf_ind_fig1 = findings_visual
                 st.session_state.pdf_ind_fig2 = ind_findings
                 st.session_state.pdf_agg_fig = agg_findings
                 st.experimental_rerun()
+        else:
+           st.error(err_messages[err_code]) 
             
 if st.session_state.pdf_filtered:
     st.subheader("Prompt")
