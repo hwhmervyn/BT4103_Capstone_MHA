@@ -8,6 +8,5 @@ error_query = "Doe 123 the artcle mention && ^^ any cultre relted adaption??"
 corrected_question = run_spell_check(error_query)
 print(f'Corrected Question is {corrected_question}')
 
-irrelevant_error_query = "Does the article mention drug harms"
-relevancy = run_relevancy_check(irrelevant_error_query)
+relevancy = run_relevancy_check(corrected_question)
 print(f'Relevancy is {relevancy}')
