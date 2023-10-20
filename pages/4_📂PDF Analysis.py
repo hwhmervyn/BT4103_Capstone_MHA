@@ -13,6 +13,7 @@ workingDirectory = os.getcwd()
 dataDirectory = os.path.join(workingDirectory, "data")
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
 analysisDirectory = os.path.join(workingDirectory, "Analysis")
+miscellaneousDirectory = os.path.join(workingDirectory, "Miscellaneous")
 
 sys.path.append(chromaDirectory)
 from ingestPdf import schedulePdfUpload
@@ -20,6 +21,7 @@ from ingestPdf import schedulePdfUpload
 sys.path.append(analysisDirectory)
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
+from User_Input_Cleaning import  run_spell_check, run_relevancy_check
 
 from os import listdir
 from os.path import abspath

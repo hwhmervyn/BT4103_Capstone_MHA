@@ -44,6 +44,16 @@ def get_corrected_text(llm_response):
       corrected_qn_dict = json.loads(corrected_question)
       return corrected_qn_dict['corrected_question']
 
+#Run the spell check
+def run_spell_check(query):
+	spell_checker_prompt = create_spell_checker_prompt()
+	spell_checker_llm_chain = initialise_LLM_chain(chat, spell_checker_prompt)
+	spell_checker_llm_response = spell_checker_llm_chain(query)
+	return get_corrected_text(spell_checker_llm_response)
+
+
+## Relevancy Checking ##
+
 #Creates a relevant question checker prompt that determines whether the user question is relevant or not
 def create_relevant_qn_checker_prompt():
 	#Set up a prompt template 
@@ -63,8 +73,7 @@ def create_relevant_qn_checker_prompt():
 				}]
 		
 	#Create a prompt without the examples
-	relevant_qn_checker_prompt = PromptTemplate(input_variables=["question"], 
-														template= relevant_qn_checker_prompt_template)
+	relevant_qn_checker_prompt = PromptTemplate(input_variables=["question"], template= relevant_qn_checker_prompt_template)
       
 	#Create a prompt template including the examples
 	relevant_qn_checker_few_shot_prompt = FewShotPromptTemplate(
@@ -73,28 +82,27 @@ def create_relevant_qn_checker_prompt():
 		suffix="Question: {question}",
 		input_variables=["question"]
 	)
-
 	return relevant_qn_checker_few_shot_prompt
 
 #Gets either a word Irrelevant or Relevant 
 def get_relevancy(llm_response):
 	return llm_response['text']
 
+#Runs the relevancy check
+def run_relevancy_check(query):
+	relevant_qn_checker_prompt = create_relevant_qn_checker_prompt()
+	relevant_qn_checker_llm_chain = initialise_LLM_chain(chat, relevant_qn_checker_prompt)
+	relevant_qn_checker_llm_response = relevant_qn_checker_llm_chain(query)
+	return get_relevancy(relevant_qn_checker_llm_response)
+
 ### Testing purposes ###
 
 ## To check for grammar and spelling
 error_query = "Doe 678 the artcle mention && ^^ any cultre relted adaption??"
-spell_checker_prompt = create_spell_checker_prompt()
-spell_checker_llm_chain = initialise_LLM_chain(chat, spell_checker_prompt)
-spell_checker_llm_response = spell_checker_llm_chain(error_query)
-corrected_question = get_corrected_text(spell_checker_llm_response)
+corrected_question = run_spell_check(error_query)
 print(f'Corrected Question is {corrected_question}')
-
 
 ## To check for relevant of irrelevant
 irrelevant_error_query = "Does the article mention drug harms"
-relevant_qn_checker_prompt = create_relevant_qn_checker_prompt()
-relevant_qn_checker_llm_chain = initialise_LLM_chain(chat, relevant_qn_checker_prompt)
-relevant_qn_checker_llm_response = relevant_qn_checker_llm_chain(irrelevant_error_query)
-relevancy = get_relevancy(relevant_qn_checker_llm_response)
+relevancy = run_relevancy_check(irrelevant_error_query)
 print(f'Relevancy is {relevancy}')
