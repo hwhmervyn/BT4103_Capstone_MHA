@@ -2,7 +2,9 @@ import sys, os
 workingDirectory = os.getcwd()
 sys.path.append(workingDirectory)
 
-from filterConstants import chat, chat_prompt, excel_parser, retry_prompt, output_fixer
+from filterConstants import chat_prompt, excel_parser, retry_prompt, output_fixer
+from llmConstants import chat
+
 import pandas as pd
 import textwrap
 import plotly.graph_objects as go

@@ -4,9 +4,14 @@ from concurrent.futures import as_completed
 import pandas as pd
 
 import sys,os
-sys.path.append('ChromaDB/')
+chromaDirectory = os.path.join(os.getcwd(), "ChromaDB")
+costDirectory = os.path.join(os.getcwd(), "cost_breakdown")
+if chromaDirectory not in sys.path:
+    sys.path.append(chromaDirectory)
+if costDirectory not in sys.path:
+    sys.path.append(costDirectory)
+
 from filterExcel import filterExcel, getOutputDF, generate_visualisation, clean_findings_df
-sys.path.append('cost_breakdown/')
 from update_cost import update_usage_logs, Stage
 
 st.set_page_config(layout="wide")
