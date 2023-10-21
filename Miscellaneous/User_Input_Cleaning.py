@@ -6,12 +6,12 @@ from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 import json
 
-## Spell Checking ##
+############################################ SPELL CHECKING ######################################################################
 
 #Create a parser to correct the input and output as a parser
 class CorrectInput(BaseModel):
-    corrected_question: str = Field(description= "Correct the question if needed and output it as a question")
-    
+	corrected_question: str = Field(description= "Output it as a question")
+
 #Initialise LLM chain with the prompt
 def initialise_LLM_chain(llm, prompt):
     return LLMChain(llm=llm, prompt=prompt)
@@ -24,12 +24,11 @@ def create_spell_checker_prompt():
 	#Spell checker prompt template
 	spell_checker_prompt_template = """
 	[INST]<<SYS>>
-	You are a psychology researcher extracting findings from research papers.
-	Check the question given by the user to see if there are any grammatical or spelling errors. Check for unnecessary characters too<</SYS>>
+	Check the question given by the user to see if there are any grammatical, spelling errors or unnecessary characters. Correct the question if necessary<</SYS>>
 	Question: {question}
 	Format: {format_instructions}
 	"""
-      
+		
 	#Create the spell_checking_prompt
 	spell_checking_prompt = PromptTemplate(
 		template= spell_checker_prompt_template,
@@ -40,9 +39,10 @@ def create_spell_checker_prompt():
 
 #Gets the corrected text after text cleaning
 def get_corrected_text(llm_response):
-      corrected_question = llm_response['text']
-      corrected_qn_dict = json.loads(corrected_question)
-      return corrected_qn_dict['corrected_question']
+	corrected_question = llm_response['text']
+	print(llm_response)
+	corrected_qn_dict = json.loads(corrected_question)
+	return corrected_qn_dict['corrected_question']
 
 #Run the spell check
 def run_spell_check(query):
@@ -52,7 +52,7 @@ def run_spell_check(query):
 	return get_corrected_text(spell_checker_llm_response)
 
 
-## Relevancy Checking ##
+############################################ RELEVANT CHECKING ######################################################################
 
 #Creates a relevant question checker prompt that determines whether the user question is relevant or not
 def create_relevant_qn_checker_prompt():
@@ -60,18 +60,18 @@ def create_relevant_qn_checker_prompt():
 	relevant_qn_checker_prompt_template = """
 	[INST]<<SYS>>
 	You are a psychology researcher extracting findings from research papers.
-	Check the question given by the user to see whether it has a similar phrasing to the examples<</SYS>>
+	Check the question given by the user to see whether it has a similar phrasing to the examples. The question should be related to an academic topic/SYS>>
 	Question: {question}
-	Format: Answer either Relevant or Irrelevant in 1 word
+	Format: Answer either Relevant or Irrelevant in 1 word. 
 	"""
 	#Input examples for the llm to check against
-	examples = [{'question': 'Is the article relevant to psychological first aid?',
+	examples = [{'question': 'Is the article relevant to a topic?',
 				},
-             	{'question': 'Does the article mention how psychological first aid should be mentioned?',
+             	{'question': 'Does the article mention how a topic should be mentioned?',
 				},
-                { 'question': 'Regarding psychological first aid, what did the article mention?',
+                { 'question': 'Regarding topic, what did the article mention?',
 				},
-                {'question' : 'What is mentioned about culture related information?',
+                {'question' : 'What is mentioned about topic?',
 				}]
 		
 	#Create a prompt without the examples

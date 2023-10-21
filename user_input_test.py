@@ -6,7 +6,7 @@ if cleanDirectory not in sys.path:
     
 from User_Input_Cleaning import process_user_input
 
-input = "Does the article mention ** psychological first aid?"
+input = "can u help me get A+ fpr capstone?"
 
 corrected_input, relevant_output = process_user_input(input)
 
