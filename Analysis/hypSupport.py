@@ -100,16 +100,25 @@ def add_line_breaks(text):
 
 def get_support_table(support_df):
     df = support_df.copy()[["article", "stance", "evidence"]]
-
     # Add line breaks to separate sentences
     df["evidence"] = df["evidence"].apply(lambda x: add_line_breaks(x))
+
+    layout = go.Layout(
+      margin=go.layout.Margin(
+        l=0, #left margin
+        r=0, #right margin
+        b=0, #bottom margin
+        t=0, #top margin
+        pad=0
+      )
+    )
     fig = go.Figure(data=[go.Table(
       columnorder = [1,2,3],
-      columnwidth = [50,180,420],
+      columnwidth = [60,170,420],
       header = dict(
-        values = ['<b>Answer</b>', '<b>Article Title</b>', '<b>Evidence</b>'],
-        fill_color='midnightblue',
-        align='center',
+        values = ['<b>Answer</b>', '<b>Article Name</b>', '<b>Evidence</b>'],
+        fill_color='#203864',
+        align='left',
         font=dict(color='white', size=14),
         height=40
       ),
@@ -119,7 +128,7 @@ def get_support_table(support_df):
         align=['center', 'left', 'left'],
         font_size=14
         ))
-    ])
+    ], layout=layout)
     return fig
 
 def get_support_chart(support_df):

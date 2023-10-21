@@ -185,11 +185,12 @@ def generate_visualisation(cleaned_findings_df):
 
   fig = go.Figure(data=[go.Table(
     columnwidth = [50,50,300],
-    header=dict(values=['Article Name', 'Answer', 'Findings'],
-                fill_color='paleturquoise',
-                align='left'),
+    header=dict(values=['<b>Article Name</b>', '<b>Answer</b>', '<b>Findings</b>'],
+                fill_color='#203864',
+                align='left', 
+                font=dict(color='white')),
     cells=dict(values=[cleaned_findings_df['Article Name'], cleaned_findings_df['Answer'], cleaned_findings_df['Findings_Visualised']],
-               fill_color='lavender',
+               fill_color=["white", cleaned_findings_df['Answer'].map(COLOUR_MAPPING), "white"],
                align='left')
     )
   ], layout=layout)
