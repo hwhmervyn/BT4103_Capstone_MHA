@@ -90,6 +90,7 @@ if not st.session_state.pdf_filtered:
         if not err_messages.get(err_code):
             with get_openai_callback() as usage_info:
                 corrected_input =  run_spell_check(prompt)
+                print(f"Corrected Input is {corrected_input}")
                 #If we get an error while running spell check
                 if 'error' in corrected_input:
                     st.error('Error! The model does not understand your question. Please input a prompt again!')
@@ -125,12 +126,12 @@ if not st.session_state.pdf_filtered:
                             progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
                             progressBar1.progress(progress,text="Uploading documents...")
                      
-                        st.session_state.pdf_filtered = prompt
+                        st.session_state.pdf_filtered = corrected_input
                         st.session_state.pdf_ind_fig1 = findings_visual
                         st.session_state.pdf_ind_fig2 = ind_findings
                         st.session_state.pdf_agg_fig = agg_findings
                         st.experimental_rerun()
-                        
+
                 #Then we track the total usage
                 total_input_tokens = usage_info.prompt_tokens
                 total_output_tokens = usage_info.completion_tokens

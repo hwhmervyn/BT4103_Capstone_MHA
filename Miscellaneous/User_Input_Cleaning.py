@@ -65,7 +65,7 @@ def run_spell_check(query):
 	return get_corrected_text(spell_checker_llm_response)
 
 
-############################################ RELEVANT CHECKING ######################################################################
+############################################ RELEVANCY CHECKING ######################################################################
 
 #Creates a relevant question checker prompt that determines whether the user question is relevant or not
 def create_relevant_qn_checker_prompt():
@@ -108,7 +108,7 @@ def get_relevancy(llm_response):
 	except JSONDecodeError:
 		relevancy = error_message
 	except Exception:
-		corrected_question = error_message
+		relevancy = error_message
 	return relevancy
 
 #Runs the relevancy check
