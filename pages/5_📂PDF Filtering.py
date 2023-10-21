@@ -193,7 +193,7 @@ if st.session_state.pdf_filtered:
     st.subheader("Key Themes")
     st.markdown(st.session_state.pdf_agg_fig)
 
-    reupload_button = st.button('Reupload another prompt and zip file')
+    reupload_button = st.button('Ask another Question')
     if reupload_button:
         st.session_state.pdf_filtered = False
         st.experimental_rerun()
