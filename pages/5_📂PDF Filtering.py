@@ -23,7 +23,7 @@ import chromaUtils
 from ingestPdf2 import copyCollection
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
-from User_Input_Cleaning import process_user_input
+from User_Input_Cleaning import run_spell_check, run_relevancy_check
 from update_cost import update_usage_logs, Stage
 
 from os import listdir
@@ -82,47 +82,60 @@ if not st.session_state.pdf_filtered:
         button = st.button('Submit')
         
     if button:
+        #Check if all 3 options have been filled in
         err_code = str(int(bool(input_collection_name)))+\
                                     str(int(bool(prompt)))+\
                                                 str(int(bool(output_collection_name and output_collection_name not in chromaUtils.getListOfCollection())))
-
+        #If we filled in input_collection_name, prompt and output_collection_name
         if not err_messages.get(err_code):
             with get_openai_callback() as usage_info:
-                corrected_input, relevant_output = process_user_input(prompt)
+                corrected_input =  run_spell_check(prompt)
+                #If we get an error while running spell check
+                if 'error' in corrected_input:
+                    st.error('Error! The model does not understand your question. Please input a prompt again!')
+                else:
+                    #If no error in spell check we try running the relevancy check
+                    relevant_output = run_relevancy_check(corrected_input)
+                    #If the LLM doesn't understand the corrected input
+                    if 'error' in relevant_output:
+                        st.error('Error! The model does not understand your question. Please input a prompt again!')
+                    #If the question is deemed as irrelevant
+                    if relevant_output == 'irrelevant':
+                        st.error('Irrelevant Output! Please input a relevant prompt')
+
+                    else:
+                        PARTS_ALLOCATED_IND_ANALYSIS = 0.5
+                        PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
+                        PARTS_ALLOCATED_COPY = 0.2
+                        progressBar1 = st.progress(0, text="Processing documents...")
+                        time.sleep(2)
+                        ind_findings, findings_visual = ind_analysis_main(corrected_input, input_collection_name, progressBar1)
+                        ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
+                        time.sleep(2)
+
+                        rel_ind_findings  = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
+                        agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
+                        
+                        rel_file_names = rel_ind_findings['Article Name'].values.tolist()
+                        executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
+                        numDone, numFutures = 0, len(futures)
+                        for future in as_completed(futures):
+                            result = future.result()
+                            numDone += 1
+                            progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
+                            progressBar1.progress(progress,text="Uploading documents...")
+                     
+                        st.session_state.pdf_filtered = prompt
+                        st.session_state.pdf_ind_fig1 = findings_visual
+                        st.session_state.pdf_ind_fig2 = ind_findings
+                        st.session_state.pdf_agg_fig = agg_findings
+                        st.experimental_rerun()
+                        
+                #Then we track the total usage
                 total_input_tokens = usage_info.prompt_tokens
                 total_output_tokens = usage_info.completion_tokens
                 total_cost = usage_info.total_cost
-                update_usage_logs(Stage.MISCELLANEOUS.value, prompt, total_input_tokens, total_output_tokens, total_cost)
-
-            if relevant_output == 'irrelevant':
-                st.error('Irrelevant Output! Please input a relevant prompt')
-            else:
-                PARTS_ALLOCATED_IND_ANALYSIS = 0.5
-                PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
-                PARTS_ALLOCATED_COPY = 0.2
-                progressBar1 = st.progress(0, text="Processing documents...")
-                time.sleep(2)
-                ind_findings, findings_visual = ind_analysis_main(corrected_input, input_collection_name, progressBar1)
-                ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
-                time.sleep(2)
-
-                rel_ind_findings  = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
-                agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
-                
-                rel_file_names = rel_ind_findings['Article Name'].values.tolist()
-                executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
-                numDone, numFutures = 0, len(futures)
-                for future in as_completed(futures):
-                    result = future.result()
-                    numDone += 1
-                    progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
-                    progressBar1.progress(progress,text="Uploading documents...")
-                    
-                st.session_state.pdf_filtered = prompt
-                st.session_state.pdf_ind_fig1 = findings_visual
-                st.session_state.pdf_ind_fig2 = ind_findings
-                st.session_state.pdf_agg_fig = agg_findings
-                st.experimental_rerun()
+                update_usage_logs(Stage.PDF_ANALYSIS.value, input, total_input_tokens, total_output_tokens, total_cost)           
         else:
            st.error(err_messages[err_code]) 
             

@@ -140,15 +140,11 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
       progress_display_text = f"Analysing articles: {numDone}/{total_num_articles} completed..."
       progressBar1.progress(progress, text=progress_display_text)
       
-  total_input_tokens = usage_info.prompt_tokens
-  total_output_tokens = usage_info.completion_tokens
-  total_cost = usage_info.total_cost
-  update_usage_logs(Stage.PDF_ANALYSIS.value, query, total_input_tokens, total_output_tokens, total_cost)
 
   #Output a dataframe
   uncleaned_findings_dict= {'Article Name': unique_filename_lst, 'Answer' : yes_no_lst, 'Evidence' : evidence_lst}
   uncleaned_findings_df = pd.DataFrame(uncleaned_findings_dict)
-  return (uncleaned_findings_df, total_input_tokens, total_output_tokens, total_cost)
+  return uncleaned_findings_df
 
 #Add line breaks to the paragraphs
 def add_line_breaks(text_list):
@@ -210,10 +206,7 @@ def ind_analysis_main(query, collection_name, progressBar1):
   mention_y_n_prompt = create_prompt()
   
   #Get findings from the pdfs
-  results_tup = get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_prompt, chat, progressBar1)
-
-  #Retrieve the dataframe
-  uncleaned_findings_df = results_tup[0]
+  uncleaned_findings_df = get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_prompt, chat, progressBar1)
 
   #Clean the findings
   cleaned_findings_df = clean_findings_df(uncleaned_findings_df)
