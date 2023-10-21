@@ -50,12 +50,16 @@ def filterExcel(fileName, query):
 
 def getOutputDF(dfOut):
     json_exists = ~dfOut["jsonOutput"].isna()
-    dfOut.insert(3,'prediction', None, True)
-    dfOut.loc[json_exists, 'prediction'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('answer'))
-    dfOut.insert(4,'justification_for_relevancy', None, True)
-    dfOut.loc[json_exists, 'justification_for_relevancy'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('explanation'))
+    dfOut.insert(3,'PREDICTION', None, True)
+    dfOut.loc[json_exists, 'PREDICTION'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('answer'))
+    dfOut.insert(4,'JUSTIFICATION FOR RELEVANCY', None, True)
+    dfOut.loc[json_exists, 'JUSTIFICATION FOR RELEVANCY'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('explanation'))
     dfOut = dfOut.drop('jsonOutput', axis=1)
     return dfOut
+  
+def getYesExcel(df):
+  yes_excel = df.copy()[df["PREDICTION"].str.lower() == "yes"]
+  return yes_excel["PREDICTION"].tolist()
 
 WRAPPER = textwrap.TextWrapper(width=85) 
 COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey"}
@@ -90,11 +94,11 @@ def generate_visualisation(cleaned_findings_df):
 
   fig = go.Figure(data=[go.Table(
     columnwidth = [150,150,430,70,150,150],
-    header=dict(values=['DOI','Title','Abstract', 'Prediction', 'Justification for Relevancy', 'llmOutput'],
+    header=dict(values=['DOI','Title','Abstract', 'Prediction', 'Justification for Relevancy', 'LLM Output'],
                 fill_color='paleturquoise',
                 align='left'),
-    cells=dict(values=[cleaned_findings_df['DOI'], cleaned_findings_df['TITLE'],cleaned_findings_df['Findings_Visualised'],cleaned_findings_df['prediction'],cleaned_findings_df['justification_for_relevancy'],cleaned_findings_df['llmOutput']],
-               fill_color=['white','white','white',cleaned_findings_df['prediction'].map(COLOUR_MAPPING),'white','white'],
+    cells=dict(values=[cleaned_findings_df['DOI'], cleaned_findings_df['TITLE'],cleaned_findings_df['Findings_Visualised'],cleaned_findings_df['PREDICTION'],cleaned_findings_df['JUSTIFICATION FOR RELEVANCY'],cleaned_findings_df['LLM OUTPUT']],
+               fill_color=['white','white','white',cleaned_findings_df['PREDICTION'].map(COLOUR_MAPPING),'white','white'],
                align='left')
     )
   ], layout=layout)
