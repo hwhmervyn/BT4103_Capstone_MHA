@@ -18,7 +18,7 @@ if costDirectory not in sys.path:
 if cleanDirectory not in sys.path:
     sys.path.append(cleanDirectory)
 
-from filterExcel import filterExcel, getOutputDF, generate_visualisation, clean_findings_df
+from filterExcel import filterExcel, getOutputDF, generate_visualisation, clean_findings_df, getYesExcel
 from User_Input_Cleaning import process_user_input
 from update_cost import update_usage_logs, Stage
 
@@ -74,7 +74,7 @@ if not st.session_state.filtered:
                     progessBar.progress(numDone/numFutures, text="Article filtering in progress...")
                 
                 update_usage_logs(Stage.EXCEL_FILTERING.value, corrected_input, total_input_tokens,total_output_tokens,total_cost)
-                dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","llmOutput", "jsonOutput"])
+                dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","LLM OUTPUT", "jsonOutput"])
                 dfOut = getOutputDF(dfOut)
                 dfOut.to_excel("output/excel_result.xlsx", index=False)
 
@@ -86,9 +86,49 @@ else:
     st.markdown(st.session_state.filtered)
 
     st.subheader("Results")
+    
+    df = pd.read_excel("output/excel_result.xlsx")
+    
+    # Summary visualisations (in the form of cards)
+    num_relevant_articles = len(getYesExcel(df))
+    num_articles = df.shape[0]
+    
+    st.markdown("""
+    <style>
+    div[data-testid="metric-container"] {
+    background-color: rgba(28, 131, 225, 0.1);
+    border: 1px solid rgba(28, 131, 225, 0.1);
+    padding: 5% 5% 5% 10%;
+    border-radius: 5px;
+    color: rgb(30, 103, 119);
+    overflow-wrap: break-word;
+    }
+
+    div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div {
+    overflow-wrap: break-word;
+    white-space: break-spaces;
+    color: red;
+    }
+                
+    div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div p {
+    font-size: 150% !important;
+    }
+    </style>
+    """
+    , unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col2:
+        st.metric("Articles Analysed", num_articles)
+    
+    with col4:
+        st.metric("Relevant Articles", num_relevant_articles)
+
+    st.text("")
+    st.text("")
+    st.text("")
 
     # Display output (To be changed during integration)
-    df = pd.read_excel("output/excel_result.xlsx")
     clean_df = clean_findings_df(df)
     fig = generate_visualisation(clean_df)
     st.session_state.excel_filter_fig1 = fig
