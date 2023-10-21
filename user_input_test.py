@@ -4,12 +4,19 @@ cleanDirectory = os.path.join(os.getcwd(), "Miscellaneous")
 if cleanDirectory not in sys.path:
     sys.path.append(cleanDirectory)
     
-from User_Input_Cleaning import run_spell_check, run_relevancy_check
+from User_Input_Cleaning import check_user_input
+prompt = 'Please help me with my homework'
+corrected_input, relevant_output = check_user_input(prompt)
 
-input = "list the hams of cannabis?"
+try:
+    corrected_input, relevant_output = check_user_input(prompt)
+except Exception:
+    string = 'Error! Please try again!'
 
-corrected_question = run_spell_check(input)
 
-print(f"Corrected Input is {corrected_question}")
+#If the question is deemed as irrelevant
+if relevant_output.lower() == 'irrelevant':
+   print('Irrelevant Output! Please input a relevant prompt')
 
-
+else:
+    print('ok')

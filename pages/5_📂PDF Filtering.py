@@ -23,7 +23,7 @@ import chromaUtils
 from ingestPdf2 import copyCollection
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
-from User_Input_Cleaning import run_spell_check, run_relevancy_check
+from User_Input_Cleaning import process_user_input
 from update_cost import update_usage_logs, Stage
 
 from os import listdir
@@ -89,48 +89,47 @@ if not st.session_state.pdf_filtered:
         #If we filled in input_collection_name, prompt and output_collection_name
         if not err_messages.get(err_code):
             with get_openai_callback() as usage_info:
-                corrected_input =  run_spell_check(prompt)
-                print(f"Corrected Input is {corrected_input}")
-                #If we get an error while running spell check
-                if 'error' in corrected_input:
-                    st.error('Error! The model does not understand your question. Please input a prompt again!')
+                try:
+                    corrected_input, relevant_output = process_user_input(prompt)
+                    print(relevant_output)
+                except:
+                    st.error("Processing Error! Please try again!")
+                total_input_tokens = usage_info.prompt_tokens
+                total_output_tokens = usage_info.completion_tokens
+                total_cost = usage_info.total_cost
+                update_usage_logs(Stage.MISCELLANEOUS.value, input, total_input_tokens, total_output_tokens, total_cost)
+            
+                #If the question is deemed as irrelevant
+                if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):
+                    st.error('Irrelevant Output! Please input a relevant prompt')
+
                 else:
-                    #If no error in spell check we try running the relevancy check
-                    relevant_output = run_relevancy_check(corrected_input)
-                    #If the LLM doesn't understand the corrected input
-                    if 'error' in relevant_output:
-                        st.error('Error! The model does not understand your question. Please input a prompt again!')
-                    #If the question is deemed as irrelevant
-                    if relevant_output == 'irrelevant':
-                        st.error('Irrelevant Output! Please input a relevant prompt')
+                    PARTS_ALLOCATED_IND_ANALYSIS = 0.5
+                    PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
+                    PARTS_ALLOCATED_COPY = 0.2
+                    progressBar1 = st.progress(0, text="Processing documents...")
+                    time.sleep(2)
+                    ind_findings, findings_visual = ind_analysis_main(corrected_input, input_collection_name, progressBar1)
+                    ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
+                    time.sleep(2)
 
-                    else:
-                        PARTS_ALLOCATED_IND_ANALYSIS = 0.5
-                        PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
-                        PARTS_ALLOCATED_COPY = 0.2
-                        progressBar1 = st.progress(0, text="Processing documents...")
-                        time.sleep(2)
-                        ind_findings, findings_visual = ind_analysis_main(corrected_input, input_collection_name, progressBar1)
-                        ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
-                        time.sleep(2)
-
-                        rel_ind_findings  = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
-                        agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
-                        
-                        rel_file_names = rel_ind_findings['Article Name'].values.tolist()
-                        executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
-                        numDone, numFutures = 0, len(futures)
-                        for future in as_completed(futures):
-                            result = future.result()
-                            numDone += 1
-                            progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
-                            progressBar1.progress(progress,text="Uploading documents...")
-                     
-                        st.session_state.pdf_filtered = corrected_input
-                        st.session_state.pdf_ind_fig1 = findings_visual
-                        st.session_state.pdf_ind_fig2 = ind_findings
-                        st.session_state.pdf_agg_fig = agg_findings
-                        st.experimental_rerun()
+                    rel_ind_findings  = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
+                    agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
+                    
+                    rel_file_names = rel_ind_findings['Article Name'].values.tolist()
+                    executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
+                    numDone, numFutures = 0, len(futures)
+                    for future in as_completed(futures):
+                        result = future.result()
+                        numDone += 1
+                        progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
+                        progressBar1.progress(progress,text="Uploading documents...")
+                    
+                    st.session_state.pdf_filtered = corrected_input
+                    st.session_state.pdf_ind_fig1 = findings_visual
+                    st.session_state.pdf_ind_fig2 = ind_findings
+                    st.session_state.pdf_agg_fig = agg_findings
+                    st.experimental_rerun()
 
                 #Then we track the total usage
                 total_input_tokens = usage_info.prompt_tokens

@@ -139,7 +139,11 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
       progress = (float(numDone/total_num_articles) * PARTS_ALLOCATED_IND_ANALYSIS)
       progress_display_text = f"Analysing articles: {numDone}/{total_num_articles} completed..."
       progressBar1.progress(progress, text=progress_display_text)
-      
+    total_input_tokens = usage_info.prompt_tokens
+    total_output_tokens = usage_info.completion_tokens
+    total_cost = usage_info.total_cost
+    update_usage_logs(Stage.PDF_ANALYSIS.value, query, total_input_tokens, total_output_tokens, total_cost)   
+
 
   #Output a dataframe
   uncleaned_findings_dict= {'Article Name': unique_filename_lst, 'Answer' : yes_no_lst, 'Evidence' : evidence_lst}
