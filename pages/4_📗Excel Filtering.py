@@ -53,12 +53,15 @@ if not st.session_state.filtered:
             st.error("Please enter a research prompt and upload an excel file")
         else:
             with get_openai_callback() as usage_info:
-                corrected_input, relevant_output = process_user_input(input)
+                try:
+                    corrected_input, relevant_output = process_user_input(input)
+                except:
+                    st.error("Processing Error! Please try again!")
                 total_input_tokens = usage_info.prompt_tokens
                 total_output_tokens = usage_info.completion_tokens
                 total_cost = usage_info.total_cost
                 update_usage_logs(Stage.MISCELLANEOUS.value, input, total_input_tokens, total_output_tokens, total_cost)
-            if relevant_output == 'irrelevant':
+            if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):
                 st.error('Irrelevant Output! Please input a relevant prompt')
             else:
                 _, futures = filterExcel(uploaded_file,  corrected_input)
