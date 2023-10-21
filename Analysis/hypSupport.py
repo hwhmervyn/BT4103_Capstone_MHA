@@ -38,6 +38,26 @@ OUTPUT_FORMAT_INSTRUCTIONS = OUTPUT_PARSER.get_format_instructions()
 
 ### Helper functions ###
 
+def is_support_qn(input):
+  prompt_template = """Determine if the given question is asking for a Yes/No answer. Give your answer as Yes or No.
+    Ex 1: "Is drug A harmful?"
+    Ans: Yes
+    Ex 2: "Are mental health issues prevalent in Singapore?"
+    Ans: Yes
+    Ex 3: "Explain the causes of addiction"
+    Ans: No
+    Ex 4: "How can we deal with trauma?"
+    Ans: No
+    Ex. 5: "Does X result in greater damage compared to Y?"
+    Ans: Yes
+    Question: ### {question} ###
+    Ans: 
+  """
+  prompt = PromptTemplate(template=prompt_template,
+                            input_variables=["question"])
+  result = LLMChain(llm=LLM, prompt=prompt).run(input)
+  return result
+
 def get_llm_response(db, query, article_title):
   # Initialise prompt template with 2 variables --> context and question
   prompt = PromptTemplate(template=PROMPT_TEMPLATE,

@@ -47,10 +47,10 @@ sections = [
                                                                                                                                                 "Insert a research prompt and upload a zip file of PDF articles",
                                                                                                                                                 "Click Submit and wait for the file to be processed",
                                                                                                                                                 "View filtered results, extracted findings, and download the output"]},
-    {"icon": "⚖️", "title": "Support Analysis", "description": "Query PDF articles with a research hypothesis and view support", "steps":["Navigate to 'Support Analysis' using the sidebar", 
-                                                                                                                                            "Insert a research hypothesis and indicate your desired scope of anaylsis",
-                                                                                                                                            "Click Submit and wait for the files to be analysed",
-                                                                                                                                            "View the article response distribution and evidence"]},
+    {"icon": "⚖️", "title": "Support Analysis", "description": "Query PDF articles with a research hypothesis and view article support", "steps":["Navigate to 'Support Analysis' using the sidebar", 
+                                                                                                                                            "Select a collection of articles to analyse and input a research hypothesis",
+                                                                                                                                            "Click Submit and wait for the articles to be analysed",
+                                                                                                                                            "View the article response distribution and given evidence"]},
 ]
 
 # Display sections in a grid layout
