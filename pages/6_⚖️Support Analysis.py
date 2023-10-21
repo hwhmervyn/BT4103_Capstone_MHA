@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.getcwd(), "cost_breakdown"))
 sys.path.append(os.path.join(os.getcwd(), "Miscellaneous"))
 
 from chromaUtils import getCollection, getDistinctFileNameList, getListOfCollection
-from hypSupport import get_llm_response, correct_format_json, get_stance_and_evidence, get_support_chart, get_support_table, get_full_cleaned_df
+from hypSupport import is_support_qn, get_llm_response, correct_format_json, get_stance_and_evidence, get_support_chart, get_support_table, get_full_cleaned_df
 from update_cost import update_usage_logs, Stage
 
 st.set_page_config(layout="wide")
@@ -48,9 +48,6 @@ if not st.session_state.support_analysis_prompt:
                 total_num_articles = len(article_title_list)
                 article_title_list = getDistinctFileNameList(input_collection_name)
                 total_num_articles = len(article_title_list)
-                if total_num_articles == 0:
-                    st.error("You have no PDF articles in this collection.")
-
                 # Obtain dataframe of LLM responses. Only run if number of articles > 0
                 if total_num_articles > 0:
                     # Connect to selected database collection
@@ -65,67 +62,73 @@ if not st.session_state.support_analysis_prompt:
                     article_error_list = []
 
                     with get_openai_callback() as usage_info:
-                        progressBar = st.progress(0, text="Analysing articles...")
-
-                        for i in range(total_num_articles):
-                            try: 
-                                article_title = article_title_list[i]
-                                # Make LLM call to get response
-                                response, source_docs = get_llm_response(db, input, article_title)
-                                response_list[i] = response
-                                source_docs_list[i] = source_docs
-                                # Extract stance and evidence from response
-                                stance, evidence = get_stance_and_evidence(response)
-                                stance_list[i] = stance
-                                evidence_list[i] = evidence
-                            except JSONDecodeError:
-                                corrrected_response = correct_format_json(response_list[i])
-                                response_list[i] = corrrected_response
+                        # Check if input is relevant to support analysis
+                        is_support_qn = is_support_qn(input).lower()
+                        if is_support_qn == "yes":
+                            progressBar = st.progress(0, text="Analysing articles...")
+                            for i in range(total_num_articles):
                                 try: 
-                                    stance, evidence = get_stance_and_evidence(response_list[i])
+                                    article_title = article_title_list[i]
+                                    # Make LLM call to get response
+                                    response, source_docs = get_llm_response(db, input, article_title)
+                                    response_list[i] = response
+                                    source_docs_list[i] = source_docs
+                                    # Extract stance and evidence from response
+                                    stance, evidence = get_stance_and_evidence(response)
                                     stance_list[i] = stance
                                     evidence_list[i] = evidence
+                                except JSONDecodeError:
+                                    corrrected_response = correct_format_json(response_list[i])
+                                    response_list[i] = corrrected_response
+                                    try: 
+                                        stance, evidence = get_stance_and_evidence(response_list[i])
+                                        stance_list[i] = stance
+                                        evidence_list[i] = evidence
+                                    except Exception:
+                                        article_error_list.append(article_title)
                                 except Exception:
                                     article_error_list.append(article_title)
-                            except Exception:
-                                article_error_list.append(article_title)
 
-                            # Update progress
-                            progress_display_text = f"Analysing articles: {i+1}/{total_num_articles} completed"
-                            progressBar.progress((i+1)/total_num_articles, text=progress_display_text)
+                                # Update progress
+                                progress_display_text = f"Analysing articles: {i+1}/{total_num_articles} completed"
+                                progressBar.progress((i+1)/total_num_articles, text=progress_display_text)
+                                
+                            support_df_raw = pd.DataFrame({"article": article_title_list, "stance": stance_list, "evidence": evidence_list, "source_docs": source_docs_list, "raw_output": response_list})
+                            # Store dataframe as Excel file in local output folder
+                            support_df_cleaned = get_full_cleaned_df(support_df_raw)
+                            support_df_cleaned.to_excel("output/support_analysis_results.xlsx", index=False)
                             
-                        support_df_raw = pd.DataFrame({"article": article_title_list, "stance": stance_list, "evidence": evidence_list, "source_docs": source_docs_list, "raw_output": response_list})
-                        # Store dataframe as Excel file in local output folder
-                        support_df_cleaned = get_full_cleaned_df(support_df_raw)
-                        support_df_cleaned.to_excel("output/support_analysis_results.xlsx", index=False)
-                        
-                        # Display success message
-                        progressBar.empty()
-                        st.success(f"Analysis Complete")
+                            # Display success message
+                            progressBar.empty()
+                            st.success(f"Analysis Complete")
 
-                        # Display error message if there are articles that cannot be analysed due to error
-                        if len(article_error_list) > 0:
-                            st.error("Error in extracting output for the articles below")
-                            with st.expander("Articles with error:"):
-                                for article_title in article_error_list:
-                                    st.markdown(f"- {article_title}")
-                        
-                        # Update usage info
-                        update_usage_logs(Stage.SUPPORT_ANALYSIS.value, input, 
-                            usage_info.prompt_tokens, usage_info.completion_tokens, usage_info.total_cost)
-                        
-                        # TEST
-                        # support_df_raw = pd.read_csv("C:/Users/laitz/OneDrive/Documents/BT4103_Capstone_MHA/output/support_output [Is cannabis more harmful than tobacco_].csv")
-                        # support_df_cleaned = get_full_cleaned_df(support_df_raw)
-                        # support_df_cleaned.to_excel("output/support_analysis_results.xlsx", index=False)
+                            # Display error message if there are articles that cannot be analysed due to error
+                            if len(article_error_list) > 0:
+                                st.error("Error in extracting output for the articles below")
+                                with st.expander("Articles with error:"):
+                                    for article_title in article_error_list:
+                                        st.markdown(f"- {article_title}")
+                            
+                            # Update usage info
+                            update_usage_logs(Stage.SUPPORT_ANALYSIS.value, input, 
+                                usage_info.prompt_tokens, usage_info.completion_tokens, usage_info.total_cost)
+                            
+                            # TEST
+                            # support_df_raw = pd.read_csv("C:/Users/laitz/OneDrive/Documents/BT4103_Capstone_MHA/output/support_output [Is cannabis more harmful than tobacco_].csv")
+                            # support_df_cleaned = get_full_cleaned_df(support_df_raw)
+                            # support_df_cleaned.to_excel("output/support_analysis_results.xlsx", index=False)
 
-                        st.session_state.support_analysis_prompt = input
-                        st.session_state.support_analysis_collection = input_collection_name
-                        st.experimental_rerun()
+                            st.session_state.support_analysis_prompt = input
+                            st.session_state.support_analysis_collection = input_collection_name
+                            st.experimental_rerun()
+                        else: 
+                            st.error("Please rephrase your prompt")
+                else:
+                    st.error("You have no PDF articles in this collection")
             else:
-                st.warning("Please input a prompt")
+                st.error("Please input a prompt")
         else: 
-            st.warning("Please select a collection. If a collection has not been created, please use the My Collections page to do so.")
+            st.error("Please select a collection. If a collection has not been created, please use the My Collections page to do so.")
 else:
     st.subheader("Prompt")
     st.markdown(st.session_state.support_analysis_prompt)
@@ -163,7 +166,7 @@ else:
                             # Store output results in a csv file
                             data=my_file,
                             # Query appended at end of output file name
-                            file_name=f'support_output_{st.session_state.support_analysis_collection} [{st.session_state.support_analysis_prompt}].xlsx',
+                            file_name=f'support_output [{st.session_state.support_analysis_collection}] [{st.session_state.support_analysis_prompt}].xlsx',
                             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     
     st.markdown("#")
