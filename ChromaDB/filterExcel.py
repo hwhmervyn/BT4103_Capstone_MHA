@@ -95,8 +95,8 @@ def generate_visualisation(cleaned_findings_df):
   fig = go.Figure(data=[go.Table(
     columnwidth = [150,150,430,70,150,150],
     header=dict(values=['DOI','Title','Abstract', 'Prediction', 'Justification for Relevancy', 'LLM Output'],
-                fill_color='paleturquoise',
-                align='left'),
+                fill_color='#203864',
+                align='left', font=dict(color='white')),
     cells=dict(values=[cleaned_findings_df['DOI'], cleaned_findings_df['TITLE'],cleaned_findings_df['Findings_Visualised'],cleaned_findings_df['PREDICTION'],cleaned_findings_df['JUSTIFICATION FOR RELEVANCY'],cleaned_findings_df['LLM OUTPUT']],
                fill_color=['white','white','white',cleaned_findings_df['PREDICTION'].map(COLOUR_MAPPING),'white','white'],
                align='left')
