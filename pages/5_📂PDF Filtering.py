@@ -49,13 +49,13 @@ if 'collection' not in st.session_state:
 
 #collection_name, file_upload, prompt
 err_messages = {
-    "000": "Please select an input collection to use, enter a research prompt and, enter a collection name(that hasn't been used yet) to store the filtered articles",
-    "100": "Please enter a research prompt and a collection name(that hasn't been used yet) to store the filtered articles",
-    "010": "Please select an input collection to use and and a collection name(that hasn't been used yet) to store the filtered articles",
-    "001": "Please select an input collection to used andenter a research prompt",
+    "000": "Please select an input collection to use, enter a research prompt and, enter a collection name (that hasn't been used yet) to store the filtered articles",
+    "100": "Please enter a research prompt and a collection name (that hasn't been used yet) to store the filtered articles",
+    "010": "Please select an input collection to use and a collection name (that hasn't been used yet) to store the filtered articles",
+    "001": "Please select an input collection to use and enter a research prompt",
     "011": "Please select an input collection to use",
     "101": "Please enter a research prompt",
-    "110": "Please enter a collection name(that hasn't been used yet) to store the filtered articles",
+    "110": "Please enter a collection name (that hasn't been used yet) to store the filtered articles",
 }
 
 if not st.session_state.pdf_filtered:
@@ -69,7 +69,7 @@ if not st.session_state.pdf_filtered:
     # Page layout
     input_collection_name = st.selectbox(
         'Input Collection', chromaUtils.getListOfCollection(), 
-        placeholder="Select the Collection you would like to use"
+        placeholder="Select the collection you would like to use"
     )
 
     prompt = st.text_input("Research Prompt", placeholder='Enter your research prompt')

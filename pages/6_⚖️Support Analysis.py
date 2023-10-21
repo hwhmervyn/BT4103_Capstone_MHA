@@ -4,30 +4,16 @@ import pandas as pd
 from langchain.callbacks import get_openai_callback
 from json.decoder import JSONDecodeError
 
-
-
 # Build path from working directory and add to system paths to facilitate local module import
 import os, sys
+sys.path.append(os.path.join(os.getcwd(), "ChromaDB"))
+sys.path.append(os.path.join(os.getcwd(), "analysis"))
+sys.path.append(os.path.join(os.getcwd(), "cost_breakdown"))
+sys.path.append(os.path.join(os.getcwd(), "Miscellaneous"))
 
-workingDirectory = os.getcwd()
-dataDirectory = os.path.join(workingDirectory, "data")
-chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
-analysisDirectory = os.path.join(workingDirectory, "Analysis")
-miscellaneousDirectory = os.path.join(workingDirectory, "Miscellaneous")
-costDirectory = os.path.join(workingDirectory, "cost_breakdown")
-
-sys.path.append(chromaDirectory)
-sys.path.append(analysisDirectory)
-sys.path.append(miscellaneousDirectory)
-sys.path.append(costDirectory)
-
-
-import chromaUtils
-from chromaUtils import getCollection, getDistinctFileNameList
+from chromaUtils import getCollection, getDistinctFileNameList, getListOfCollection
 from hypSupport import get_llm_response, correct_format_json, get_stance_and_evidence, get_support_chart, get_support_table, get_full_cleaned_df
-from Individual_Analysis import get_yes_pdf_filenames
 from update_cost import update_usage_logs, Stage
-
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
@@ -35,62 +21,40 @@ add_logo("images/htpd_text.png", height=100)
 st.markdown("<h1 style='text-align: left; color: Black;'>Support Analysis</h1>", unsafe_allow_html=True)
 st.markdown('#')
 
-if 'pdf_filtered' not in st.session_state:
-    st.session_state.pdf_filtered = False
+if 'support_analysis_prompt' not in st.session_state:
+    st.session_state.support_analysis_prompt = False
 if 'collection' not in st.session_state:
     st.session_state.collection = None
 
-
-
-
-if 'support_analysis_prompt' not in st.session_state:
-    st.session_state.support_analysis_prompt = False
-
-if not st.session_state.support_analysis_prompt: 
+if not st.session_state.support_analysis_prompt:
     input_collection_name = st.selectbox(
-        'Input Collection', chromaUtils.getListOfCollection(), 
-        placeholder="Select the Collection you would like to use"
+        'Input Collection', getListOfCollection(), 
+        placeholder="Select the collection you would like to use"
     )
     input = st.text_input("Research Prompt", placeholder='Enter your research prompt (e.g. Is drug A more harmful than drug B?)')
     st.markdown('##')
-    col1, col2 = st.columns(2)
-    with col1: 
+    col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+    with col4: 
         start_analysis = st.button("Submit")
-    with col2:
-        analyse_all_articles = st.toggle("All articles", value=False, 
-                                        help="Select the toggle to analyse all uploaded articles. If not selected, analysis will only be conducted on filtered articles.")
-        st.session_state.analyse_all_articles = analyse_all_articles
 
-    # Run if "Analyse literature support" button is clicked
+    # Run if "Submit" button is clicked
     if start_analysis:
-        #If there is a collection name
-        if input_collection_name: 
-            #If prompt
+        # Run if user has selected a collection of PDFs to analyse
+        if input_collection_name:
+            # Run if user has included a prompt
             if input:
                 # Initialise empty article title list
                 article_title_list = []
                 total_num_articles = len(article_title_list)
-
-                # 2 options: Analyse only filtered PDF articles or all PDF articles
-                if not st.session_state.analyse_all_articles:
-                    # Retrieve output dataframe of PDF analysis from Streamlit session state
-                    if 'pdf_ind_fig2' not in st.session_state:
-                        st.error("You have no filtered PDF articles")
-                    else: 
-                        # Extract output of PDF upload and filtering stage
-                        ind_findings_df = st.session_state.pdf_ind_fig2
-                        article_title_list = get_yes_pdf_filenames(ind_findings_df)
-                        total_num_articles = len(article_title_list)
-                else:
-                    article_title_list = getDistinctFileNameList("pdf")
-                    total_num_articles = len(article_title_list)
-                    if total_num_articles == 0:
-                        st.error("You have no PDF articles in the database. Please use the PDF Analysis page to upload the articles.")
+                article_title_list = getDistinctFileNameList(input_collection_name)
+                total_num_articles = len(article_title_list)
+                if total_num_articles == 0:
+                    st.error("You have no PDF articles in this collection.")
 
                 # Obtain dataframe of LLM responses. Only run if number of articles > 0
                 if total_num_articles > 0:
-                    # Connect to database
-                    db = getCollection("pdf")
+                    # Connect to selected database collection
+                    db = getCollection(input_collection_name)
 
                     # Initialise holder lists to temporarily store output
                     response_list = ['']*total_num_articles
@@ -127,7 +91,7 @@ if not st.session_state.support_analysis_prompt:
                                 article_error_list.append(article_title)
 
                             # Update progress
-                            progress_display_text = f"Analysing articles: {i+1}/{total_num_articles} completed."
+                            progress_display_text = f"Analysing articles: {i+1}/{total_num_articles} completed"
                             progressBar.progress((i+1)/total_num_articles, text=progress_display_text)
                             
                         support_df_raw = pd.DataFrame({"article": article_title_list, "stance": stance_list, "evidence": evidence_list, "source_docs": source_docs_list, "raw_output": response_list})
@@ -137,7 +101,7 @@ if not st.session_state.support_analysis_prompt:
                         
                         # Display success message
                         progressBar.empty()
-                        st.success(f"Analysis Complete.")
+                        st.success(f"Analysis Complete")
 
                         # Display error message if there are articles that cannot be analysed due to error
                         if len(article_error_list) > 0:
@@ -156,17 +120,17 @@ if not st.session_state.support_analysis_prompt:
                         # support_df_cleaned.to_excel("output/support_analysis_results.xlsx", index=False)
 
                         st.session_state.support_analysis_prompt = input
+                        st.session_state.support_analysis_collection = input_collection_name
                         st.experimental_rerun()
             else:
-                st.error("Please input a prompt")
-        else:
-            st.error("Please choose a collection")
-
+                st.warning("Please input a prompt")
+        else: 
+            st.warning("Please select a collection. If a collection has not been created, please use the My Collections page to do so.")
 else:
     st.subheader("Prompt")
     st.markdown(st.session_state.support_analysis_prompt)
-    support_analysis_scope = "All articles" if st.session_state.analyse_all_articles else "Filtered articles"
-    st.markdown(f"Scope: {support_analysis_scope}")
+    st.subheader("Collection")
+    st.markdown(st.session_state.support_analysis_collection)
 
     # Read output Excel file
     support_df = pd.read_excel("output/support_analysis_results.xlsx")
@@ -199,13 +163,11 @@ else:
                             # Store output results in a csv file
                             data=my_file,
                             # Query appended at end of output file name
-                            file_name=f'support_output [{st.session_state.support_analysis_prompt}].xlsx',
+                            file_name=f'support_output_{st.session_state.support_analysis_collection} [{st.session_state.support_analysis_prompt}].xlsx',
                             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     
     st.markdown("#")
-    col1, col2, col3 = st.columns(3)
-    with col2: 
-        retry_button = st.button('Submit another prompt')
+    retry_button = st.button('Submit another prompt')
     if retry_button:
         st.session_state.support_analysis_prompt = False
         st.experimental_rerun()
