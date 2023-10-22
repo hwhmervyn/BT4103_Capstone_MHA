@@ -4,12 +4,12 @@ cleanDirectory = os.path.join(os.getcwd(), "Miscellaneous")
 if cleanDirectory not in sys.path:
     sys.path.append(cleanDirectory)
     
-from User_Input_Cleaning import check_user_input
-prompt = 'Please help me with my homework'
-corrected_input, relevant_output = check_user_input(prompt)
+from User_Input_Cleaning import process_user_input
+prompt = 'Does the article mention psychological first aid'
+corrected_input, relevant_output = process_user_input(prompt)
 
 try:
-    corrected_input, relevant_output = check_user_input(prompt)
+    corrected_input, relevant_output = process_user_input(prompt)
 except Exception:
     string = 'Error! Please try again!'
 

@@ -51,9 +51,10 @@ def create_relevant_qn_checker_prompt():
 	#Set up a prompt template 
 	relevant_qn_checker_prompt_template = """
 	[INST]<<SYS>>
-	Check the question given by the user to see the question is related to an academic topic/SYS>>
+	Check the question given by the user to see the question is related to an academic topic
+	Answer either Relevant or Irrelevant in 1 word and nothing else
 	Question: {question}
-	Answer: Answer either Relevant or Irrelevant in 1 word
+	Answer: 
 	"""
 	#Input examples for the llm to check against
 	examples = [{'question': 'Is the article relevant to a topic?',
