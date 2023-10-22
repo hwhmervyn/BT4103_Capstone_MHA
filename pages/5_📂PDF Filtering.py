@@ -125,7 +125,12 @@ if not st.session_state.pdf_filtered:
                         numDone += 1
                         progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
                         progressBar1.progress(progress,text="Uploading documents...")
-                    
+                        end_time = time.time()
+                    time_taken_seconds = end_time - start_time
+                    time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+                    print(f'Time taken in seconds is {time_taken_seconds} seconds')
+                    print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
+                                
                     st.session_state.pdf_filtered = corrected_input
                     st.session_state.pdf_ind_fig1 = findings_visual
                     st.session_state.pdf_ind_fig2 = ind_findings
@@ -139,11 +144,6 @@ if not st.session_state.pdf_filtered:
                 update_usage_logs(Stage.PDF_ANALYSIS.value, input, total_input_tokens, total_output_tokens, total_cost)           
         else:
            st.error(err_messages[err_code]) 
-        end_time = time.time()
-        time_taken_seconds = end_time - start_time
-        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
-        print(f'Time taken in seconds is {time_taken_seconds} seconds')
-        print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
             
 if st.session_state.pdf_filtered:
     st.subheader("Prompt")
