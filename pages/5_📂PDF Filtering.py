@@ -82,6 +82,7 @@ if not st.session_state.pdf_filtered:
         button = st.button('Submit')
         
     if button:
+        start_time = time.time()
         #Check if all 3 options have been filled in
         err_code = str(int(bool(input_collection_name)))+\
                                     str(int(bool(prompt)))+\
@@ -138,6 +139,11 @@ if not st.session_state.pdf_filtered:
                 update_usage_logs(Stage.PDF_ANALYSIS.value, input, total_input_tokens, total_output_tokens, total_cost)           
         else:
            st.error(err_messages[err_code]) 
+        end_time = time.time()
+        time_taken_seconds = end_time - start_time
+        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+        print(f'Time take in seconds is {time_taken_seconds} seconds')
+        print(f'Time take in minutes and secons is {time_taken_minute_seconds}')
             
 if st.session_state.pdf_filtered:
     st.subheader("Prompt")

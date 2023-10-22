@@ -4,6 +4,7 @@ from zipfile import ZipFile
 from concurrent.futures import as_completed
 import glob
 import re
+import time
 import sys, os
 workingDirectory = os.getcwd()
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
@@ -92,6 +93,7 @@ else:
 
 if st.session_state['create_but']:
     st.session_state['disabled'] = True
+    start_time = time.time()
     if collection_name and not uploaded_file:
         progress_placeholder.error("Please upload a zip folder")
     elif not collection_name and uploaded_file:
@@ -122,6 +124,12 @@ if st.session_state['create_but']:
             numDone += 1
             progress = float(numDone/numFutures)
             progressBar1.progress(progress,text="Uploading documents...")
+        st.success(f'Successfully uploaded {collection_name}')
         st.experimental_rerun()
+    end_time = time.time()
+    time_taken_seconds = end_time - start_time
+    time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+    print(f'Time take in seconds is {time_taken_seconds} seconds')
+    print(f'Time take in minutes and secons is {time_taken_minute_seconds}')
 
     st.session_state['disabled'] = False
