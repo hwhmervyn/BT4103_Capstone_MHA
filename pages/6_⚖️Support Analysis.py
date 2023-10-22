@@ -111,6 +111,12 @@ if not st.session_state.support_analysis_prompt:
                                     for article_title in article_error_list:
                                         st.markdown(f"- {article_title}")
                             
+                            end_time = time.time()
+                            time_taken_seconds = end_time - start_time
+                            time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+                            print(f'Time taken in seconds is {time_taken_seconds} seconds')
+                            print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
+                            
                             # Update usage info
                             update_usage_logs(Stage.SUPPORT_ANALYSIS.value, input, 
                                 usage_info.prompt_tokens, usage_info.completion_tokens, usage_info.total_cost)
@@ -131,11 +137,7 @@ if not st.session_state.support_analysis_prompt:
                 st.error("Please input a prompt")
         else: 
             st.error("Please select a collection. If a collection has not been created, please use the My Collections page to do so.")
-        end_time = time.time()
-        time_taken_seconds = end_time - start_time
-        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
-        print(f'Time taken in seconds is {time_taken_seconds} seconds')
-        print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
+       
 else:
     st.subheader("Prompt")
     st.markdown(st.session_state.support_analysis_prompt)

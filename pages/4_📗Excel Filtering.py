@@ -77,18 +77,18 @@ if not st.session_state.filtered:
                     results.append(row[0:5])
                     numDone += 1
                     progessBar.progress(numDone/numFutures, text="Article filtering in progress...")
-                
+                end_time = time.time()
+                time_taken_seconds = end_time - start_time
+                time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+                print(f'Time taken in seconds is {time_taken_seconds} seconds')
+                print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
                 update_usage_logs(Stage.EXCEL_FILTERING.value, corrected_input, total_input_tokens,total_output_tokens,total_cost)
                 dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","LLM OUTPUT", "jsonOutput"])
                 dfOut = getOutputDF(dfOut)
                 dfOut.to_excel("output/excel_result.xlsx", index=False)
                 st.session_state.filtered = input
                 st.experimental_rerun()
-        end_time = time.time()
-        time_taken_seconds = end_time - start_time
-        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
-        print(f'Time taken in seconds is {time_taken_seconds} seconds')
-        print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
+      
 
 else:
     st.subheader("Prompt")
