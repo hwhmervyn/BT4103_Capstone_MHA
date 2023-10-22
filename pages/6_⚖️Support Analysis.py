@@ -3,6 +3,7 @@ from streamlit_extras.app_logo import add_logo
 import pandas as pd
 from langchain.callbacks import get_openai_callback
 from json.decoder import JSONDecodeError
+import time
 
 # Build path from working directory and add to system paths to facilitate local module import
 import os, sys
@@ -39,6 +40,7 @@ if not st.session_state.support_analysis_prompt:
 
     # Run if "Submit" button is clicked
     if start_analysis:
+        start_time = time.time()
         # Run if user has selected a collection of PDFs to analyse
         if input_collection_name:
             # Run if user has included a prompt
@@ -129,6 +131,11 @@ if not st.session_state.support_analysis_prompt:
                 st.error("Please input a prompt")
         else: 
             st.error("Please select a collection. If a collection has not been created, please use the My Collections page to do so.")
+        end_time = time.time()
+        time_taken_seconds = end_time - start_time
+        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+        print(f'Time take in seconds is {time_taken_seconds} seconds')
+        print(f'Time take in minutes and secons is {time_taken_minute_seconds}')
 else:
     st.subheader("Prompt")
     st.markdown(st.session_state.support_analysis_prompt)

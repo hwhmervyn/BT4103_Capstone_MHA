@@ -3,6 +3,7 @@ from streamlit_extras.app_logo import add_logo
 from concurrent.futures import as_completed
 from langchain.callbacks import get_openai_callback
 import pandas as pd
+import time
 
 import sys,os
 
@@ -45,6 +46,7 @@ if not st.session_state.filtered:
         button = st.button('Submit')
     
     if button:
+        start_time = time.time()
         if input and not uploaded_file: 
             st.error("Please upload an excel file")
         elif not input and uploaded_file:
@@ -80,9 +82,13 @@ if not st.session_state.filtered:
                 dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","LLM OUTPUT", "jsonOutput"])
                 dfOut = getOutputDF(dfOut)
                 dfOut.to_excel("output/excel_result.xlsx", index=False)
-
                 st.session_state.filtered = input
                 st.experimental_rerun()
+        end_time = time.time()
+        time_taken_seconds = end_time - start_time
+        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+        print(f'Time take in seconds is {time_taken_seconds} seconds')
+        print(f'Time take in minutes and secons is {time_taken_minute_seconds}')
 
 else:
     st.subheader("Prompt")
