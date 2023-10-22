@@ -87,8 +87,8 @@ if not st.session_state.filtered:
         end_time = time.time()
         time_taken_seconds = end_time - start_time
         time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
-        print(f'Time take in seconds is {time_taken_seconds} seconds')
-        print(f'Time take in minutes and secons is {time_taken_minute_seconds}')
+        print(f'Time taken in seconds is {time_taken_seconds} seconds')
+        print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
 
 else:
     st.subheader("Prompt")
