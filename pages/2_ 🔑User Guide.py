@@ -39,13 +39,15 @@ st.write("")
 st.write("")
 
 sections = [
-    {"icon": "📗", "title": "Excel Analysis", "description": "Filter an excel file of articles with a research prompt and view results", "steps":["Navigate to 'Excel Analysis' using the sidebar", 
+    {"icon": "📗", "title": "Excel Analysis", "description": "Filter an excel file of articles with a research prompt and view results", "steps":["Navigate to 'Excel Filtering' using the sidebar", 
                                                                                                                                                   "Insert a research prompt and upload an Excel file containing a sheet of article title, abtracts, DOI and database",
                                                                                                                                                   "Click Submit and wait for the file to be processed",
                                                                                                                                                   "View filtered results and download the output"]},
-    {"icon": "📂", "title": "PDF Analysis", "description": "Filter a folder of PDF articles with a research prompt and view results", "steps":["Navigate to 'PDF Analysis' using the sidebar", 
-                                                                                                                                                "Insert a research prompt and upload a zip file of PDF articles",
-                                                                                                                                                "Click Submit and wait for the file to be processed",
+    {"icon": "📂", "title": "PDF Analysis", "description": "Filter a folder of PDF articles with a research prompt and view results", "steps":["Navigate to 'My Collections' using the sidebar", 
+                                                                                                                                                "Name your collection and upload a zip file of PDF articles",
+                                                                                                                                                "Navigate to PDF Filtering using the sidebar",
+                                                                                                                                                "Select your uploaded collection as the input and insert a research prompt",
+                                                                                                                                                "Click Submit and wait for the files to be processed"
                                                                                                                                                 "View filtered results, extracted findings, and download the output"]},
     {"icon": "⚖️", "title": "Support Analysis", "description": "Query PDF articles with a research hypothesis and view article support", "steps":["Navigate to 'Support Analysis' using the sidebar", 
                                                                                                                                             "Select a collection of articles to analyse and input a research hypothesis",

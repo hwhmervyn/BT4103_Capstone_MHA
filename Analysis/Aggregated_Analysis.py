@@ -20,6 +20,7 @@ sys.path.append(analysisDirectory)
 #from Individual_Analysis import cleaned_findings_df
 
 def get_common_themes(df, llm):
+    df = df[df["Answer"].str.lower() == "yes"]
     docs = df['Findings'].apply(lambda x: Document(page_content=x[4:])).tolist() # Remove <br> and convert to Document type
 
     with get_openai_callback() as usage_info:
