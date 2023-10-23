@@ -98,7 +98,7 @@ if not st.session_state.pdf_filtered:
                 total_input_tokens = usage_info.prompt_tokens
                 total_output_tokens = usage_info.completion_tokens
                 total_cost = usage_info.total_cost
-                update_usage_logs(Stage.MISCELLANEOUS.value, input, total_input_tokens, total_output_tokens, total_cost)
+                update_usage_logs(Stage.MISCELLANEOUS.value, corrected_input, total_input_tokens, total_output_tokens, total_cost)
             
                 #If the question is deemed as irrelevant
                 if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):

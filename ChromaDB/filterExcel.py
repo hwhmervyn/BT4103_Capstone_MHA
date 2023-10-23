@@ -40,7 +40,7 @@ def createTask(doi, title, abstract, query):
     return (doi, title, abstract, result.content, jsonOutput, total_input_tokens, total_output_tokens, total_cost)
 
 def filterExcel(fileName, query):
-  df = pd.read_excel(fileName).dropna(how='all')[['DOI','TITLE','ABSTRACT']].iloc[:5]
+  df = pd.read_excel(fileName).dropna(how='all')[['DOI','TITLE','ABSTRACT']]
   executor = ThreadPoolExecutor(max_workers=2)
   futures = []
   for _, row in df.iterrows():
