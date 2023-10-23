@@ -63,8 +63,8 @@ if not st.session_state.pdf_filtered:
     for file in listdir(dataDirectory):
         full_path = join(abspath(dataDirectory), file)
 
-    if isdir(full_path):
-        rmtree(full_path)
+        if isdir(full_path):
+            rmtree(full_path)
 
     # Page layout
     input_collection_name = st.selectbox(
