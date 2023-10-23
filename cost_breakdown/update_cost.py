@@ -2,7 +2,12 @@ import csv
 import openpyxl
 import pytz
 import datetime as dt
+import pandas as pd
 from enum import Enum
+
+import sys, os
+workingDirectory = os.getcwd()
+costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 
 class Stage(Enum):
     EXCEL_FILTERING = "Excel Filtering"
@@ -15,6 +20,14 @@ singapore = pytz.timezone('Asia/Singapore')
 
 ## Excel Format
 def update_usage_logs(processing_stage, query, total_input_tokens, total_output_tokens, total_cost):
+    file_path = os.path.join(costDirectory, 'API Cost.xlsx')
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        # If the file doesn't exist, create an empty DataFrame
+        columns = ['Date', 'Processing Stage', 'Query', 'Total Input Tokens', 'Total Output Tokens', 'Total Cost']
+        df = pd.DataFrame(columns=columns)
+        df.to_excel('cost_breakdown/API Cost.xlsx', sheet_name='Sheet1', index = False)
+    
     workbook = openpyxl.load_workbook('cost_breakdown/API Cost.xlsx')
     worksheet = workbook['Sheet1']
     new_row_values = [str(dt.datetime.now()), processing_stage, query, total_input_tokens, total_output_tokens, total_cost]
