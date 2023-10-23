@@ -12,11 +12,11 @@ add_logo("images/htpd_text.png", height=100)
 st.markdown("<h1 style='text-align: left; color: Black;'>Usage Tracking</h1>", unsafe_allow_html=True)
 st.markdown('#')
 
-file_path = os.path.join(costDirectory, 'API Cost.csv')
+file_path = os.path.join(costDirectory, 'API Cost.xlsx')
 # Check if the file exists
 if os.path.exists(file_path):
     # If the file exists, read it into a DataFrame
-    df = pd.read_csv(file_path)
+    df = pd.read_excel(file_path, sheet_name='Sheet1')
 else:
     # If the file doesn't exist, create an empty DataFrame
     columns = ['Date', 'Processing Stage', 'Query', 'Total Input Tokens', 'Total Output Tokens', 'Total Cost']
