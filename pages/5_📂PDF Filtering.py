@@ -13,7 +13,6 @@ analysisDirectory = os.path.join(workingDirectory, "Analysis")
 miscellaneousDirectory = os.path.join(workingDirectory, "Miscellaneous")
 costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 
-
 sys.path.append(chromaDirectory)
 sys.path.append(analysisDirectory)
 sys.path.append(miscellaneousDirectory)
@@ -102,7 +101,7 @@ if not st.session_state.pdf_filtered:
             
                 #If the question is deemed as irrelevant
                 if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):
-                    st.error('Irrelevant Output! Please input a relevant prompt')
+                    st.error('Please input a relevant prompt')
 
                 else:
                     PARTS_ALLOCATED_IND_ANALYSIS = 0.5
@@ -124,7 +123,7 @@ if not st.session_state.pdf_filtered:
                         result = future.result()
                         numDone += 1
                         progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
-                        progressBar1.progress(progress,text="Uploading documents...")
+                        progressBar1.progress(progress,text="Creating collection...")
                         end_time = time.time()
                     time_taken_seconds = end_time - start_time
                     time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))

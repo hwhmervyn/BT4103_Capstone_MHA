@@ -81,7 +81,7 @@ def agg_analysis_main(cleaned_findings_df, progressBar1):
     progressBar1.progress(PARTS_ALLOCATED_IND_ANALYSIS, text=f"Aggregating key themes...")
     result_tup = get_common_themes(cleaned_findings_df, chat)
     common_themes = result_tup
-    progressBar1.progress(PARTS_ALLOCATED_AGG_ANALYSIS+PARTS_ALLOCATED_IND_ANALYSIS, text=f"Completed! Just a moment...")
+    progressBar1.progress(PARTS_ALLOCATED_AGG_ANALYSIS+PARTS_ALLOCATED_IND_ANALYSIS, text=f"Aggregating key themes...")
     time.sleep(1)
 
     return common_themes
