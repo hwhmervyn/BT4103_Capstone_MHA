@@ -15,6 +15,7 @@ sys.path.append(os.path.join(os.getcwd(), "Miscellaneous"))
 from chromaUtils import getCollection, getDistinctFileNameList, getListOfCollection
 from hypSupport import is_support_qn, get_llm_response, correct_format_json, get_stance_and_evidence, get_support_chart, get_support_table, get_full_cleaned_df
 from update_cost import update_usage_logs, Stage
+from User_Input_Cleaning import run_spell_check
 
 st.set_page_config(layout="wide")
 add_logo("images/htpd_text.png", height=100)
@@ -33,6 +34,7 @@ if not st.session_state.support_analysis_prompt:
         placeholder="Select the collection you would like to use"
     )
     input = st.text_input("Research Prompt", placeholder='Enter your research prompt (e.g. Is drug A more harmful than drug B?)')
+    skip_support_prompt_check = st.toggle("Skip prompt checking", value=False)
     st.markdown('##')
     col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
     with col4: 
@@ -52,6 +54,7 @@ if not st.session_state.support_analysis_prompt:
                 total_num_articles = len(article_title_list)
                 # Obtain dataframe of LLM responses. Only run if number of articles > 0
                 if total_num_articles > 0:
+                    progressBar = st.progress(0, text="Analysing articles...")
                     # Connect to selected database collection
                     db = getCollection(input_collection_name)
 
@@ -63,11 +66,25 @@ if not st.session_state.support_analysis_prompt:
                     # Holder list to store article titles with error in obtaining output
                     article_error_list = []
 
-                    with get_openai_callback() as usage_info:
-                        # Check if input is relevant to support analysis
-                        is_support_qn = is_support_qn(input).lower()
-                        if is_support_qn == "yes":
-                            progressBar = st.progress(0, text="Analysing articles...")
+                    # Perform prompt checking
+                    if skip_support_prompt_check == False:
+                        with get_openai_callback() as usage_info:
+                            # Check and correct wrong spelling
+                            try: 
+                                input = run_spell_check(input)
+                            except:
+                                progressBar.empty()
+                                st.error("Processing Error! Please try again!")
+                            # Check suitability of prompt
+                            is_support_qn = is_support_qn(input).lower()
+                            if is_support_qn != "yes":
+                                progressBar.empty()
+                                st.error("Please rephrase your prompt")
+                            update_usage_logs(Stage.MISCELLANEOUS.value, input, usage_info.prompt_tokens, usage_info.completion_tokens, usage_info.total_cost)
+
+                    # Run Support Analysis
+                    if skip_support_prompt_check == True or is_support_qn == "yes":
+                        with get_openai_callback() as usage_info:
                             for i in range(total_num_articles):
                                 try: 
                                     article_title = article_title_list[i]
@@ -129,8 +146,6 @@ if not st.session_state.support_analysis_prompt:
                             st.session_state.support_analysis_prompt = input
                             st.session_state.support_analysis_collection = input_collection_name
                             st.experimental_rerun()
-                        else: 
-                            st.error("Please rephrase your prompt")
                 else:
                     st.error("You have no PDF articles in this collection")
             else:
@@ -156,17 +171,10 @@ else:
 
     st.markdown("Support Summary Table:")
     fig2 = get_support_table(support_df)
-    fig2.update_layout(title_text='Article response and evidence', margin_autoexpand=True, height=800)
+    support_table_height = min(support_df.shape[0]*270, 800)
+    fig2.update_layout(title_text='Article response and evidence', margin_autoexpand=True, height=support_table_height)
     st.session_state.support_table = fig2
     st.plotly_chart(st.session_state.support_table, use_container_width=True)
-
-    # Download Plotly figure as HTML
-    # st.download_button(
-    #     label="Download HTML",
-    #     data=fig2.to_html(),
-    #     file_name="figure.html",
-    #     mime="text/html",
-    # )
 
     st.markdown("Download Output File:")
     # Download output as Excel file
