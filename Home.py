@@ -4,6 +4,17 @@ from streamlit_extras.app_logo import add_logo
 import streamlit as st 
 from streamlit_lottie import st_lottie 
 from streamlit_extras.switch_page_button import switch_page
+import pandas as pd
+
+# Create API.xlsx if not present
+import sys, os
+workingDirectory = os.getcwd()
+costDirectory = os.path.join(workingDirectory, "cost_breakdown")
+file_path = os.path.join(costDirectory, 'API Cost.xlsx')
+if not os.path.exists(file_path):
+    columns = ['Date', 'Processing Stage', 'Query', 'Total Input Tokens', 'Total Output Tokens', 'Total Cost']
+    df = pd.DataFrame(columns=columns)
+    df.to_excel('cost_breakdown/API Cost.xlsx', sheet_name='Sheet1', index = False)
 
 #Setting page config
 st.set_page_config(layout="centered")
