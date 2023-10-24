@@ -12,14 +12,19 @@ chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
 analysisDirectory = os.path.join(workingDirectory, "Analysis")
 miscellaneousDirectory = os.path.join(workingDirectory, "Miscellaneous")
 costDirectory = os.path.join(workingDirectory, "cost_breakdown")
-
-sys.path.append(chromaDirectory)
-sys.path.append(analysisDirectory)
-sys.path.append(miscellaneousDirectory)
-sys.path.append(costDirectory)
-
+dirs = [
+    workingDirectory,
+    dataDirectory,
+    chromaDirectory,
+    analysisDirectory,
+    miscellaneousDirectory,
+    costDirectory
+]
+for d in dirs:
+    if d not in sys.path: sys.path.append(d)
+    
 import chromaUtils
-from ingestPdf2 import copyCollection
+from ingestPdf import copyCollection
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
 from Aggregated_Analysis import agg_analysis_main
 from User_Input_Cleaning import process_user_input
@@ -91,9 +96,9 @@ if not st.session_state.pdf_filtered:
             with get_openai_callback() as usage_info:
                 try:
                     corrected_input, relevant_output = process_user_input(prompt)
-                    print(relevant_output)
                 except:
                     st.error("Processing Error! Please try again!")
+                
                 total_input_tokens = usage_info.prompt_tokens
                 total_output_tokens = usage_info.completion_tokens
                 total_cost = usage_info.total_cost
@@ -103,44 +108,55 @@ if not st.session_state.pdf_filtered:
                 if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):
                     st.error('Please input a relevant prompt')
 
+                elif not chromaUtils.is_valid_name(output_collection_name):
+                    naming_format = """
+                    Collection Name format MUST satisfy the following format:\n
+                    - The length of the name must be between 3 and 63 characters.\n
+                    - The name must start and end with a lowercase letter or a digit, and it can contain dots, dashes, and underscores in between.\n
+                    - The name must not contain two consecutive dots.\n
+                    - The name must not be a valid IP address."""
+                    st.error(naming_format)
                 else:
                     PARTS_ALLOCATED_IND_ANALYSIS = 0.5
                     PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
                     PARTS_ALLOCATED_COPY = 0.2
                     progressBar1 = st.progress(0, text="Processing documents...")
+                    st.markdown(f'<small style="text-align: left; color: Black;">Prompt taken in as:  <em>"{corrected_input}</em>"</small>', unsafe_allow_html=True)
                     time.sleep(2)
                     ind_findings, findings_visual = ind_analysis_main(corrected_input, input_collection_name, progressBar1)
                     ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
                     time.sleep(2)
 
                     rel_ind_findings  = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
-                    agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
+                    agg_findings= "No Relevant Articles Found" 
+                    if rel_ind_findings.shape[0] > 0:
+                        agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
                     
-                    rel_file_names = rel_ind_findings['Article Name'].values.tolist()
-                    executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
-                    numDone, numFutures = 0, len(futures)
-                    for future in as_completed(futures):
-                        result = future.result()
-                        numDone += 1
-                        progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
-                        progressBar1.progress(progress,text="Creating collection...")
-                        end_time = time.time()
-                    time_taken_seconds = end_time - start_time
-                    time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
-                    print(f'Time taken in seconds is {time_taken_seconds} seconds')
-                    print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
-                                
+                        rel_file_names = rel_ind_findings['Article Name'].values.tolist()
+                        executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
+                        numDone, numFutures = 0, len(futures)
+                        for future in as_completed(futures):
+                            result = future.result()
+                            numDone += 1
+                            progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
+                            progressBar1.progress(progress,text="Creating collection...")
+                            end_time = time.time()
+                        time_taken_seconds = end_time - start_time
+                        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+                        print(f'Time taken in seconds is {time_taken_seconds} seconds')
+                        print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
+                              
                     st.session_state.pdf_filtered = corrected_input
                     st.session_state.pdf_ind_fig1 = findings_visual
                     st.session_state.pdf_ind_fig2 = ind_findings
                     st.session_state.pdf_agg_fig = agg_findings
-                    st.experimental_rerun()
 
-                #Then we track the total usage
-                total_input_tokens = usage_info.prompt_tokens
-                total_output_tokens = usage_info.completion_tokens
-                total_cost = usage_info.total_cost
-                update_usage_logs(Stage.PDF_ANALYSIS.value, input, total_input_tokens, total_output_tokens, total_cost)           
+                    #Then we track the total usage
+                    total_input_tokens = usage_info.prompt_tokens
+                    total_output_tokens = usage_info.completion_tokens
+                    total_cost = usage_info.total_cost
+                    update_usage_logs(Stage.PDF_ANALYSIS.value, prompt, total_input_tokens, total_output_tokens, total_cost)           
+                    st.experimental_rerun()
         else:
            st.error(err_messages[err_code]) 
             
