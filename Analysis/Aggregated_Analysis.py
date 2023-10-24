@@ -70,7 +70,7 @@ def get_common_themes(df, llm):
         total_output_tokens = usage_info.completion_tokens
         total_cost = usage_info.total_cost
         print(result, total_input_tokens, total_output_tokens, total_cost)
-        update_usage_logs(Stage.PDF_ANALYSIS.value, "N/A", total_input_tokens, total_output_tokens, total_cost)
+        update_usage_logs(Stage.AGG_ANALYSIS.value, "N/A", total_input_tokens, total_output_tokens, total_cost)
 
         return result
 

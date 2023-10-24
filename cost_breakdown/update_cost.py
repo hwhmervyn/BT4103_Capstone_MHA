@@ -12,7 +12,8 @@ costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 class Stage(Enum):
     EXCEL_FILTERING = "Excel Filtering"
     SUPPORT_ANALYSIS = "Support Analysis"
-    PDF_ANALYSIS = "PDF Analysis"
+    IND_ANALYSIS = "Individual Analysis"
+    AGG_ANALYSIS = "Aggregated Analysis"
     MISCELLANEOUS = "Miscellaneous"
 
 singapore = pytz.timezone('Asia/Singapore')
