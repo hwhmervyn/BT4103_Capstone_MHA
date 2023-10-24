@@ -8,10 +8,13 @@ import time
 import sys, os
 workingDirectory = os.getcwd()
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
-sys.path.append(chromaDirectory)
+if workingDirectory not in sys.path:
+    sys.path.append(workingDirectory)
+if chromaDirectory not in sys.path:
+    sys.path.append(chromaDirectory)
 
-from ingestPdf2 import schedulePdfUpload
-from chromaUtils import getListOfCollection, clearCollection
+from ingestPdf import schedulePdfUpload
+from chromaUtils import getListOfCollection, clearCollection, is_valid_name
 import streamlit.components.v1 as components
 
 def ChangeWidgetFontSize(wgt_txt, wch_font_size = '12px'):
@@ -102,6 +105,14 @@ if st.session_state['create_but']:
         progress_placeholder.error("Please enter a Collection Name and upload a zip folder")
     elif collection_name in getListOfCollection():
         progress_placeholder.error("Collection Name has already been taken, please choose something else")
+    elif not is_valid_name(collection_name):
+        naming_format = """
+        Collection Name format MUST satisfy the following format:\n
+        - The length of the name must be between 3 and 63 characters.\n
+        - The name must start and end with a lowercase letter or a digit, and it can contain dots, dashes, and underscores in between.\n
+        - The name must not contain two consecutive dots.\n
+        - The name must not be a valid IP address."""
+        progress_placeholder.error(naming_format)
     else:
         create.empty()
         with ZipFile(uploaded_file, 'r') as zip:
