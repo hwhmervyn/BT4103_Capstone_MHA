@@ -2,12 +2,21 @@ import streamlit as st
 from streamlit_extras.app_logo import add_logo
 from zipfile import ZipFile
 from concurrent.futures import as_completed
+from shutil import rmtree
 import glob
 import re
 import time
+from os import listdir
+from os.path import abspath
+from os.path import isdir
+from os.path import join
+
 import sys, os
 workingDirectory = os.getcwd()
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
+dataDirectory = os.path.join(workingDirectory, "data")
+if dataDirectory not in sys.path:
+    sys.path.append(dataDirectory)
 if workingDirectory not in sys.path:
     sys.path.append(workingDirectory)
 if chromaDirectory not in sys.path:
@@ -136,6 +145,15 @@ if st.session_state['create_but']:
             progress = float(numDone/numFutures)
             progressBar1.progress(progress,text="Uploading documents...")
         st.success(f'Successfully uploaded {collection_name}')
+        
+        # Remove all folders in 'data' folder
+        for file in listdir(dataDirectory):
+            full_path = join(abspath(dataDirectory), file)
+            if isdir(full_path):
+                rmtree(full_path)
+            elif full_path.endswith('.pdf'):
+                os.remove(full_path)  
+
         st.experimental_rerun()
     end_time = time.time()
     time_taken_seconds = end_time - start_time
