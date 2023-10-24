@@ -1,9 +1,11 @@
 from langchain.vectorstores import Chroma
+import re
 
 import sys, os
 workingDirectory = os.getcwd()
 chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
-sys.path.append(chromaDirectory)
+if chromaDirectory not in sys.path:
+    sys.path.append(chromaDirectory)
 
 from client import persistent_client, embeddings
 
@@ -36,3 +38,31 @@ def getListOfCollection():
     collections = [c.name for c in collections]
     collections.sort()
     return collections
+
+def is_valid_name(name):
+    # Condition 1: Check if the length is between 3 and 63 characters.
+    condition_1 = 3 <= len(name) <= 63
+
+    # Condition 2: Check if it starts and ends with a lowercase letter or digit,
+    # and contains only dots, dashes, underscores, or lowercase letters or digits.
+    condition_2 = re.match("^[a-z0-9][-a-z0-9_.]*[a-z0-9]$", name) is not None
+
+    # Condition 3: Check for two consecutive dots.
+    condition_3 = ".." not in name
+
+    # Condition 4: Check if it is not a valid IP address.
+    def is_valid_ip(address):
+        parts = address.split(".")
+        if len(parts) != 4:
+            return False
+        for part in parts:
+            if not part.isdigit() or not 0 <= int(part) <= 255:
+                return False
+        return True
+
+    condition_4 = not is_valid_ip(name)
+
+    # Combine the conditions using 'and' to get the final result.
+    result = condition_1 and condition_2 and condition_3 and condition_4
+
+    return result
