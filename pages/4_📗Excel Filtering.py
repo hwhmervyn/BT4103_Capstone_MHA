@@ -54,40 +54,49 @@ if not st.session_state.filtered:
         elif not input or not uploaded_file:
             st.error("Please enter a research prompt and upload an excel file")
         else:
-            with get_openai_callback() as usage_info:
-                try:
-                    corrected_input, relevant_output = process_user_input(input)
-                except:
-                    st.error("Processing Error! Please try again!")
-                total_input_tokens = usage_info.prompt_tokens
-                total_output_tokens = usage_info.completion_tokens
-                total_cost = usage_info.total_cost
-                update_usage_logs(Stage.MISCELLANEOUS.value, input, total_input_tokens, total_output_tokens, total_cost)
-            if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):
-                st.error('Irrelevant Output! Please input a relevant prompt')
+            excel_format = True
+            try:
+                excel_format_checker = pd.read_excel(uploaded_file).dropna(how='all')[['DOI','TITLE','ABSTRACT']]
+            except KeyError:
+                excel_format = False
+            
+            if excel_format:  
+                with get_openai_callback() as usage_info:
+                    try:
+                        corrected_input, relevant_output = process_user_input(input)
+                    except:
+                        st.error("Processing Error! Please try again!")
+                    total_input_tokens = usage_info.prompt_tokens
+                    total_output_tokens = usage_info.completion_tokens
+                    total_cost = usage_info.total_cost
+                    update_usage_logs(Stage.MISCELLANEOUS.value, input, total_input_tokens, total_output_tokens, total_cost)
+                if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):
+                    st.error('Irrelevant Output! Please input a relevant prompt')
+                else:
+                    _, futures = filterExcel(uploaded_file,  corrected_input)
+                    issues, results, numDone, numFutures, total_input_tokens, total_output_tokens, total_cost = [],[], 0, len(futures), 0, 0, 0
+                    progessBar = st.progress(0, text="Article filtering in progress...")
+                    for future in as_completed(futures):
+                        row = future.result()
+                        total_input_tokens += row[5]
+                        total_output_tokens += row[6]
+                        total_cost += row[7]
+                        results.append(row[0:5])
+                        numDone += 1
+                        progessBar.progress(numDone/numFutures, text="Article filtering in progress...")
+                    end_time = time.time()
+                    time_taken_seconds = end_time - start_time
+                    time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+                    print(f'Time taken in seconds is {time_taken_seconds} seconds')
+                    print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
+                    update_usage_logs(Stage.EXCEL_FILTERING.value, corrected_input, total_input_tokens,total_output_tokens,total_cost)
+                    dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","LLM OUTPUT", "jsonOutput"])
+                    dfOut = getOutputDF(dfOut)
+                    dfOut.to_excel("output/excel_result.xlsx", index=False)
+                    st.session_state.filtered = input
+                    st.experimental_rerun()
             else:
-                _, futures = filterExcel(uploaded_file,  corrected_input)
-                issues, results, numDone, numFutures, total_input_tokens, total_output_tokens, total_cost = [],[], 0, len(futures), 0, 0, 0
-                progessBar = st.progress(0, text="Article filtering in progress...")
-                for future in as_completed(futures):
-                    row = future.result()
-                    total_input_tokens += row[5]
-                    total_output_tokens += row[6]
-                    total_cost += row[7]
-                    results.append(row[0:5])
-                    numDone += 1
-                    progessBar.progress(numDone/numFutures, text="Article filtering in progress...")
-                end_time = time.time()
-                time_taken_seconds = end_time - start_time
-                time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
-                print(f'Time taken in seconds is {time_taken_seconds} seconds')
-                print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
-                update_usage_logs(Stage.EXCEL_FILTERING.value, corrected_input, total_input_tokens,total_output_tokens,total_cost)
-                dfOut = pd.DataFrame(results, columns = ["DOI","TITLE","ABSTRACT","LLM OUTPUT", "jsonOutput"])
-                dfOut = getOutputDF(dfOut)
-                dfOut.to_excel("output/excel_result.xlsx", index=False)
-                st.session_state.filtered = input
-                st.experimental_rerun()
+                st.error('Wrong Excel Format: "TITLE", "ABSTRACT", "DOI" Columns Required')
       
 
 else:
