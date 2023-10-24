@@ -13,7 +13,7 @@ class Stage(Enum):
     EXCEL_FILTERING = "Excel Filtering"
     SUPPORT_ANALYSIS = "Support Analysis"
     IND_ANALYSIS = "Individual Analysis"
-    AGG_ANALYSIS = "Aggregated Analysis"
+    AGG_ANALYSIS = "Key Themes Analysis"
     MISCELLANEOUS = "Miscellaneous"
 
 singapore = pytz.timezone('Asia/Singapore')
