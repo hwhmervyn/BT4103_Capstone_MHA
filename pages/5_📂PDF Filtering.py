@@ -22,7 +22,7 @@ dirs = [
 ]
 for d in dirs:
     if d not in sys.path: sys.path.append(d)
-    
+
 import chromaUtils
 from ingestPdf import copyCollection
 from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
@@ -140,11 +140,6 @@ if not st.session_state.pdf_filtered:
                             numDone += 1
                             progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
                             progressBar1.progress(progress,text="Creating collection...")
-                            end_time = time.time()
-                        time_taken_seconds = end_time - start_time
-                        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
-                        print(f'Time taken in seconds is {time_taken_seconds} seconds')
-                        print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
                               
                     st.session_state.pdf_filtered = corrected_input
                     st.session_state.pdf_ind_fig1 = findings_visual
@@ -156,6 +151,12 @@ if not st.session_state.pdf_filtered:
                     total_output_tokens = usage_info.completion_tokens
                     total_cost = usage_info.total_cost
                     update_usage_logs(Stage.PDF_ANALYSIS.value, prompt, total_input_tokens, total_output_tokens, total_cost)           
+
+                    end_time = time.time()
+                    time_taken_seconds = end_time - start_time
+                    time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+                    print(f'Time taken in seconds is {time_taken_seconds} seconds')
+                    print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
                     st.experimental_rerun()
         else:
            st.error(err_messages[err_code]) 
