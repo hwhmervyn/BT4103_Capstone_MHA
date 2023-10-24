@@ -63,15 +63,6 @@ err_messages = {
 }
 
 if not st.session_state.pdf_filtered:
-    # Remove all folders in 'data' folder
-    for file in listdir(dataDirectory):
-        full_path = join(abspath(dataDirectory), file)
-
-        if isdir(full_path):
-            rmtree(full_path)
-        elif full_path.endswith('.pdf'):
-            os.remove(full_path)
-
     # Page layout
     input_collection_name = st.selectbox(
         'Input Collection', chromaUtils.getListOfCollection(), 
