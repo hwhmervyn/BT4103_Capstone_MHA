@@ -44,8 +44,8 @@ def is_valid_name(name):
     condition_1 = 3 <= len(name) <= 63
 
     # Condition 2: Check if it starts and ends with a lowercase letter or digit,
-    # and contains only dots, dashes, underscores, or lowercase letters or digits.
-    condition_2 = re.match("^[a-z0-9][-a-z0-9_.]*[a-z0-9]$", name) is not None
+    # and contains only dots, dashes, underscores, lowercase letters, uppercase letters, or digits.
+    condition_2 = re.match(r"^[a-zA-Z0-9][a-zA-Z0-9-_.]*[a-zA-Z0-9]$", name) is not None
 
     # Condition 3: Check for two consecutive dots.
     condition_3 = ".." not in name
