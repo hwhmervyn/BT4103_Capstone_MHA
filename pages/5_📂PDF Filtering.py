@@ -146,12 +146,6 @@ if not st.session_state.pdf_filtered:
                     st.session_state.pdf_ind_fig2 = ind_findings
                     st.session_state.pdf_agg_fig = agg_findings
 
-                    #Then we track the total usage
-                    total_input_tokens = usage_info.prompt_tokens
-                    total_output_tokens = usage_info.completion_tokens
-                    total_cost = usage_info.total_cost
-                    update_usage_logs(Stage.PDF_ANALYSIS.value, prompt, total_input_tokens, total_output_tokens, total_cost)           
-
                     end_time = time.time()
                     time_taken_seconds = end_time - start_time
                     time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
