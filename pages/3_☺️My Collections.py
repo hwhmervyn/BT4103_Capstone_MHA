@@ -146,6 +146,8 @@ if st.session_state['create_but']:
             progressBar1.progress(progress,text="Uploading documents...")
         st.success(f'Successfully uploaded {collection_name}')
         
+        print(issues)
+        
         # Remove all folders in 'data' folder
         for file in listdir(dataDirectory):
             full_path = join(abspath(dataDirectory), file)
