@@ -26,7 +26,11 @@ def correctFormatToJson(result_content, numTries, error_message):
 
 def createTask(doi, title, abstract, query):
   if not title and not abstract:
-    return (doi, title, abstract, None, None, 0, 0, 0)
+    jsonOutput = {
+      'answer': 'Unsure',
+      'explanation': 'Cannot tell when both Abstract and TItle are missing'
+    }
+    return (doi, title, abstract, jsonOutput, None, 0, 0, 0)
   with get_openai_callback() as usage_info:
     request = chat_prompt.format_prompt(title=title, abstract=abstract, question=query).to_messages()
     result = chat(request)
