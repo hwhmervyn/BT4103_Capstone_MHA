@@ -152,8 +152,6 @@ if st.session_state['create_but']:
         print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
         st.success(f'Successfully uploaded {collection_name}! Time taken: {time_taken_minute_seconds}')
         
-        print(issues)
-        
         # Remove all folders in 'data' folder
         for file in listdir(dataDirectory):
             full_path = join(abspath(dataDirectory), file)
