@@ -25,7 +25,8 @@ from update_cost import update_usage_logs, Stage
 
 
 st.set_page_config(layout="wide")
-add_logo("images/htpd_text.png", height=100)
+add_logo("images/temp_logo.png", height=100)
+
 
 st.markdown("<h1 style='text-align: left; color: Black;'>Excel Filtering</h1>", unsafe_allow_html=True)
 st.markdown('#')
