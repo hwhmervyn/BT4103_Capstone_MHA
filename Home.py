@@ -20,7 +20,7 @@ if not os.path.exists(file_path):
 st.set_page_config(layout="centered")
 
 #Add logo
-add_logo("images/htpd_text.png", height=100)
+add_logo("images/temp_logo.png", height=100)
 
 #Add animatioon
 path = "images/research_animation.json"

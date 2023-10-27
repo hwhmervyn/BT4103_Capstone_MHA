@@ -12,7 +12,7 @@ import json
 import base64
 
 st.set_page_config(layout="wide")
-add_logo("images/htpd_text.png", height=100)
+add_logo("images/temp_logo.png", height=100)
 
 
 #Incorporate bootstrap
