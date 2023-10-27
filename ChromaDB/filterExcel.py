@@ -74,8 +74,9 @@ def add_line_breaks(text):
 #Clean the findings df
 def clean_findings_df(uncleaned_findings_df):
   cleaned_findings_df = uncleaned_findings_df.copy()
+  abstract_exists = ~cleaned_findings_df['ABSTRACT'].isna()
   #Add line breaks
-  cleaned_findings_df['Findings_Visualised'] = cleaned_findings_df['ABSTRACT'].apply(lambda text: add_line_breaks(text))
+  cleaned_findings_df.loc[abstract_exists,'Findings_Visualised'] = cleaned_findings_df.loc[abstract_exists,'ABSTRACT'].apply(lambda text: add_line_breaks(text))
   #Drop the Evidence column
   cleaned_findings_df = cleaned_findings_df.drop(columns = 'ABSTRACT')
   return cleaned_findings_df
