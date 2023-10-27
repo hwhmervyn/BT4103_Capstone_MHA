@@ -52,7 +52,8 @@ def clearCollection_and_updateState(collection_name, confirm_button, feedback):
 ########################## PAGE LAYOUT ###################################################################################################################
 
 st.set_page_config(layout="wide")
-add_logo("images/htpd_text.png", height=100)
+add_logo("images/temp_logo.png", height=100)
+
 
 #Header
 st.markdown("<h1 style='text-align: left; color: Black;'>My Collections</h1>", unsafe_allow_html=True)
