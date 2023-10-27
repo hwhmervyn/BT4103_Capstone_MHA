@@ -44,9 +44,10 @@ if not st.session_state.filtered:
     col1, col2, col3 , col4, col5, col6, col7 = st.columns(7)
 
     with col4:
-        button = st.button('Submit')
-    
-    if button:
+        button_placeholder = col4.empty()
+        button_placeholder.button("Submit", key="submit_excel")
+
+    if st.session_state['submit_excel']:
         start_time = time.time()
         if input and not uploaded_file: 
             st.error("Please upload an excel file")
@@ -75,9 +76,11 @@ if not st.session_state.filtered:
                 if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):
                     st.error('Irrelevant Output! Please input a relevant prompt')
                 else:
+                    button_placeholder.empty()
                     _, futures = filterExcel(uploaded_file,  corrected_input)
                     issues, results, numDone, numFutures, total_input_tokens, total_output_tokens, total_cost = [],[], 0, len(futures), 0, 0, 0
                     progessBar = st.progress(0, text="Article filtering in progress...")
+                    st.markdown(f'<small style="text-align: left; color: Black;">Prompt taken in as:  <em>"{corrected_input}</em>"</small>', unsafe_allow_html=True)
                     for future in as_completed(futures):
                         row = future.result()
                         total_input_tokens += row[5]
