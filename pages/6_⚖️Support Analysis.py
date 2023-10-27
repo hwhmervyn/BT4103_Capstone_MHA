@@ -135,6 +135,7 @@ if not st.session_state.support_analysis_prompt:
                             time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
                             print(f'Time taken in seconds is {time_taken_seconds} seconds')
                             print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
+                            st.success(f'Successful! Time taken: {time_taken_minute_seconds}')
                             
                             # Update usage info
                             update_usage_logs(Stage.SUPPORT_ANALYSIS.value, input, 
