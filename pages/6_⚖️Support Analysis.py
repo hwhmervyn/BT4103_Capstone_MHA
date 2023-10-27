@@ -55,6 +55,7 @@ if not st.session_state.support_analysis_prompt:
                 total_num_articles = len(article_title_list)
                 # Obtain dataframe of LLM responses. Only run if number of articles > 0
                 if total_num_articles > 0:
+                    st.warning("DO NOT navigate to another page while the analysis is in progress!")
                     progressBar = st.progress(0, text="Analysing articles...")
                     # Connect to selected database collection
                     db = getCollection(input_collection_name)

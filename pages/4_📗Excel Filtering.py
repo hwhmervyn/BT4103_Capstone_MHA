@@ -62,6 +62,7 @@ if not st.session_state.filtered:
                 excel_format = False
             
             if excel_format:  
+                st.warning("DO NOT navigate to another page while the filtering is in progress!")
                 with get_openai_callback() as usage_info:
                     try:
                         corrected_input, relevant_output = process_user_input(input)

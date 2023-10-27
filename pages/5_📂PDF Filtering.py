@@ -114,6 +114,7 @@ if not st.session_state.pdf_filtered:
                     PARTS_ALLOCATED_IND_ANALYSIS = 0.5
                     PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
                     PARTS_ALLOCATED_COPY = 0.2
+                    st.warning("DO NOT navigate to another page while the filtering is in progress!")
                     progressBar1 = st.progress(0, text="Processing documents...")
                     st.markdown(f'<small style="text-align: left; color: Black;">Prompt taken in as:  <em>"{corrected_input}</em>"</small>', unsafe_allow_html=True)
                     time.sleep(2)
