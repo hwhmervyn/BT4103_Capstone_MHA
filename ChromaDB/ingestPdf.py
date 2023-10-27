@@ -29,7 +29,7 @@ def schedulePdfUpload(listOfPDFfilepaths, collectionName):
         try:
             sectionsByFile.append((pdfMain(path),path))
         except Exception as e:
-            issues.append(e, path)
+            issues.append((e, path))
             print(f"Skipped file: {path} when creating Collection")
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size = 1250,
