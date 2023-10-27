@@ -77,9 +77,10 @@ if not st.session_state.pdf_filtered:
     col1, col2, col3 , col4, col5, col6, col7 = st.columns(7)
 
     with col4:
-        button = st.button('Submit')
+        button_placeholder = col4.empty()
+        button_placeholder.button("Submit", key="submit")
         
-    if button:
+    if st.session_state['submit']:
         start_time = time.time()
         #Check if all 3 options have been filled in
         err_code = str(int(bool(input_collection_name)))+\
@@ -111,6 +112,7 @@ if not st.session_state.pdf_filtered:
                     - The name must not be a valid IP address."""
                     st.error(naming_format)
                 else:
+                    button_placeholder.empty()
                     PARTS_ALLOCATED_IND_ANALYSIS = 0.5
                     PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
                     PARTS_ALLOCATED_COPY = 0.2
