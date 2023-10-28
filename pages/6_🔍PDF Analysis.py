@@ -145,10 +145,10 @@ if not st.session_state.pdf_analysis_prompt:
                         # Display time taken
                         end_time = time.time()
                         time_taken_seconds = end_time - start_time
-                        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+                        time_taken_hours_minute_seconds =  time.strftime("%H:%M:%S", time.gmtime(time_taken_seconds))
                         print(f'Time taken in seconds is {time_taken_seconds} seconds')
-                        print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
-                        st.success(f'Successful! Time taken: {time_taken_minute_seconds}')
+                        print(f'Time taken in hours minutes and seconds is {time_taken_hours_minute_seconds}')
+                        st.success(f'Successful! Time taken: {time_taken_hours_minute_seconds}')
                         
                         # Update usage info
                         update_usage_logs(Stage.PDF_ANALYSIS.value, input, 
