@@ -68,7 +68,7 @@ def getYesExcel(df):
   yes_excel = df.copy()[df["PREDICTION"].str.lower() == "yes"]
   return yes_excel["PREDICTION"].tolist()
 
-WRAPPER = textwrap.TextWrapper(width=85) 
+WRAPPER = textwrap.TextWrapper(width=80) 
 COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey", np.nan: "white"}
 
 #Add line breaks to the paragraphs

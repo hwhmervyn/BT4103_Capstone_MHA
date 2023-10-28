@@ -54,7 +54,6 @@ def clearCollection_and_updateState(collection_name, confirm_button, feedback):
 st.set_page_config(layout="wide")
 add_logo("images/temp_logo.png", height=100)
 
-
 #Header
 st.markdown("<h1 style='text-align: left; color: Black;'>My Collections</h1>", unsafe_allow_html=True)
 st.markdown('#')
@@ -151,12 +150,13 @@ if st.session_state['create_but']:
         print(f'Time taken in seconds is {time_taken_seconds} seconds')
         print(f'Time taken in hours minutes and seconds is {time_taken_hours_minute_seconds}')
         st.success(f'Successful! Time taken: {time_taken_hours_minute_seconds}')
+        
         # Remove all folders in 'data' folder
         for file in listdir(dataDirectory):
             full_path = join(abspath(dataDirectory), file)
             if isdir(full_path):
                 rmtree(full_path)
-            elif full_path.endswith('.pdf'):
+            elif full_path.lower().endswith('.pdf'):
                 os.remove(full_path)  
 
         st.experimental_rerun()
