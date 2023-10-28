@@ -54,10 +54,10 @@ if not st.session_state.pdf_analysis_prompt:
     if configure_retrieval_settings:
         col1, col2 = st.columns(2)
         with col1:
-            chunk_search_method = st.radio("Chunk search method", ["Similarity", "Maximal Marginal Relevance (MMR)"], index=0, 
-                                           help="Similarity option selects chunks that are most relevant to input prompt. MMR option does the same while optimising for diversity among the selected chunks (i.e. chunks that are highly similar to an already selected chunk will not be included)")
+            chunk_search_method = st.radio("Chunk search method", ["similarity", "mmr"], index=0, 
+                                           help="Similarity option selects chunks that are most relevant to input prompt. MMR (maximum marginal relevance) option does the same while optimising for diversity among the selected chunks (i.e. chunks that are highly similar to an already selected chunk will not be included)")
         with col2:
-            num_chunks_retrieved = st.slider("Num. article chunks to feed to LLM", min_value=3, max_value=10, value=3, 
+            num_chunks_retrieved = st.slider("Num. article chunks to feed to LLM", min_value=1, max_value=10, value=3, 
                                              help="Select number of relevant chunks from the article for the LLM to analyse. Each chunk contains approximately 150 words. More chunks fed will incur higher cost and processing time.")
     # Configure output with additional instructions
     additional_inst = ""
