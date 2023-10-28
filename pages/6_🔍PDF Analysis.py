@@ -36,6 +36,7 @@ if not st.session_state.pdf_analysis_prompt:
     )
     # Provide option to analyse single article
     if input_collection_name:
+        selected_article_name = False
         analyse_single_article = st.toggle("Analyse single article", value=False, help="Select only 1 article from input collection to analyse. All articles in the collection will be analysed by default.")
         if analyse_single_article:
             selected_article_name = st.selectbox(
@@ -68,11 +69,12 @@ if not st.session_state.pdf_analysis_prompt:
     # Button to start analysis
     st.markdown('##')
     col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
-    with col4: 
-        start_analysis = st.button("Submit")
+    with col4:
+        button_placeholder = col4.empty()
+        button_placeholder.button("Submit", key="submit_pdf_analysis_prompt")
 
     # Run if "Submit" button is clicked
-    if start_analysis:
+    if st.session_state['submit_pdf_analysis_prompt']:
         start_time = time.time()
         # Run if user has selected a collection of PDFs to analyse
         if input_collection_name:
@@ -111,6 +113,7 @@ if not st.session_state.pdf_analysis_prompt:
                         update_usage_logs(Stage.MISCELLANEOUS.value, input, usage_info.prompt_tokens, usage_info.completion_tokens, usage_info.total_cost)
                     
                     # Run PDF Analysis
+                    button_placeholder.empty() # remove Submit button when analysis is in progress
                     with get_openai_callback() as usage_info:
                         for i in range(total_num_articles):
                             try: 
@@ -124,7 +127,7 @@ if not st.session_state.pdf_analysis_prompt:
                                 # Track articles that had error in obtaining response
                                 article_error_list.append(article_title)
                             # Update progress
-                            progress_display_text = f"Analysing: {i+1}/{total_num_articles} completed"
+                            progress_display_text = f"Analysing: {i+1}/{total_num_articles} articles completed"
                             progressBar.progress((i+1)/total_num_articles, text=progress_display_text)
                                 
                         pdf_analysis_output_df = pd.DataFrame({"article": article_title_list, "answer": response_list, "source_docs": source_docs_list})
@@ -185,7 +188,7 @@ else:
     
     # Display output
     fig1 = get_support_table(pdf_analysis_df)
-    support_table_height = min(pdf_analysis_df.shape[0]*270, 800)
+    support_table_height = min(pdf_analysis_df.shape[0]*250, 800)
     fig1.update_layout(title_text='Article response and evidence', margin_autoexpand=True, height=support_table_height)
     st.session_state.support_table = fig1
     st.plotly_chart(st.session_state.support_table, use_container_width=True)

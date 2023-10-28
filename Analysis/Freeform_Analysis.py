@@ -19,7 +19,7 @@ PROMPT_TEMPLATE = """
     Context: ### {context} ###
     Qn: ### {question} ###
     Additional instructions: ### {instructions} ###
-    If you do not know the answer, output "Unsure". 
+    If you do not know the answer, output "unsure". 
   """
 
 ### Helper functions ###
