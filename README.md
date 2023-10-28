@@ -1,22 +1,6 @@
-<h1 style='text-align: center; padding-top: 0rem;'><p class='research'>research<p class='xpress'>Xpress</p></h1>
-
-<style>
-.research {
-    font-size: 100px;
-    font-weight: bold;
-    text-align: center;
-    color: purple;
-    display:inline;
-}
-            
-.xpress {
-    font-size: 100px;
-    font-weight: bold;
-    text-align: center;
-    color: green;   
-    display:inline;
-}
-</style>
+<p align="center">
+  <img src="images/temp_logo.png">
+</p>
 
 ## Table of Contents
 
@@ -26,21 +10,21 @@
 -   [📄 Pages](#-pages)
 -   [🫂 Team](#-team)
 
-## Overview
+## 💡 Overview 
 
 Psychological researchers face a demanding and laborious process as they painstakingly review academic articles to determine their relevance and then manually combine the research findings. This
 process is time-consuming and can be quite taxing
 
-## Tech Stack
+## 🖥 Tech Stack
 
 <div>
-	<code><img height="60" width="60" src="../BT4103_Capstone_MHA/images/icons/python.svg" alt="Python" title="Python"/></code>
-	<code><img height="60" width="80" src="../BT4103_Capstone_MHA/images/icons/streamlit.png" alt="Streamlit" title="Streamlit"/></code>
-	<code><img height="60" width="100" src="../BT4103_Capstone_MHA/images/icons/langchain.png" alt="Langchain" title="Langchain"/></code>
-	<code><img height="60" width="90" src="../BT4103_Capstone_MHA/images/icons/chroma.png" alt="Chroma" title="Chroma"/></code>
+	<img height="60" width="60" src="images/icons/python.svg" alt="Python" title="Python"/>
+	<img height="60" width="80" src="images/icons/streamlit.png" alt="Streamlit" title="Streamlit"/>
+	<img height="60" width="100" src="images/icons/langchain.png" alt="Langchain" title="Langchain"/>
+	<img height="60" width="90" src="images/icons/chroma.png" alt="Chroma" title="Chroma"/>
 </div>
 
-## Running The Dashboard
+## 🔧 Running The Dashboard
 
 ### Prerequisite
 
