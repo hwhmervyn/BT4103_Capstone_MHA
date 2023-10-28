@@ -46,7 +46,7 @@ def flip(session_state):
 
 def clearCollection_and_updateState(collection_name, confirm_button, feedback):
     clearCollection([collection_name])
-    feedback.warning(f"collection {collection_name} has been deleted")
+    feedback.warning(f"Collection {collection_name} has been deleted")
     confirm_button.button("Okay", key="finish_deleting", on_click=flip, args=('tick_delete_function',))
     
 ########################## PAGE LAYOUT ###################################################################################################################

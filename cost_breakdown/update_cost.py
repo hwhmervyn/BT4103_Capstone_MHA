@@ -11,7 +11,7 @@ costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 
 class Stage(Enum):
     EXCEL_FILTERING = "Excel Filtering"
-    SUPPORT_ANALYSIS = "Support Analysis"
+    PDF_ANALYSIS = "PDF Analysis"
     IND_ANALYSIS = "Individual Analysis"
     AGG_ANALYSIS = "Key Themes Analysis"
     MISCELLANEOUS = "Miscellaneous"

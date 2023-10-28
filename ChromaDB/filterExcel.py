@@ -28,7 +28,7 @@ def createTask(doi, title, abstract, query):
   if pd.isna(title) and pd.isna(abstract):
     jsonOutput = {
       'answer': 'Unsure',
-      'explanation': 'Cannot tell when both Abstract and TItle are missing'
+      'explanation': 'Cannot tell when both Abstract and Title are missing'
     }
     return (doi, title, abstract, None, jsonOutput, 0, 0, 0)
   with get_openai_callback() as usage_info:
