@@ -6,6 +6,7 @@ from filterConstants import chat_prompt, excel_parser, retry_prompt, output_fixe
 from llmConstants import chat
 
 import pandas as pd
+import numpy as np
 import textwrap
 import plotly.graph_objects as go
 from json.decoder import JSONDecodeError
@@ -68,7 +69,7 @@ def getYesExcel(df):
   return yes_excel["PREDICTION"].tolist()
 
 WRAPPER = textwrap.TextWrapper(width=85) 
-COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey"}
+COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey", np.nan: "white"}
 
 #Add line breaks to the paragraphs
 def add_line_breaks(text):
