@@ -78,14 +78,14 @@ with st.container():
     with col_1:
         st.markdown("<p style = 'font-style: italic; font-size: 20px;'>\
                 Welcome to the user guide of <span class='research'>research</span><span class='xpress'>Xpress</span>,\
-                a modern platform created to simplify research for researchers<span class = 'flame'>🔥🔥🔥</span></p>", 
+                a platform created to simplify research for researchers<span class = 'flame'>🔥🔥🔥</span></p>", 
                 unsafe_allow_html=True)
 
-        st.markdown("<p style = 'font-style: italic; font-size: 20px;'>The dashboard provides <span class='feature'>four robust features</span> to improve your research experience<span class = 'arm'>💪💪💪</span>: \
-                    Collection Management, Excel Filtering, PDF Filtering, and Support Analysis</p>", unsafe_allow_html=True)
+        st.markdown("<p style = 'font-style: italic; font-size: 20px;'>The dashboard provides <span class='feature'>four features</span> to improve your research experience<span class = 'arm'>💪💪💪</span>: \
+                    Collection Management, Excel Filtering, PDF Filtering, and Support Analysis.</p>", unsafe_allow_html=True)
 
         st.markdown("<p style = 'font-style: italic; font-size: 20px;'>For additional information, please visit this  \
-                    <a href= 'https://docs.google.com/document/d/1wXieeEDL4kXgPkc74QqiVeczD5VBau8Ww2-GQJjIZXQ/edit?usp=sharing' class='link-primary link-opacity-50-hover'>link</a></p>", unsafe_allow_html=True)
+                    <a href= 'https://docs.google.com/document/d/1wXieeEDL4kXgPkc74QqiVeczD5VBau8Ww2-GQJjIZXQ/edit?usp=sharing' class='link-primary link-opacity-50-hover'>link</a>.</p>", unsafe_allow_html=True)
     with col_2:
     #Animation
         st_lottie(url, 
