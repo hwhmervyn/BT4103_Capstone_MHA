@@ -111,10 +111,10 @@ sections = [
                                                                                                                                                 "Select your **uploaded collection** as the input and insert a **research prompt**",
                                                                                                                                                 "Click **Submit** and wait for the files to be processed",
                                                                                                                                                 "View filtered results, extracted findings, and download the output"]},
-    {"icon": "⚖️", "title": "Support Analysis", "description": "***Query PDF articles with a research hypothesis and view article support***", "steps":["Navigate to '⚖️ **Support Analysis**' using the sidebar", 
-                                                                                                                                            "Select a **collection of articles** to analyse and input a **research hypothesis**",
-                                                                                                                                            "Click **Submit** and wait for the articles to be analysed",
-                                                                                                                                            "View the article response distribution and given evidence"]},
+    {"icon": "🔍", "title": "PDF Analysis", "description": "***Query PDF articles with a research prompt***", "steps":["Navigate to '🔍 **PDF Analysis**' using the sidebar", 
+                                                                                                                                            "Select a **collection of articles** and input a **research prompt**",
+                                                                                                                                            "Click **Submit** and wait for the article(s) to be analysed",
+                                                                                                                                            "View the response and download the output"]},
 ]
 # Display sections in a grid layout
 #col1, col2, col3 = st.columns([1, 4, 1])
