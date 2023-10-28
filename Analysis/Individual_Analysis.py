@@ -29,7 +29,7 @@ from update_cost import update_usage_logs, Stage
 # Aesthetic parameters #
 COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey"}
 # Text wrap for output in table
-WRAPPER = textwrap.TextWrapper(width=160) # creates a split every 160 characters
+WRAPPER = textwrap.TextWrapper(width=145) # creates a split every 160 characters
 
 
 #Create a class for output parser
