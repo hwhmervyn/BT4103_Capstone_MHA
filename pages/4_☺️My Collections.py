@@ -147,11 +147,10 @@ if st.session_state['create_but']:
             progressBar1.progress(progress,text="Uploading documents...")
         end_time = time.time()
         time_taken_seconds = end_time - start_time
-        time_taken_minute_seconds =  time.strftime("%M:%S", time.gmtime(time_taken_seconds))
+        time_taken_hours_minute_seconds =  time.strftime("%H:%M:%S", time.gmtime(time_taken_seconds))
         print(f'Time taken in seconds is {time_taken_seconds} seconds')
-        print(f'Time taken in minutes and seconds is {time_taken_minute_seconds}')
-        st.success(f'Successfully uploaded {collection_name}! Time taken: {time_taken_minute_seconds}')
-        
+        print(f'Time taken in hours minutes and seconds is {time_taken_hours_minute_seconds}')
+        st.success(f'Successful! Time taken: {time_taken_hours_minute_seconds}')
         # Remove all folders in 'data' folder
         for file in listdir(dataDirectory):
             full_path = join(abspath(dataDirectory), file)
