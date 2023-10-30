@@ -107,7 +107,7 @@ sections = [
                                                                                                                                  "Gather all your PDF articles within a **folder** (Do not immediately compress all the PDF articles into a zip file)",
                                                                                                                                 "Right-click on the folder and select **'Compress' or 'Zip'** to create a zip file",
                                                                                                                                 "Name your collection and upload the zip file of PDF articles"]},
-    {"icon": "📂", "title": "PDF Filtering", "description": "***Filter a folder of PDF articles with a research prompt and view results***", "steps":[ "Navigate to '📂 **PDF Filtering**' using the sidebar",
+    {"icon": "📂", "title": "PDF Filtering", "description": "***Filter a folder of PDF articles with a yes/no research prompt and view results***", "steps":[ "Navigate to '📂 **PDF Filtering**' using the sidebar",
                                                                                                                                                 "Select your **uploaded collection** as the input and insert a **research prompt**",
                                                                                                                                                 "Click **Submit** and wait for the files to be processed",
                                                                                                                                                 "View filtered results, extracted findings, and download the output"]},
