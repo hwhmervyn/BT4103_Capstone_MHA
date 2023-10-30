@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.getcwd(), "cost_breakdown"))
 sys.path.append(os.path.join(os.getcwd(), "Miscellaneous"))
 
 from chromaUtils import getCollection, getDistinctFileNameList, getListOfCollection
-from Freeform_Analysis import get_llm_response, get_support_table
+from Freeform_Analysis import get_llm_response, parse_source_docs, get_pdf_analysis_table
 from update_cost import update_usage_logs, Stage
 from User_Input_Cleaning import run_spell_check
 
@@ -98,7 +98,8 @@ if not st.session_state.pdf_analysis_prompt:
 
                     # Initialise holder lists to temporarily store output
                     response_list = ['']*total_num_articles
-                    source_docs_list = ['']*total_num_articles
+                    source_docs_content_list = ['']*total_num_articles
+                    source_docs_page_num_list = ['']*total_num_articles
                     # Holder list to store article titles with error in obtaining output
                     article_error_list = []
 
@@ -122,7 +123,7 @@ if not st.session_state.pdf_analysis_prompt:
                                 response, source_docs = get_llm_response(db, input, article_title, chunk_search_method, num_chunks_retrieved, additional_inst)
                                 # Record response and source documents
                                 response_list[i] = response
-                                source_docs_list[i] = source_docs
+                                source_docs_content_list[i], source_docs_page_num_list[i] = parse_source_docs(source_docs)
                             except Exception:
                                 # Track articles that had error in obtaining response
                                 article_error_list.append(article_title)
@@ -130,14 +131,14 @@ if not st.session_state.pdf_analysis_prompt:
                             progress_display_text = f"Analysing: {i+1}/{total_num_articles} articles completed"
                             progressBar.progress((i+1)/total_num_articles, text=progress_display_text)
                                 
-                        pdf_analysis_output_df = pd.DataFrame({"article": article_title_list, "answer": response_list, "source_docs": source_docs_list})
+                        pdf_analysis_output_df = pd.DataFrame({"article": article_title_list, "answer": response_list, "page_ref": source_docs_page_num_list,
+                                                               "source_docs_contents": source_docs_content_list})
                         # Store dataframe as Excel file in local output folder
                         pdf_analysis_output_df.to_excel("output/pdf_analysis_results.xlsx", index=False)
                             
                         # Display success message
                         progressBar.empty()
                         st.success(f"Analysis Complete")
-
                         # Display error message if there are articles that cannot be analysed due to error
                         if len(article_error_list) > 0:
                             st.error("Error in extracting output for the articles below")
@@ -187,11 +188,11 @@ else:
                             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     
     # Display output
-    fig1 = get_support_table(pdf_analysis_df)
-    support_table_height = min(pdf_analysis_df.shape[0]*250, 800)
-    fig1.update_layout(title_text='Article response and evidence', margin_autoexpand=True, height=support_table_height)
-    st.session_state.support_table = fig1
-    st.plotly_chart(st.session_state.support_table, use_container_width=True)
+    fig1 = get_pdf_analysis_table(pdf_analysis_df)
+    pdf_analysis_table_height = min(pdf_analysis_df.shape[0]*250, 800)
+    fig1.update_layout(margin_autoexpand=True, height=pdf_analysis_table_height)
+    st.session_state.pdf_analysis_table = fig1
+    st.plotly_chart(st.session_state.pdf_analysis_table, use_container_width=True)
     
     # Repeat process with another question
     retry_button = st.button('Ask another question')
