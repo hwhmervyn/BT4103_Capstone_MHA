@@ -58,7 +58,7 @@ add_logo("images/temp_logo.png", height=100)
 st.markdown("<h1 style='text-align: left; color: Black;'>My Collections</h1>", unsafe_allow_html=True)
 st.markdown('#')
 
-st.markdown("<h2 style='text-align: left; color: Black;'>Create Collection</h1>", unsafe_allow_html=True)
+st.subheader("Create Collection")
 st.markdown('#') 
 
 collection_name = st.text_input("Name of new Collection", placeholder='e.g. psychological-first-aid')
