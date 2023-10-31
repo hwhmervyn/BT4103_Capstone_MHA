@@ -47,21 +47,27 @@ if not st.session_state.filtered:
 
     if st.session_state['submit_excel']:
         start_time = time.time()
+        # If Research Prompt is Filled and Excel File is not uploaded 
         if input and not uploaded_file: 
             st.error("Please upload an excel file")
+        # If Research Prompt is not Filled and Excel File is uploaded 
         elif not input and uploaded_file:
             st.error("Please enter a research prompt")
+        # If Research Prompt is not Filled and Excel File is not uploaded 
         elif not input or not uploaded_file:
             st.error("Please enter a research prompt and upload an excel file")
+        # Research Prompt is Filled and Excel File is uploaded
         else:
+            # Check if Uploaded Excel Format is valid
             excel_format = True
             try:
                 excel_format_checker = pd.read_excel(uploaded_file).dropna(how='all')[['DOI','TITLE','ABSTRACT']]
             except KeyError:
                 excel_format = False
-            
-            if excel_format:  
+            # Excel Format is valid
+            if excel_format: 
                 st.warning("DO NOT navigate to another page while the filtering is in progress!")
+                # Research prompt cleaning and relevancy checker
                 with get_openai_callback() as usage_info:
                     try:
                         corrected_input, relevant_output = process_user_input(input)
@@ -71,14 +77,17 @@ if not st.session_state.filtered:
                     total_output_tokens = usage_info.completion_tokens
                     total_cost = usage_info.total_cost
                     update_usage_logs(Stage.MISCELLANEOUS.value, input, total_input_tokens, total_output_tokens, total_cost)
+                # If the question is deemed as irrelevant
                 if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):
                     st.error('Irrelevant Output! Please input a relevant prompt')
+                # Question is relevant
                 else:
                     button_placeholder.empty()
                     _, futures = filterExcel(uploaded_file,  corrected_input)
                     issues, results, numDone, numFutures, total_input_tokens, total_output_tokens, total_cost = [],[], 0, len(futures), 0, 0, 0
                     progessBar = st.progress(0, text="Article filtering in progress...")
                     st.markdown(f'<small style="text-align: left; color: Black;">Prompt taken in as:  <em>"{corrected_input}</em>"</small>', unsafe_allow_html=True)
+                    # OpenAI analyzing relevancy row by row
                     for future in as_completed(futures):
                         row = future.result()
                         total_input_tokens += row[5]
@@ -99,6 +108,7 @@ if not st.session_state.filtered:
                     dfOut.to_excel("output/excel_result.xlsx", index=False)
                     st.session_state.filtered = input
                     st.experimental_rerun()
+            # Excel Format is not valid
             else:
                 st.error('Wrong Excel Format: "TITLE", "ABSTRACT", "DOI" Columns Required')
       
@@ -150,12 +160,12 @@ else:
     st.text("")
     st.text("")
 
-    # Display output (To be changed during integration)
+    # Display output
     clean_df = clean_findings_df(df)
     fig = generate_visualisation(clean_df)
     st.session_state.excel_filter_fig1 = fig
-    # st.download_button(label="Download Excel file", data="output/test_output_pfa.xlsx", file_name='results.xlsx') 
 
+    # Download Button
     with open("output/excel_result.xlsx", 'rb') as my_file:
         st.download_button(label = 'Download Excel', data = my_file, file_name='results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') 
         

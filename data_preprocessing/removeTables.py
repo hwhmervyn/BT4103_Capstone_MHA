@@ -86,7 +86,7 @@ def remove_tables(span_lst):
     
     return span_lst
 
-
+# Remove content in brackets & � characters
 def remove_citations(sections):
     for section_index in range (0,len(sections)):
         section = re.sub("\(.*?\)","",sections[section_index][0])

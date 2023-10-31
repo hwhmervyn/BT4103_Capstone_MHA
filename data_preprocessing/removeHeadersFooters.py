@@ -9,9 +9,11 @@ def find_header_spans(span_lst):
         spans = []
         for span in range(0,len(span_lst[page])):
             try:
+                # Compare Even/Odd Page with the next Even/Odd Page for similarities (Headers)
                 is_similar = (re.sub(r'[0-9]','',span_lst[page][span]['text']).strip() == re.sub(r'[0-9]','',span_lst[page+2][span]['text']).strip())
+                # Append Index if similar (Header Indexes)
                 if is_similar:
-                    spans.append(span)
+                    spans.append(span) 
                 else:
                     if page == 2:
                         dict_header_spans['Odd'] = spans
@@ -32,7 +34,9 @@ def find_footer_spans(span_lst):
         spans = []
         for span in range(-1,-len(span_lst[page]),-1):
             try:
+                # Compare Even/Odd Page with the next Even/Odd Page for similarities (Footers)
                 is_similar = (re.sub(r'[0-9]','',span_lst[page][span]['text']).strip() == re.sub(r'[0-9]','',span_lst[page+2][span]['text']).strip())
+                # Append Index if similar (Footer Indexes)
                 if is_similar:
                     spans.append(span)
                 else:

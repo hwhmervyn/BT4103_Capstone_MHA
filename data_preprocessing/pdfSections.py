@@ -2,11 +2,13 @@ import re
 import fitz
 fitz.TOOLS.set_small_glyph_heights(True)
 
+# Remove hyphen Rejoin hyphenated words
 def removeHypenAndJoin(listOfText):
   text = ' '.join(listOfText)
   pattern = '\s+-\s*|\s*-\s+'
   return re.sub(pattern, '', text.strip())
 
+# Differentiate sections (Section headers have a different font size/type from the rest of the text)
 def isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font, prevSpanText, currentSpanText):
   conditions = [
       prevSpanFontSize != fontSize,
@@ -30,6 +32,7 @@ def BaseAggregateSpansToSections(spans):
     fontSize = round(span['size'])
     font = span['font']
 
+    # Seperate different sections
     if isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font, prevSectionText[-1], spanText):
       sections.append((prevSectionText,prevPage))
       section_num += 1
@@ -48,6 +51,7 @@ def BaseAggregateSpansToSections(spans):
   sections.append((prevSectionText,prevPage))
   return sections
 
+# Account for incorrect splitting of sections due to special characters (Different font size/type from the rest of the text)
 def joinIncompleteSections(sections):
   joinedSections = []
   numSections = len(sections)
@@ -73,5 +77,6 @@ def joinIncompleteSections(sections):
   joinedSections.append([removeHypenAndJoin(prevSection),prevPage])
   return joinedSections
 
+# Aggregate all the helper methods above (Split Sections)
 def aggregateSpansToSections(spans):
   return joinIncompleteSections(BaseAggregateSpansToSections(spans))
