@@ -21,7 +21,7 @@ PROMPT_TEMPLATE = """
 
 ### RAG chain ###
 
-def get_llm_response(db, query, article_title, chunk_search_method="similarity", num_chunks_retrieved=3, additional_inst=""):
+def get_llm_response(db, query, article_title, num_chunks_retrieved=3, additional_inst=""):
   """
     Uses a RetrievalQA chain to feed both the prompt and article chunks to the LLM to obtain a response to the given query. 
     Outputs response results and the source documents referenced by the LLM.
@@ -36,7 +36,7 @@ def get_llm_response(db, query, article_title, chunk_search_method="similarity",
       llm=LLM,
       # Only chunks from a particular article are retrieved. Chunk search method and number of chunks retrieved can be adjusted.
       retriever=db.as_retriever(
-          search_type=chunk_search_method,
+          search_type="mmr", # maximal marginal relevance used to retrieve relevant chunks
           search_kwargs={'k': num_chunks_retrieved,
                         'filter': {"fileName": article_title}
           }),

@@ -46,25 +46,18 @@ if not st.session_state.pdf_analysis_prompt:
 
     # Get user prompt
     input = st.text_input("Research Prompt", placeholder='Enter your research prompt')
-
-    # Initialise retrieval settings
-    chunk_search_method = "similarity"
+         
+    # Configure pipeline with additional instructions
     num_chunks_retrieved = 3
-    # Configure retrieval settings
-    configure_retrieval_settings = st.toggle("Configure retrieval settings", value=False, help="Default settings will be used if no configuration selected")
-    if configure_retrieval_settings:
+    additional_prompt_inst = ""
+    provide_additional_inst = st.toggle("Provide additional instructions", value=False, help="Default settings will be used if no additional configurations made")
+    if provide_additional_inst:
         col1, col2 = st.columns(2)
         with col1:
-            chunk_search_method = st.radio("Chunk search method", ["similarity", "mmr"], index=0, 
-                                           help="Similarity option selects chunks that are most relevant to input prompt. MMR (maximum marginal relevance) option does the same while optimising for diversity among the selected chunks (i.e. chunks that are highly similar to an already selected chunk will not be included)")
-        with col2:
-            num_chunks_retrieved = st.slider("Num. article chunks to feed to LLM", min_value=1, max_value=10, value=3, 
-                                             help="Select number of relevant chunks from the article for the LLM to analyse. Each chunk contains approximately 150 words. More chunks fed will incur higher cost and processing time.")
-    # Configure output with additional instructions
-    additional_inst = ""
-    provide_additional_inst = st.toggle("Provide additional instructions", value=False, help="Add further instructions for LLM")
-    if provide_additional_inst:
-        additional_inst = st.text_input("Additional Instructions", placeholder='Enter your instructions (e.g. limit output to 3 sentences)')
+            num_chunks_retrieved = st.slider("Number of article chunks to feed to LLM", min_value=1, max_value=10, value=3, 
+                                                help="Select number of relevant chunks from the article for the LLM to analyse. Each chunk contains approximately 150 words. More chunks fed will incur higher cost and processing time.")
+        additional_prompt_inst = st.text_input("Additional Prompt Instructions", placeholder='Enter your instructions (e.g. limit output to 3 sentences). Leave blank if there is none to add.',
+                                               help="Additional prompt instructions will be appended to the prompt sent to the LLM")
 
     # Button to start analysis
     st.markdown('##')
@@ -120,7 +113,7 @@ if not st.session_state.pdf_analysis_prompt:
                             try: 
                                 article_title = article_title_list[i]
                                 # Make LLM call to get response
-                                response, source_docs = get_llm_response(db, input, article_title, chunk_search_method, num_chunks_retrieved, additional_inst)
+                                response, source_docs = get_llm_response(db, input, article_title, num_chunks_retrieved, additional_prompt_inst)
                                 # Record response and source documents
                                 response_list[i] = response
                                 source_docs_content_list[i], source_docs_page_num_list[i] = parse_source_docs(source_docs)
