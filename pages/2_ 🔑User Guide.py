@@ -14,6 +14,10 @@ import base64
 st.set_page_config(layout="wide")
 add_logo("images/temp_logo.png", height=100)
 
+# Test Cases
+import sys, os
+workingDirectory = os.getcwd()
+st.markdown(f"<h1 class = 'header'>{workingDirectory}</h1>", unsafe_allow_html=True)
 
 #Incorporate bootstrap
 st.markdown("""
