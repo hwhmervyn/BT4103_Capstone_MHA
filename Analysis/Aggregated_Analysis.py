@@ -14,7 +14,7 @@ analysisDirectory = os.path.join(workingDirectory, "Analysis")
 from llmConstants import chat
 
 sys.path.append(costDirectory)
-from cost_breakdown.update_cost import update_usage_logs, Stage
+from update_cost import update_usage_logs, Stage
 
 sys.path.append(analysisDirectory)
 #from Individual_Analysis import cleaned_findings_df

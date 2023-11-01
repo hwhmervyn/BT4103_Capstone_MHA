@@ -21,9 +21,9 @@ if workingDirectory not in sys.path:
     sys.path.append(workingDirectory)
 if chromaDirectory not in sys.path:
     sys.path.append(chromaDirectory)
-
-from Chroma_DB.ingestPdf import schedulePdfUpload
-from Chroma_DB.chromaUtils import getListOfCollection, clearCollection, is_valid_name
+    
+from ingestPdf import schedulePdfUpload
+from chromaUtils import getListOfCollection, clea
 import streamlit.components.v1 as components
 
 def ChangeWidgetFontSize(wgt_txt, wch_font_size = '12px'):
