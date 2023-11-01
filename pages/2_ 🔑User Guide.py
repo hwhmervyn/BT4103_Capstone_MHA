@@ -24,7 +24,7 @@ st.markdown("""
 
 #Add the animation
 path = "images/lightbulb.json"
-with open(path,"r") as file: 
+with open(path,"r",encoding="utf-8") as file: 
     url = json.load(file) 
 
 #Other CSS
