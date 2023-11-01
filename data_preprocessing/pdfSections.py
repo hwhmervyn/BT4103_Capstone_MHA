@@ -17,10 +17,12 @@ def isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font, prevSpanText, 
   return sum(conditions) > 0
 
 def BaseAggregateSpansToSections(spans):
+  # Base logic that identifies and groups spans into sections
   sections = []
 
   prevSpan = spans[0][0]
-  prevSectionText = [prevSpan['text']] #only concat text at the end of each section
+  prevSectionText = [prevSpan['text']] # only concat text at the end of each section as string concat is O(N) time
+  # Round the font size as PyMuPDF reads in documents in the form of images. Hence there is some discrepancies in the size attribute. The size attribute comes close to the actual but needs rounding, otherwise it will be diffcult to make any comparison with other spans
   prevSpanFontSize = round(prevSpan['size'])
   prevSpanFont = prevSpan['font']
   section_num = 0
@@ -32,7 +34,7 @@ def BaseAggregateSpansToSections(spans):
     fontSize = round(span['size'])
     font = span['font']
 
-    # Seperate different sections
+    # Span is not from the current section. Terminate the growth of current section and begin building the next section.
     if isDiffSection(prevSpanFontSize, fontSize, prevSpanFont, font, prevSectionText[-1], spanText):
       sections.append((prevSectionText,prevPage))
       section_num += 1
@@ -43,6 +45,7 @@ def BaseAggregateSpansToSections(spans):
       prevSpanFont = font
       prevPage = [spans[i][1]]
 
+    # Span still continues from the current section hence we append it to the growing section
     else:
       prevSectionText.append(spanText)
       if spans[i][1] not in prevPage:
@@ -51,7 +54,8 @@ def BaseAggregateSpansToSections(spans):
   sections.append((prevSectionText,prevPage))
   return sections
 
-# Account for incorrect splitting of sections due to special characters (Different font size/type from the rest of the text)
+# Account for incomplete aggregation of sections due to special characters (Different font size/type from the rest of the text)
+# Incomplete sections can also be identified by trailing spaces before or after it.
 def joinIncompleteSections(sections):
   joinedSections = []
   numSections = len(sections)
