@@ -159,7 +159,7 @@ if st.session_state['create_but']: # if user clicks on the upload button
         print(f'Time taken in hours minutes and seconds is {time_taken_hours_minute_seconds}')
         st.success(f'Successful! Time taken: {time_taken_hours_minute_seconds}')
         
-        # Remove all folders in 'data' folder, to avoid them from getting mixed up with subsequent pdf uploads.
+        # Remove all folders in 'data' folder after uploading is done, to avoid them from getting mixed up with subsequent pdf uploads.
         for file in listdir(dataDirectory):
             full_path = join(abspath(dataDirectory), file)
             if isdir(full_path):
