@@ -14,54 +14,63 @@ from concurrent.futures import ThreadPoolExecutor
 from langchain.callbacks import get_openai_callback
 
 def correctFormatToJson(result_content, numTries, error_message):
+  # Check if the number of tries has exceeded 3
   if numTries > 3:
-     return None
+     return None # Return None if too many retries, output will just be raw LLM output
   else:
     try:
+      # if it hasn't been 3 tries yet, attempt to parse the result_content as JSON again
       jsonResult = output_fixer.parse_with_prompt(result_content, retry_prompt.format_prompt(error=error_message, output=result_content))
     except JSONDecodeError:
+      # If a JSON decoding error occurs, do a recusive call to retry while increasing the counter for number of tries attempted
       jsonResult = correctFormatToJson(result_content, numTries+1, error_message) 
-    except Exception:
+    except Exception: # Handle other exceptions by returning None, output will just be raw LLM Output
       jsonResult = None
     return jsonResult
 
 def createTask(doi, title, abstract, query):
+  # Check if both title and abstract are missing
   if pd.isna(title) and pd.isna(abstract):
+    # Create a response for the case when both are missing
     jsonOutput = {
       'answer': 'Unsure',
       'explanation': 'Cannot tell when both Abstract and Title are missing'
     }
     return (doi, title, abstract, None, jsonOutput, 0, 0, 0)
   with get_openai_callback() as usage_info:
+    # Create the prompt using the user input data and query
     request = chat_prompt.format_prompt(title=title, abstract=abstract, question=query).to_messages()
-    result = chat(request)
+    result = chat(request) # send the request to LLM
     try:
-      jsonOutput = excel_parser.parse(result.content)
+      jsonOutput = excel_parser.parse(result.content) # Parse the result as JSON
     except JSONDecodeError as e:
-      jsonOutput = correctFormatToJson(result.content, 1, str(e))
+      jsonOutput = correctFormatToJson(result.content, 1, str(e)) # Handle JSON decoding errors
     except Exception:
-      jsonOutput = None
+      jsonOutput = None # Handle other exceptions by returning only the raw LLM output, leaving the cleaned fields empty
     total_input_tokens = usage_info.prompt_tokens
     total_output_tokens = usage_info.completion_tokens
     total_cost = usage_info.total_cost
     return (doi, title, abstract, result.content, jsonOutput, total_input_tokens, total_output_tokens, total_cost)
 
 def filterExcel(fileName, query):
+   # Read data from an Excel file and drop rows with all missing values, then select specific columns
   df = pd.read_excel(fileName).dropna(how='all')[['DOI','TITLE','ABSTRACT']]
   executor = ThreadPoolExecutor(max_workers=2)
   futures = []
   for _, row in df.iterrows():
       doi, title, abstract = row
+      # Create tasks for each row in the DataFrame and submit them to a thread pool
       futures.append(executor.submit(createTask, doi, title, abstract, query))
-  return (executor, futures)
+  return (executor, futures) # Return the thread pool executor and futures
 
 def getOutputDF(dfOut):
+    # Create new columns for PREDICTION and JUSTIFICATION FOR RELEVANCY
     json_exists = ~dfOut["jsonOutput"].isna()
     dfOut.insert(3,'PREDICTION', None, True)
     dfOut.loc[json_exists, 'PREDICTION'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('answer'))
     dfOut.insert(4,'JUSTIFICATION FOR RELEVANCY', None, True)
     dfOut.loc[json_exists, 'JUSTIFICATION FOR RELEVANCY'] = dfOut.loc[json_exists, "jsonOutput"].apply(lambda x: x.get('explanation'))
-    dfOut = dfOut.drop('jsonOutput', axis=1)
+    dfOut = dfOut.drop('jsonOutput', axis=1) # Create new columns for PREDICTION and JUSTIFICATION FOR RELEVANCY
     return dfOut
   
 def getYesExcel(df):

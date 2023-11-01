@@ -9,6 +9,7 @@ if chromaDirectory not in sys.path:
 
 from client import persistent_client, embeddings
 
+# retrieves an existing collection by its name. The collection returned is interacted with through LangChain's Chroma abstraction
 def getCollection(collection_name):
     langchain_chroma = Chroma(
         client=persistent_client,
@@ -17,6 +18,7 @@ def getCollection(collection_name):
     )
     return langchain_chroma
 
+# Takes in a list of collection names and Deletes the correspondings collections
 def clearCollection(list_of_collection_names):
     for collection_name in list_of_collection_names:
         try:
@@ -25,6 +27,7 @@ def clearCollection(list_of_collection_names):
         except:
             print(collection_name)
 
+# creates a brand new collection, assumes that clearCollection has been called prior to this
 def createCollection(collection_name):
     persistent_client.get_or_create_collection(name=collection_name, embedding_function=embeddings)
 
@@ -33,6 +36,7 @@ def getDistinctFileNameList(collection_name):
     papers = [doc.get('fileName') for doc in metadata_list]
     return list(set(papers))
 
+# returns collection names that have already been taken
 def getListOfCollection():
     collections = persistent_client.list_collections()
     collections = [c.name for c in collections]
