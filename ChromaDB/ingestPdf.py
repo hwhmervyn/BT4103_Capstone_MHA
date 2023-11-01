@@ -13,7 +13,7 @@ for d in dirs:
         sys.path.append(d)
 
 from pdfMain import pdfMain
-from ChromaDB import chrom
+from ChromaDB import chromaUtils
 
 def uploadSmallChunk(collection, doc):
     return collection.add_documents(documents=[doc])
