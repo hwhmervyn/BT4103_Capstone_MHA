@@ -23,12 +23,12 @@ dirs = [
 for d in dirs:
     if d not in sys.path: sys.path.append(d)
 
-import chromaUtils
-from ingestPdf import copyCollection
-from Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
-from Aggregated_Analysis import agg_analysis_main
-from User_Input_Cleaning import process_user_input
-from update_cost import update_usage_logs, Stage
+from Chroma_DB import chromaUtils
+from Chroma_DB.ingestPdf import copyCollection
+from Analysis.Individual_Analysis import ind_analysis_main, get_yes_pdf_filenames
+from Analysis.Aggregated_Analysis import agg_analysis_main
+from Miscellaneous.User_Input_Cleaning import process_user_input
+from cost_breakdown.update_cost import update_usage_logs, Stage
 
 from os import listdir
 from os.path import abspath

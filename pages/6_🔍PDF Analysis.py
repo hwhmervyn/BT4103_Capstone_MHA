@@ -11,10 +11,10 @@ sys.path.append(os.path.join(os.getcwd(), "analysis"))
 sys.path.append(os.path.join(os.getcwd(), "cost_breakdown"))
 sys.path.append(os.path.join(os.getcwd(), "Miscellaneous"))
 
-from chromaUtils import getCollection, getDistinctFileNameList, getListOfCollection
-from Freeform_Analysis import get_llm_response, parse_source_docs, get_pdf_analysis_table
-from update_cost import update_usage_logs, Stage
-from User_Input_Cleaning import run_spell_check
+from Chroma_DB.chromaUtils import getCollection, getDistinctFileNameList, getListOfCollection
+from Analysis.Freeform_Analysis import get_llm_response, parse_source_docs, get_pdf_analysis_table
+from cost_breakdown.update_cost import update_usage_logs, Stage
+from Miscellaneous.User_Input_Cleaning import run_spell_check
 
 st.set_page_config(layout="wide")
 add_logo("images/temp_logo.png", height=100)

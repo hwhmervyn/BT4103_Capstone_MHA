@@ -16,13 +16,13 @@ import plotly.graph_objects as go
 
 import sys, os
 workingDirectory = os.getcwd()
-chromaDirectory = os.path.join(workingDirectory, "ChromaDB")
+chromaDirectory = os.path.join(workingDirectory, "Chroma_DB")
 costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 sys.path.append(costDirectory)
 sys.path.append(chromaDirectory)
 
-import chromaUtils
-from update_cost import update_usage_logs, Stage
+from Chroma_DB import chromaUtils
+from cost_breakdown.update_cost import update_usage_logs, Stage
 
 ### Global Parameters ###
 

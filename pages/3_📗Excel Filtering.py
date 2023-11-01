@@ -5,10 +5,11 @@ from langchain.callbacks import get_openai_callback
 import pandas as pd
 import time
 
+
 import sys,os
 
 workingDirectory = os.getcwd()
-chromaDirectory = os.path.join(os.getcwd(), "ChromaDB")
+chromaDirectory = os.path.join(os.getcwd(), "Chroma_DB")
 costDirectory = os.path.join(os.getcwd(), "cost_breakdown")
 cleanDirectory = os.path.join(os.getcwd(), "Miscellaneous")
 
@@ -19,9 +20,9 @@ if costDirectory not in sys.path:
 if cleanDirectory not in sys.path:
     sys.path.append(cleanDirectory)
 
-from filterExcel import filterExcel, getOutputDF, generate_visualisation, clean_findings_df, getYesExcel
-from User_Input_Cleaning import process_user_input
-from update_cost import update_usage_logs, Stage
+from Chroma_DB.filterExcel import filterExcel, getOutputDF, generate_visualisation, clean_findings_df, getYesExcel
+from Miscellaneous.User_Input_Cleaning import process_user_input
+from cost_breakdown.update_cost import update_usage_logs, Stage
 
 st.set_page_config(layout="wide")
 add_logo("images/temp_logo.png", height=100)
