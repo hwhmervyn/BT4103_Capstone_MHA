@@ -104,9 +104,11 @@ if st.session_state['tick_delete_function']:
                 confirm_button = st.empty() # create a confirm button
                 confirm_button.button("Yes I want to delete", type="primary",on_click=clearCollection_and_updateState, args=(collection_to_delete, confirm_button, feedback)) # if user clicks, confirming to delete, a callback will be run to delete the collection, before the page is refreshed
                     
-else: # if user unticks the delete function, then do not propagate the delete segment and shrink the font of the delete label
+else: 
+    # if user unticks the delete function, then do not propagate the delete segment and shrink the font of the delete label
     ChangeWidgetFontSize("Delete a Collection", '1em')
-########################## CREATE ###################################################################################################################
+########################## CREATE ###################################################################################################################################################################################################################################################################################
+# Create Collection functions has to be run after the creating of delete segments, as we want to make sure the disabled state of the delete segments are updated properly when create collection is running.
 
 if st.session_state['create_but']: # if user clicks on the upload button
     start_time = time.time()
