@@ -36,7 +36,7 @@ def get_llm_response(db, query, article_title, num_chunks_retrieved=3, additiona
       llm=LLM,
       # Only chunks from a particular article are retrieved. Chunk search method and number of chunks retrieved can be adjusted.
       retriever=db.as_retriever(
-          search_type="mmr", # maximal marginal relevance used to retrieve relevant chunks
+          search_type="similarity", # similarity search used to retrieve relevant chunks
           search_kwargs={'k': num_chunks_retrieved,
                         'filter': {"fileName": article_title}
           }),
