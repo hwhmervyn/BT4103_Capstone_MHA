@@ -91,8 +91,10 @@ def run_relevancy_check(query):
 
 #Checks the user input
 def process_user_input(query):
+	#Run the spell check to get the corrected question
 	corrected_question = run_spell_check(query)
 	print(corrected_question)
+	#After cleaning the grammatical and other errors check whether the question is relevant
 	relevant_output = run_relevancy_check(corrected_question)
 	print(relevant_output)
 	return corrected_question, relevant_output.lower()

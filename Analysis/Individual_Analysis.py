@@ -108,8 +108,6 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
   #Get the unique filenames from the pdf collection
   unique_filename_lst = chromaUtils.getDistinctFileNameList(collection_name)
   total_num_articles = len(unique_filename_lst)
-  #Just a placeholder to limit the number of filenames to 5
-  #unique_filename_lst =  sample(unique_filename_lst, 5)
   #List to store yes or no
   yes_no_lst = []
   #List to store the evidence
@@ -139,6 +137,7 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
       progress = (float(numDone/total_num_articles) * PARTS_ALLOCATED_IND_ANALYSIS)
       progress_display_text = f"Analysing articles: {numDone}/{total_num_articles} completed..."
       progressBar1.progress(progress, text=progress_display_text)
+    #Update the usage
     total_input_tokens = usage_info.prompt_tokens
     total_output_tokens = usage_info.completion_tokens
     total_cost = usage_info.total_cost
