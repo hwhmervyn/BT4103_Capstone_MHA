@@ -30,8 +30,12 @@ add_logo("images/temp_logo.png", height=100)
 st.markdown("<h1 style='text-align: left; color: Black;'>Excel Filtering</h1>", unsafe_allow_html=True)
 st.markdown('#')
 
+
 if 'filtered' not in st.session_state:
     st.session_state.filtered = False
+if 'excel_filtering_time' not in st.session_state:
+    st.session_state.excel_filtering_time = None
+
 
 if not st.session_state.filtered:
     input = st.text_input("Research Prompt", placeholder='Enter your research prompt')
@@ -100,6 +104,7 @@ if not st.session_state.filtered:
                     end_time = time.time()
                     time_taken_seconds = end_time - start_time
                     time_taken_hours_minute_seconds =  time.strftime("%H:%M:%S", time.gmtime(time_taken_seconds))
+                    st.session_state.excel_filtering_time = time_taken_hours_minute_seconds
                     print(f'Time taken in seconds is {time_taken_seconds} seconds')
                     print(f'Time taken in hours minutes and seconds is {time_taken_hours_minute_seconds}')
                     st.success(f'Successful! Time taken: {time_taken_hours_minute_seconds}')
@@ -117,6 +122,9 @@ if not st.session_state.filtered:
 else:
     st.subheader("Prompt")
     st.markdown(st.session_state.filtered)
+
+    st.subheader("Time Taken")
+    st.markdown(st.session_state.excel_filtering_time)
 
     st.subheader("Results")
     
