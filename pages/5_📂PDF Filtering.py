@@ -51,6 +51,8 @@ if 'pdf_filtered' not in st.session_state:
     st.session_state.pdf_filtered = False
 if 'collection' not in st.session_state:
     st.session_state.collection = None
+if 'pdf_filtering_time' not in st.session_state:
+    st.session_state.pdf_filtering_time = None 
 
 #collection_name, file_upload, prompt error messages
 err_messages = {
@@ -151,6 +153,7 @@ if not st.session_state.pdf_filtered:
                     end_time = time.time()
                     time_taken_seconds = end_time - start_time
                     time_taken_hours_minute_seconds =  time.strftime("%H:%M:%S", time.gmtime(time_taken_seconds))
+                    st.session_state.pdf_filtering_time = time_taken_hours_minute_seconds
                     print(f'Time taken in seconds is {time_taken_seconds} seconds')
                     print(f'Time taken in hours minutes and seconds is {time_taken_hours_minute_seconds}')
                     st.success(f'Successful! Time taken: {time_taken_hours_minute_seconds}')
@@ -164,6 +167,9 @@ if not st.session_state.pdf_filtered:
 if st.session_state.pdf_filtered:
     st.subheader("Prompt")
     st.markdown(st.session_state.pdf_filtered)
+
+    st.subheader("Time Taken")
+    st.markdown(st.session_state.pdf_filtering_time)
 
     st.subheader("Results")
 
