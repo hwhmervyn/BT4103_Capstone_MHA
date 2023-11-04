@@ -154,7 +154,7 @@ if st.session_state['create_but']: # if user clicks on the upload button
         # schedule futures to process and upload the pdfs. This is to avoid passing the progress bar to other scripts that are not streamlit pages as:
         # (1) it is hard to track the state across different scripts
         # (2) hard for internal testing
-        
+        st.warning("DO NOT navigate to another page while the creation of the collection is in progress!")
         progressBar1 = progress_placeholder.progress(0, text="Uploading documents...")
         numDone, numFutures = 0, len(futures)
         for future in as_completed(futures): # retrieves each future task in the order that they are completed.
