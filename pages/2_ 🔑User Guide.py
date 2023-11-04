@@ -78,7 +78,7 @@ with st.container():
                 unsafe_allow_html=True)
 
         st.markdown("<p style = 'font-style: italic; font-size: 20px;'>The dashboard provides <span class='feature'>four features</span> to improve your research experience<span class = 'arm'>💪💪💪</span>: \
-                    Collection Management, Excel Filtering, PDF Filtering, and Support Analysis.</p>", unsafe_allow_html=True)
+                     Excel Filtering, Collection Management, PDF Filtering, and PDF Analysis.</p>", unsafe_allow_html=True)
 
         st.markdown("<p style = 'font-style: italic; font-size: 20px;'>For additional information, please visit this  \
                     <a href= 'https://docs.google.com/document/d/1wXieeEDL4kXgPkc74QqiVeczD5VBau8Ww2-GQJjIZXQ/edit?usp=sharing' class='link-primary link-opacity-50-hover'>link</a>.</p>", unsafe_allow_html=True)
