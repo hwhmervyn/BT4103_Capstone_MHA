@@ -25,22 +25,20 @@ import chromaUtils
 from cost_breakdown.update_cost import update_usage_logs, Stage
 
 ### Global Parameters ###
-
-# Aesthetic parameters #
+# Aesthetic parameters
 COLOUR_MAPPING = {"Yes": "paleturquoise", "No": "lightsalmon", "Unsure": "lightgrey"}
 # Text wrap for output in table
-WRAPPER = textwrap.TextWrapper(width=145) # creates a split every 160 characters
+WRAPPER = textwrap.TextWrapper(width=145) #Creates a split every 160 characters
 
-
-#Create a class for output parser
+# Create a class for output parser
 class Response(BaseModel):
     answer: str = Field(description= "Answer Yes or No in 1 word" )
     evidence: List[str] = Field(description="List 3 sentences of evidence to explain")
 
-#Parser
+# Parser
 OUTPUT_PARSER = PydanticOutputParser(pydantic_object=Response)
 
-#Create the prompt based on prompt template + output parser
+# Create the prompt based on prompt template + output parser
 def create_prompt():
   mention_y_n_prompt_template = """
     [INST]<<SYS>>
@@ -59,7 +57,7 @@ def create_prompt():
   
   return mention_y_n_prompt
 
-#Fix the output of the string for the json to detect that it's a dictionary
+# Fix the output of the string for the json to detect that it's a dictionary
 def fix_output(string, llm):
     prompt_template = """Convert the given string to a JSON object. 
       Format: ### {format_instructions} ###
@@ -72,7 +70,7 @@ def fix_output(string, llm):
     result = format_correction_chain.run(string)
     return result
 
-#Correct output for the evidence if needed else return original
+# Correct output for the evidence if needed else return original
 def check_evidence_format(result, llm):
   evidence = None
   try:
@@ -89,28 +87,27 @@ def check_evidence_format(result, llm):
     evidence = result
   return evidence
 
-
-#Retrieve findings from the llm
+# Retrieve findings from the llm
 def get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm):
-  #Create a Retrieval Chain
+  # Create a Retrieval Chain
   qa_chain = RetrievalQA.from_chain_type(llm=llm,
                                          chain_type="stuff",
                                          retriever= pdf_collection.as_retriever(search_type="similarity", search_kwargs={'k': 3, 'filter': {'fileName': specific_filename}}),
                                          chain_type_kwargs={"prompt": mention_y_n_prompt},
                                          return_source_documents=True)
-  #Get the results
+  # Get the results
   result_dict = qa_chain({"query": query})
   result = result_dict['result']
   return result
 
-#Queries the pdfs and outputs a dataframe
+# Queries the pdfs and outputs a dataframe
 def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_prompt, llm, progressBar1):
-  #Get the unique filenames from the pdf collection
+  # Get the unique filenames from the pdf collection
   unique_filename_lst = chromaUtils.getDistinctFileNameList(collection_name)
   total_num_articles = len(unique_filename_lst)
-  #List to store yes or no
+  # List to store yes or no
   yes_no_lst = []
-  #List to store the evidence
+  # List to store the evidence
   evidence_lst = []
   print(total_num_articles)
 
@@ -121,15 +118,15 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
 
   with get_openai_callback() as usage_info:
     for specific_filename in unique_filename_lst:
-      #Get the findings using the LLM
+      # Get the findings using the LLM
       result = get_findings_from_llm(query, pdf_collection, specific_filename, mention_y_n_prompt, llm)
-      #Check whether the pdf is related to the research question and update the lists accordingly
+      # Check whether the pdf is related to the research question and update the lists accordingly
       if 'Yes' in result:
         yes_no_lst.append('Yes')
       else:
         yes_no_lst.append('No')
 
-      #Get the evidence 
+      # Get the evidence 
       evidence = check_evidence_format(result, llm)
       evidence_lst.append(evidence)
 
@@ -137,19 +134,18 @@ def get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_p
       progress = (float(numDone/total_num_articles) * PARTS_ALLOCATED_IND_ANALYSIS)
       progress_display_text = f"Analysing articles: {numDone}/{total_num_articles} completed..."
       progressBar1.progress(progress, text=progress_display_text)
-    #Update the usage
+    # Update the usage
     total_input_tokens = usage_info.prompt_tokens
     total_output_tokens = usage_info.completion_tokens
     total_cost = usage_info.total_cost
     update_usage_logs(Stage.PDF_FILTERING.value, query, total_input_tokens, total_output_tokens, total_cost)   
 
-
-  #Output a dataframe
+  # Output a dataframe
   uncleaned_findings_dict= {'Article Name': unique_filename_lst, 'Answer' : yes_no_lst, 'Evidence' : evidence_lst}
   uncleaned_findings_df = pd.DataFrame(uncleaned_findings_dict)
   return uncleaned_findings_df
 
-#Add line breaks to the paragraphs
+# Add line breaks to the paragraphs
 def add_line_breaks(text_list):
   new_text_list = []
   for text in text_list:
@@ -158,18 +154,18 @@ def add_line_breaks(text_list):
     new_text_list.append(new_text)
   return "".join(new_text_list)
 
-#Clean the findings df
+# Clean the findings df
 def clean_findings_df(uncleaned_findings_df):
   cleaned_findings_df = uncleaned_findings_df.copy()
-  #Get the findings just paragraphs
+  # Get the findings just paragraphs
   cleaned_findings_df['Findings'] = cleaned_findings_df['Evidence'].apply(lambda evidence_list : " ".join(evidence_list))
-  #Add line breaks
+  # Add line breaks
   cleaned_findings_df['Findings_Visualised'] = cleaned_findings_df['Evidence'].apply(lambda evidence_list: add_line_breaks(evidence_list))
-  #Drop the Evidence column
+  # Drop the Evidence column
   cleaned_findings_df = cleaned_findings_df.drop(columns = 'Evidence')
   return cleaned_findings_df
 
-#Generate a table visualisation
+# Generate table visualisation
 def generate_visualisation(cleaned_findings_df):
 
   layout = go.Layout(
@@ -196,25 +192,25 @@ def generate_visualisation(cleaned_findings_df):
 
   return fig
 
-#Get pdf filenames that mention the topic
+# Get pdf filenames that mention the topic
 def get_yes_pdf_filenames(cleaned_findings_df):
   yes_pdf = cleaned_findings_df.copy()[cleaned_findings_df["Answer"].str.lower() == "yes"]
   return yes_pdf['Article Name'].values.tolist()
 
 def ind_analysis_main(query, collection_name, progressBar1):
-  #Get the pdf collection
+  # Get the pdf collection
   pdf_collection = chromaUtils.getCollection(collection_name)
 
-  #Initialise the prompt template
+  # Initialise the prompt template
   mention_y_n_prompt = create_prompt()
   
-  #Get findings from the pdfs
+  # Get findings from the pdfs
   uncleaned_findings_df = get_findings_from_pdfs(pdf_collection, collection_name, query, mention_y_n_prompt, chat, progressBar1)
 
-  #Clean the findings
+  # Clean the findings
   cleaned_findings_df = clean_findings_df(uncleaned_findings_df)
 
-  #Generate the visualisations
+  # Generate the visualisations
   fig = generate_visualisation(cleaned_findings_df)
 
   return cleaned_findings_df[["Article Name", "Answer", "Findings"]], fig

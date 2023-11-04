@@ -40,13 +40,13 @@ import asyncio
 st.set_page_config(layout="wide")
 add_logo("images/temp_logo.png", height=100)
 
-
 st.markdown("<h1 style='text-align: left; color: Black;'>PDF Filtering</h1>", unsafe_allow_html=True)
 st.markdown('#')
 
 async def my_async_function():
     await asyncio.sleep(2)  # Asynchronously sleep for 2 seconds
 
+# Initialize session states (for purpose of page display and storing variables)
 if 'pdf_filtered' not in st.session_state:
     st.session_state.pdf_filtered = False
 if 'collection' not in st.session_state:
@@ -54,7 +54,7 @@ if 'collection' not in st.session_state:
 if 'pdf_filtering_time' not in st.session_state:
     st.session_state.pdf_filtering_time = None 
 
-#collection_name, file_upload, prompt error messages
+# collection_name, file_upload, prompt error messages
 err_messages = {
     "000": "Please select an input collection to use, enter a research prompt and, enter a collection name (that hasn't been used yet) to store the filtered articles",
     "100": "Please enter a research prompt and a collection name (that hasn't been used yet) to store the filtered articles",
@@ -66,9 +66,8 @@ err_messages = {
 }
 
 ### Layout and Logic when the user enters the relevant fields ###
-
 if not st.session_state.pdf_filtered:
-    #Input the relevant fields - the input collection, the prompt, and the output collection name
+    #  Input the relevant fields - input collection, prompt, and output collection name
     input_collection_name = st.selectbox(
         'Input Collection', chromaUtils.getListOfCollection(), 
         placeholder="Select the collection you would like to use"
@@ -85,11 +84,11 @@ if not st.session_state.pdf_filtered:
         
     if st.session_state['submit']:
         start_time = time.time()
-        #Check if all 3 options have been filled in
+        # Check if all 3 options have been filled in
         err_code = str(int(bool(input_collection_name)))+\
                                     str(int(bool(prompt)))+\
                                                 str(int(bool(output_collection_name and output_collection_name not in chromaUtils.getListOfCollection())))
-        #If we filled in input_collection_name, prompt and output_collection_name
+        # If input_collection_name, prompt and output_collection_name has been filled up
         if not err_messages.get(err_code):
             with get_openai_callback() as usage_info:
                 try:
@@ -102,11 +101,11 @@ if not st.session_state.pdf_filtered:
                 total_cost = usage_info.total_cost
                 update_usage_logs(Stage.MISCELLANEOUS.value, corrected_input, total_input_tokens, total_output_tokens, total_cost)
             
-                #If the question is deemed as irrelevant
+                # If the question is deemed as irrelevant
                 if (('irrelevant' in relevant_output) or ('relevant' not in relevant_output)):
                     st.error('Please input a relevant prompt')
 
-                #If the output collection name is invalid
+                # If the output collection name is invalid
                 elif not chromaUtils.is_valid_name(output_collection_name):
                     naming_format = """
                     Collection Name format MUST satisfy the following format:\n
@@ -116,26 +115,31 @@ if not st.session_state.pdf_filtered:
                     - The name must not be a valid IP address."""
                     st.error(naming_format)
 
+                # If no errors in input, continue processing
                 else:
                     button_placeholder.empty()
-                    PARTS_ALLOCATED_IND_ANALYSIS = 0.5
+
+                    # Initialization of progress bar
+                    PARTS_ALLOCATED_IND_ANALYSIS = 0.5 
                     PARTS_ALLOCATED_AGG_ANALYSIS = 0.3
                     PARTS_ALLOCATED_COPY = 0.2
                     st.warning("DO NOT navigate to another page while the filtering is in progress!")
                     progressBar1 = st.progress(0, text="Processing documents...")
                     st.markdown(f'<small style="text-align: left; color: Black;">Prompt taken in as:  <em>"{corrected_input}</em>"</small>', unsafe_allow_html=True)
                     time.sleep(2)
-                    #Get the findings for each individual article along with the table visual
+
+                    # Get the findings for each individual article along with the table visual
                     ind_findings, findings_visual = ind_analysis_main(corrected_input, input_collection_name, progressBar1)
                     ind_findings.to_excel("output/pdf_analysis_results.xlsx", index=False)
                     time.sleep(2)
 
-                    #Get the individual articles that are deemed relevant to load it into aggregated analysis
+                    # Get the individual articles that are deemed relevant to load it into aggregated analysis
                     rel_ind_findings  = ind_findings[ind_findings["Answer"].str.lower() == "yes"]
                     agg_findings= "No Relevant Articles Found" 
                     if rel_ind_findings.shape[0] > 0:
                         agg_findings = agg_analysis_main(rel_ind_findings, progressBar1)
                     
+                        # Create output collection containing articles deemed relevant
                         rel_file_names = rel_ind_findings['Article Name'].values.tolist()
                         executor, futures = copyCollection(input_collection_name, output_collection_name, rel_file_names)
                         numDone, numFutures = 0, len(futures)
@@ -144,12 +148,14 @@ if not st.session_state.pdf_filtered:
                             numDone += 1
                             progress = float(numDone/numFutures)*PARTS_ALLOCATED_COPY+(PARTS_ALLOCATED_IND_ANALYSIS+PARTS_ALLOCATED_AGG_ANALYSIS)
                             progressBar1.progress(progress,text="Creating collection...")
-                              
+                    
+                    # Store tables & results for display
                     st.session_state.pdf_filtered = corrected_input
                     st.session_state.pdf_ind_fig1 = findings_visual
                     st.session_state.pdf_ind_fig2 = ind_findings
                     st.session_state.pdf_agg_fig = agg_findings
 
+                    # Track and display time taken for processing
                     end_time = time.time()
                     time_taken_seconds = end_time - start_time
                     time_taken_hours_minute_seconds =  time.strftime("%H:%M:%S", time.gmtime(time_taken_seconds))
@@ -162,21 +168,23 @@ if not st.session_state.pdf_filtered:
         else:
            st.error(err_messages[err_code]) 
 
- ### After the Process is completed ###          
-            
+ ### After processing is completed ###          
 if st.session_state.pdf_filtered:
+    # Display prompt for user reference
     st.subheader("Prompt")
-    st.markdown(st.session_state.pdf_filtered)
+    st.markdown(st.session_state.pdf_filtered) 
 
+    # Display time taken
     st.subheader("Time Taken")
     st.markdown(st.session_state.pdf_filtering_time)
 
     st.subheader("Results")
 
-    ## Summary visualisations (in the form of cards)
+    # Create & display metric card visualisations
     num_relevant_articles = len(get_yes_pdf_filenames(st.session_state.pdf_ind_fig2))
     num_articles = st.session_state.pdf_ind_fig2.shape[0]
 
+    # tyling for metric cards
     st.markdown("""
     <style>
     div[data-testid="metric-container"] {
@@ -212,12 +220,12 @@ if st.session_state.pdf_filtered:
     st.text("")
     st.text("")
 
-    ## Result Table
+    # Display Result Table
     with open("output/pdf_analysis_results.xlsx", 'rb') as my_file:
         st.download_button(label = 'Download Excel', data = my_file, file_name='pdf_analysis_results.xlsx', mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     st.plotly_chart(st.session_state.pdf_ind_fig1, use_container_width=True)
 
-    ## Key Themes
+    # Display Key Themes
     st.subheader("Key Themes")
     st.markdown(st.session_state.pdf_agg_fig)
 

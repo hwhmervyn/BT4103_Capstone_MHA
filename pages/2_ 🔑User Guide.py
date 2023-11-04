@@ -14,13 +14,11 @@ import base64
 st.set_page_config(layout="wide")
 add_logo("images/temp_logo.png", height=100)
 
-
 #Incorporate bootstrap
 st.markdown("""
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
 	integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 """,unsafe_allow_html=True)
-
 
 #Add the animation
 path = "images/lightbulb.json"
@@ -68,9 +66,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
 st.markdown("<h1 class = 'header'>User Guide</h1>", unsafe_allow_html=True)
-
 
 #The Description Test
 with st.container():
@@ -94,9 +90,6 @@ with st.container():
             quality='high',
             key='second'
             )
-
-
-
 	
 sections = [
     {"icon": "📗", "title": "Excel Filtering", "description": "***Filter an excel file of articles with a research prompt and view results***", "steps":["Navigate to '📗 **Excel Filtering**' using the sidebar", 
@@ -116,6 +109,7 @@ sections = [
                                                                                                                                             "Click **Submit** and wait for the article(s) to be analysed",
                                                                                                                                             "View the response and download the output"]},
 ]
+
 # Display sections in a grid layout
 #col1, col2, col3 = st.columns([1, 4, 1])
 #with col2:

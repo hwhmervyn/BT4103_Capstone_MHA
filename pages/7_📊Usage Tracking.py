@@ -9,7 +9,6 @@ costDirectory = os.path.join(workingDirectory, "cost_breakdown")
 st.set_page_config(layout="wide")
 add_logo("images/temp_logo.png", height=100)
 
-
 st.markdown("<h1 style='text-align: left; color: Black;'>Usage Tracking</h1>", unsafe_allow_html=True)
 st.markdown('#')
 
@@ -43,6 +42,7 @@ df_output = pd.pivot_table(grouped_data_output, values='Total Output Tokens', in
 df_output['All'] = df_output.sum(axis=1)
 df_output = df_output.cumsum()
 
+# Style for metric card visualisationss
 st.markdown("""
 <style>
 div[data-testid="metric-container"] {
@@ -67,6 +67,7 @@ font-size: 150% !important;
 """
 , unsafe_allow_html=True)
 
+# Display aggregate statistics as metric cards
 col1, col2, col3, col4, col5 = st.columns(5)
 with col2:
     st.metric("Total Cost ($USD)", round(df['Total Cost'].sum(), 4))
@@ -81,6 +82,7 @@ st.text("")
 st.text("")
 st.text("")
 
+# Display usage charts
 # st.dataframe(df_cost)
 st.subheader('Time series chart of Cumulative Total Cost ($USD)')
 st.line_chart(df_cost, use_container_width=True)
