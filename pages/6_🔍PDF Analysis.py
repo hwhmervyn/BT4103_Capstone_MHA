@@ -149,7 +149,6 @@ if not st.session_state.pdf_analysis_prompt:
                         st.session_state.pdf_analysis_time = time_taken_hours_minute_seconds
                         print(f'Time taken in seconds is {time_taken_seconds} seconds')
                         print(f'Time taken in hours minutes and seconds is {time_taken_hours_minute_seconds}')
-                        st.success(f'Successful! Time taken: {time_taken_hours_minute_seconds}')
                         
                         # Update usage info
                         update_usage_logs(Stage.PDF_ANALYSIS.value, input, 
