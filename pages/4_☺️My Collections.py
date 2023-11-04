@@ -26,6 +26,7 @@ from ingestPdf import schedulePdfUpload
 from chromaUtils import getListOfCollection, clearCollection, is_valid_name
 import streamlit.components.v1 as components
 
+# function used to change the font size of the delete checkbox label when the user checks it. This is done using Javascript.
 def ChangeWidgetFontSize(wgt_txt, wch_font_size = '12px'):
     htmlstr = """<script>
     var elements = window.parent.document.querySelectorAll('*'), i;
@@ -41,9 +42,12 @@ def ChangeWidgetFontSize(wgt_txt, wch_font_size = '12px'):
 if 'tick_delete_function' not in st.session_state:
     st.session_state['tick_delete_function'] = False
 
+# changes the boolean value of a particular session state to the opposite
 def flip(session_state):
       st.session_state[session_state] = not st.session_state[session_state] 
 
+# function that deletes a given collection. 
+# It also takes in 2 separate instances of streamlit container objects so that it will know where to display the acknowledgement of deletion message and button after the deletion is complete.
 def clearCollection_and_updateState(collection_name, confirm_button, feedback):
     clearCollection([collection_name])
     feedback.warning(f"Collection {collection_name} has been deleted")
@@ -72,7 +76,7 @@ st.markdown('##')
 #create an upload button in the middle
 col1, col2, col3 , col4, col5, col6, col7 = st.columns(7)
 with col4:
-    create = st.empty() #create a placeholder for upload button
+    create = st.empty() #create a placeholder for the upload button
     create.button("Upload", key="create_but")
 progress_placeholder = st.empty()
 
@@ -83,7 +87,7 @@ show_delete = show_delete_container.checkbox(":red[Delete a Collection]", key='t
 if st.session_state['tick_delete_function']: 
     ChangeWidgetFontSize("Delete a Collection", '1.8rem')# increase the font size of the Delete header when the delete segment is revealed
     delete_function_container = st.container()
-    # propagate the delete segement, thereby revealing the delete segment
+    # populate the delete segement, thereby revealing the delete segment to the user
     with delete_function_container:
         collections_available = getListOfCollection()
         collection_to_delete = st.selectbox(
@@ -105,23 +109,26 @@ if st.session_state['tick_delete_function']:
                 confirm_button.button("Yes I want to delete", type="primary",on_click=clearCollection_and_updateState, args=(collection_to_delete, confirm_button, feedback)) # if user clicks, confirming to delete, a callback will be run to delete the collection, before the page is refreshed
                     
 else: 
-    # if user unticks the delete function, then do not propagate the delete segment and shrink the font of the delete label
+    # if user unticks the delete function, then do not populate the delete segment and shrink the font of the delete label
     ChangeWidgetFontSize("Delete a Collection", '1em')
 ########################## CREATE ###################################################################################################################################################################################################################################################################################
 # Create Collection functions has to be run after the creating of delete segments, as we want to make sure the disabled state of the delete segments are updated properly when create collection is running.
 
 if st.session_state['create_but']: # if user clicks on the upload button
     start_time = time.time()
-    # validate user inputs, and throw error if there is an issue
+    # validate user inputs, and throw error if there is an issue. 
+    # The first three clauses only checks whether all input fields are filled up.
     if collection_name and not uploaded_file:
         progress_placeholder.error("Please upload a zip folder")
     elif not collection_name and uploaded_file:
         progress_placeholder.error("Please enter a Collection Name")
     elif not collection_name and not uploaded_file:
         progress_placeholder.error("Please enter a Collection Name and upload a zip folder")
-    elif collection_name in getListOfCollection(): # checks to make sure collection name has not been taken
+    # checks to make sure collection name has not been taken
+    elif collection_name in getListOfCollection():
         progress_placeholder.error("Collection Name has already been taken, please choose something else")
-    elif not is_valid_name(collection_name): # check to make sure collection name follows the requirements set by Chromadb
+    # check to make sure collection name follows the requirements set by Chromadb
+    elif not is_valid_name(collection_name):
         naming_format = """
         Collection Name format MUST satisfy the following format:\n
         - The length of the name must be between 3 and 63 characters.\n
@@ -129,9 +136,10 @@ if st.session_state['create_but']: # if user clicks on the upload button
         - The name must not contain two consecutive dots.\n
         - The name must not be a valid IP address."""
         progress_placeholder.error(naming_format)
-    else: # User inputs passed the validation checks, proceed with the uploading of the pdf files and the creation of the collection
+    # User inputs passed the validation checks, proceed with the uploading of the pdf files and the creation of the collection
+    else:
         create.empty() # delete the create button when running the upload, as it can look rather distracting to a user while waiting for the progress bar to run finish
-        with ZipFile(uploaded_file, 'r') as zip: #generate the list of pdf file paths
+        with ZipFile(uploaded_file, 'r') as zip: # generate the list of pdf file paths
             extraction_path = os.path.join(workingDirectory, "data/")
             zip.extractall(extraction_path)
             foldername = zip.infolist()[0].filename
@@ -149,7 +157,7 @@ if st.session_state['create_but']: # if user clicks on the upload button
         
         progressBar1 = progress_placeholder.progress(0, text="Uploading documents...")
         numDone, numFutures = 0, len(futures)
-        for future in as_completed(futures):
+        for future in as_completed(futures): # retrieves each future task in the order that they are completed.
             result = future.result()
             numDone += 1
             progress = float(numDone/numFutures)
@@ -169,4 +177,4 @@ if st.session_state['create_but']: # if user clicks on the upload button
             elif full_path.lower().endswith('.pdf'):
                 os.remove(full_path)  
 
-        st.experimental_rerun()
+        st.experimental_rerun() # refreshes the page
