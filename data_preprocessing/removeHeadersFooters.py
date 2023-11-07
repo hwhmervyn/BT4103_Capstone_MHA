@@ -7,6 +7,7 @@ def find_header_spans(span_lst):
     # Split between even & odd pages
     for page in [1,2]:
         spans = []
+        # Loop from up to bottom to find the header indexes
         for span in range(0,len(span_lst[page])):
             try:
                 # Compare Even/Odd Page with the next Even/Odd Page for similarities (Headers)
@@ -14,9 +15,12 @@ def find_header_spans(span_lst):
                 # Append Index if similar (Header Indexes)
                 if is_similar:
                     spans.append(span) 
+                # Record Header Index
                 else:
+                    # Odd page
                     if page == 2:
                         dict_header_spans['Odd'] = spans
+                    # Even page
                     else:
                         dict_header_spans['Even'] = spans
                     break
@@ -32,6 +36,7 @@ def find_footer_spans(span_lst):
     # Split between even & odd pages
     for page in [1,2]:
         spans = []
+        # Loop from bottom to up find the footer indexes
         for span in range(-1,-len(span_lst[page]),-1):
             try:
                 # Compare Even/Odd Page with the next Even/Odd Page for similarities (Footers)
@@ -39,9 +44,12 @@ def find_footer_spans(span_lst):
                 # Append Index if similar (Footer Indexes)
                 if is_similar:
                     spans.append(span)
+                # Record Footer Index
                 else:
+                    # Odd page
                     if page == 2:
                         dict_footer_spans['Odd'] = spans
+                    # Even page
                     else:
                         dict_footer_spans['Even'] = spans
                     break
@@ -72,10 +80,13 @@ def remove_header_footer_firstPage(firstPage,secondPage):
     bottom_border = max([span['bbox'][3] for span in secondPage])
     top_border = firstPage[0]['bbox'][1]
 
+    # Loop from bottom to up to remove footers (Headers in the First Page are already removed using keepFromTitle method from pdfUtils.py)
     for span in range(-1,-len(firstPage),-1):
         bbox = firstPage[span]['bbox']
+        # Text is outside boundary box (Continue looping upwards)
         if bbox[2] < left_border or bbox[0] > right_border or bbox[1] > bottom_border or bbox[3] < top_border:
             continue
+        # Text is within boundary box (Stop the looping and get the remaining relevant text)
         else:
             if span == -1:
                 return firstPage
