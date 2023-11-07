@@ -17,6 +17,7 @@ from pdfReferenceRMV import removeReference
 from pdfSections import aggregateSpansToSections
 
 def pdfMain(filePath):
+    # Remove Reference
     doc = fitz.open(filePath)
     doc, pgNo = removeReference(doc, doc.name)
     txtpgs = [pg.get_textpage() for pg in doc]
@@ -27,6 +28,7 @@ def pdfMain(filePath):
 
     spansByPage = keepFromTitle(spansByPage)
 
+    # Check of article has at least 6 pages (Remove Headers & Footers >> Remove Tables)
     if len(spansByPage) >= 6:
         referenceRemoved = (pgNo != None)
         headers = find_header_spans(spansByPage)
@@ -34,6 +36,7 @@ def pdfMain(filePath):
         spansByPage = remove_header_footer(spansByPage,headers,footers,referenceRemoved)
         removed_pages, spansByPage = remove_empty_pages(spansByPage)
         spansByPage = remove_tables(spansByPage)
+    # Article has less than 6 pages (Remove Tables)
     else:
         removed_pages, spansByPage = remove_empty_pages(spansByPage)
         spansByPage = remove_tables(spansByPage)
@@ -47,7 +50,7 @@ def pdfMain(filePath):
                     spansByPage[0] = third_page_ref
                     
     
-    
+    # Aggregation of text into Sections >> Post-processing to detect and join Incomplete Sections >> Removal of Citations
     spansByPage = get_page_num(spansByPage, removed_pages)
     spans = [(span,pg[1]) for pg in spansByPage for span in pg[0]]
     spans = removeSpecial(spans)
