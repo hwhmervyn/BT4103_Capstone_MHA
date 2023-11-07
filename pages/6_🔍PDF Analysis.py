@@ -58,7 +58,7 @@ if not st.session_state.pdf_analysis_prompt:
         col1, col2 = st.columns(2)
         with col1:
             num_chunks_retrieved = st.slider("Number of article chunks to feed to LLM", min_value=1, max_value=10, value=3, 
-                                                help="Select number of relevant chunks from the article for the LLM to analyse. Each chunk contains approximately 150 words. More chunks fed will incur higher cost and processing time.")
+                                                help="Select number of relevant chunks from the article for the LLM to analyse. More chunks fed will incur higher cost and processing time.")
         additional_prompt_inst = st.text_input("Additional Prompt Instructions", placeholder='Enter your instructions (e.g. limit output to 3 sentences). Leave blank if there is none to add.',
                                                help="Additional prompt instructions will be appended to the prompt sent to the LLM")
 
