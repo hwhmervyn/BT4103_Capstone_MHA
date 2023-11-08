@@ -71,7 +71,6 @@ if not st.session_state.filtered:
                 excel_format = False
             # Excel Format is valid
             if excel_format: 
-                st.warning("DO NOT navigate to another page while the filtering is in progress!")
                 # Research prompt cleaning and relevancy checker
                 with get_openai_callback() as usage_info:
                     try:
@@ -87,6 +86,7 @@ if not st.session_state.filtered:
                     st.error('Irrelevant Output! Please input a relevant prompt')
                 # Question is relevant
                 else:
+                    st.warning("DO NOT navigate to another page while the filtering is in progress!")
                     button_placeholder.empty()
                     _, futures = filterExcel(uploaded_file,  corrected_input)
                     issues, results, numDone, numFutures, total_input_tokens, total_output_tokens, total_cost = [],[], 0, len(futures), 0, 0, 0
