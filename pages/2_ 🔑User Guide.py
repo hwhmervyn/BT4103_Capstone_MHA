@@ -81,7 +81,7 @@ with st.container():
                      Excel Filtering, Collection Management, PDF Filtering, and PDF Analysis.</p>", unsafe_allow_html=True)
 
         st.markdown("<p style = 'font-style: italic; font-size: 20px;'>For additional information, please visit this  \
-                    <a href= 'https://drive.google.com/file/d/1cHYeYBD6WPQmnEhuujqldHExi11FX8wo/view?usp=drive_link' class='link-primary link-opacity-50-hover'>link</a>.</p>", unsafe_allow_html=True)
+                    <a href= 'https://drive.google.com/file/d/1k0HyC_L48_ePKt85Qj-gdVRvASWIxHNr/view?usp=sharing' class='link-primary link-opacity-50-hover'>link</a>.</p>", unsafe_allow_html=True)
     with col_2:
     #Animation
         st_lottie(url, 
