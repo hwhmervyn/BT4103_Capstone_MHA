@@ -52,6 +52,8 @@ ctrl + c
 
 ```
 
+For more information please visit <a href= 'https://drive.google.com/file/d/1k0HyC_L48_ePKt85Qj-gdVRvASWIxHNr/view?usp=sharing'>here</a> 
+
 ## 📄 Pages
 
 ### 🏘 Home Page
