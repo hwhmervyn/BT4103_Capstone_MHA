@@ -10,7 +10,7 @@
 -   [📄 Pages](#-pages)
 -   [🫂 Team](#-team)
 
-## 💡 Overview 
+## 💡 Overview
 
 Psychological researchers face a demanding and laborious process as they painstakingly review academic articles to determine their relevance and then manually combine the research findings. This
 process is time-consuming and can be quite taxing
@@ -51,3 +51,54 @@ streamlit run Home.py
 ctrl + c
 
 ```
+
+## 📄 Pages
+
+### 🏘 Home Page
+
+<img src="images/ss/home_page.png" alt="Home Page" title="Home Page"/>
+<br/>
+
+### 🔑 User Guide Page
+
+<img src="images/ss/user_guide.png" alt="User Guide Page" title="User Guide Page"/>
+<br/>
+
+### 📗 Excel Filtering Page
+
+Filter an excel file of articles with a research prompt and view results
+
+<img src="images/ss/excel_filtering.png" alt="Excel Filtering Page" title="Excel Filtering Page"/>
+<br/>
+
+### ☺️ My Collections Page
+
+Create your own collection of pdfs with a few clicks
+
+<img src="images/ss/my_collections.png" alt = "My Collections Page" title="My Collections Page"/> <br/>
+
+### 📂 PDF Filtering Page
+
+Filter a folder of PDF articles with a yes/no research prompt and view results
+
+<img src="images/ss/pdf_filtering.png" alt = "PDF Filtering Page" title="PDF Filtering Page"/> <br/>
+
+### 🔍 PDF Analysis Page
+
+Query PDF articles with a research prompt
+
+<img src="images/ss/pdf_analysis.png" alt = "PDF Analysis Page" title="PDF Analysis Page"/>
+<br/>
+
+### 📊 Usage Tracking Page
+
+Track your LLM model usage
+
+<img src="images/ss/usage_tracking.png" alt = "Usage Tracking Page" title="Usage Tracking Page"/>
+<br/>
+
+## 🫂 Team
+
+<a href="https://github.com/hwhmervyn/researchXpress_Capstone/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=hwhmervyn/researchXpress_Capstone" />
+</a>
