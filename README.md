@@ -8,6 +8,7 @@
 -   [🖥 Tech Stack](#-tech-stack)
 -   [🔧 Running The Dashboard](#-running-the-dashboard)
 -   [📄 Pages](#-pages)
+-   [✅ Testing ](#-testing)
 -   [🫂 Team](#-team)
 
 ## 💡 Overview
@@ -44,11 +45,8 @@ pip install -r requirements.txt
 streamlit run Home.py
 
 ```
-### Running the dashboard
 
--   An Excel file and .zip file of PDFs have been uploaded under the "test_data" folder in this repo
--   They can be used for upload under the "Excel Filtering" and "My Collections" pages respectively to try out the dashboard functions
--   A sample prompt can be "Is the article relevant to psychological first aid?"
+### Running the dashboard
 
 ### Exiting the dashboard
 
@@ -57,7 +55,7 @@ ctrl + c
 
 ```
 
-For more information please visit <a href= 'https://drive.google.com/file/d/1k0HyC_L48_ePKt85Qj-gdVRvASWIxHNr/view?usp=sharing'>here</a> 
+For more information please visit <a href= 'https://drive.google.com/file/d/1k0HyC_L48_ePKt85Qj-gdVRvASWIxHNr/view?usp=sharing'>here</a>
 
 ## 📄 Pages
 
@@ -103,6 +101,26 @@ Track your LLM model usage
 
 <img src="images/ss/usage_tracking.png" alt = "Usage Tracking Page" title="Usage Tracking Page"/>
 <br/>
+
+## ✅ Testing
+
+Test Data has been provided under the **test_data** folder in the repo
+
+The following files have been included in the **test_data** folder:
+
+1. Excel file for the 📗 **Excel Filtering Page**
+2. Zip file of PDFs for the ☺️ **My Collections Page** to create a collection
+    - Creating a sample collection is **essential** for the 📂 **PDF Filtering** and 🔍 **PDF Analysis** pages
+
+Sample prompts that can be used:
+
+1.  **"Is the article relevant to psychological first aid?"** for
+
+    -   📗 **Excel Filtering Page**
+    -   📂 **PDF Filtering Page**
+
+2.  **"How Is the article relevant to psychological first aid?"** for
+    -   🔍 **PDF Analysis Page**
 
 ## 🫂 Team
 
