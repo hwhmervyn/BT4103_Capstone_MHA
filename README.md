@@ -48,6 +48,7 @@ streamlit run Home.py
 
 -   An Excel file and .zip file of PDFs have been uploaded under the "test_data" folder in this repo
 -   They can be used for upload under the "Excel Filtering" and "My Collections" pages respectively to try out the dashboard functions
+-   A sample prompt can be "Is the article relevant to psychological first aid?"
 
 ### Exiting the dashboard
 
