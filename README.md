@@ -46,8 +46,6 @@ streamlit run Home.py
 
 ```
 
-### Running the dashboard
-
 ### Exiting the dashboard
 
 ```
